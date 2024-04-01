@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "266734481998",
+    "firebase_url": "https://mission-statement-default-rtdb.firebaseio.com",
+    "project_id": "mission-statement",
+    "storage_bucket": "mission-statement.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:266734481998:android:c09929ff4a9f675690891f",
+        "android_client_info": {
+          "package_name": "com.example.missionstatement"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "266734481998-jf0uordimglssjsehs4ui1rns8kvtrph.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDA5vg12p4ZOFadunTgKK7_vqGBwOmt_ZM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "266734481998-jf0uordimglssjsehs4ui1rns8kvtrph.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

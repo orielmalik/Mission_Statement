@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Menu.Profile"
+    android:background="@drawable/bck_rocketscms"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:id="@+id/myProfile"
+        android:layout_width="match_parent"
+        android:layout_height="280dp"
+
+        />
+
+    <androidx.appcompat.widget.AppCompatEditText
+        android:id="@+id/profile_editText"
+        android:layout_width="match_parent"
+        android:layout_height="230dp"
+       android:layout_below="@+id/myProfile"
+        android:layout_above="@+id/profile_LYT"
+        android:background="@color/white"
+        android:text="Add Desctiption"
+        android:textSize="35sp"
+        android:inputType="text"
+        android:visibility="invisible"
+        android:layout_marginTop="140dp"
+
+        />
+
+<androidx.appcompat.widget.LinearLayoutCompat
+    android:id="@+id/profile_LYT"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_marginTop="393dp"
+
+    >
+
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/profile_changeDetails"
+        android:layout_width="150dp"
+        android:layout_height="100dp"
+        android:layout_below="@+id/myProfile"
+        android:backgroundTint="#E91E63"
+        android:text="Update"
+        android:layout_marginStart="147dp"
+        android:textSize="30sp" />
+
+  <com.google.android.material.button.MaterialButton
+        android:id="@+id/profile_AddDescription"
+        android:layout_width="250dp"
+        android:layout_height="100dp"
+        android:layout_below="@+id/myProfile"
+        android:backgroundTint="#1EE9C0"
+        android:text="Add \n Description"
+        android:layout_marginStart="107dp"
+      android:textColor="@color/black"
+      android:layout_marginTop="17dp"
+        android:textSize="30sp" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/BTN_removeProfiler"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/profile_changeDetails"
+        android:layout_margin="30dp"
+        android:src="@drawable/ic_delete"
+        android:contentDescription="remove_profiler_description"
+
+        />
+</androidx.appcompat.widget.LinearLayoutCompat>
+</RelativeLayout>

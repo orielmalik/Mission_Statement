@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:backgroundTint="@color/black"
+    tools:context=".Fragment.FragmentRegister">
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/layout_details"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="50dp"
+        android:layout_marginEnd="50dp"
+        android:layout_marginBottom="50dp" />
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/up"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:weightSum="30">
+        <TextView
+            android:id="@+id/txt_fragment"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:text="Register"
+            android:textSize="45sp"
+            android:fontFamily="@font/lbl_comic_bold"
+
+            />
+
+        <EditText
+            android:id="@+id/register_username"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:layout_weight="1"
+            android:drawableLeft="@drawable/ic_logouser"
+            android:text=" Name"
+            android:textSize="30sp"
+
+            />
+
+        <EditText
+            android:id="@+id/register_password"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:layout_weight="1"
+            android:drawableLeft="@drawable/ic_passwordlogo"
+            android:text=" Password"
+            android:textSize="26sp"
+
+
+            />
+
+
+        <EditText
+            android:id="@+id/register_email"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:layout_weight="1"
+            android:drawableLeft="@drawable/ic_email"
+            android:text=" Email"
+            android:textSize="30sp"
+
+            />
+
+        <EditText
+            android:id="@+id/register_phoneNumber"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:layout_weight="1"
+            android:drawableLeft="@drawable/ic_phonenumberlogo"
+            android:text=" Phone_Number"
+            android:textSize="30sp"
+
+            />
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="4"
+            >
+<androidx.appcompat.widget.AppCompatToggleButton
+    android:id="@+id/tgl_position"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_weight="2"
+    android:backgroundTint="#92E320"
+    android:textOff="Choose Your Position"
+
+    />
+        <androidx.appcompat.widget.AppCompatToggleButton
+            android:id="@+id/tgl_gender"
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:backgroundTint="#E32020"
+            android:textOff="Choose Your Gender"
+
+            />
+
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+      <androidx.appcompat.widget.LinearLayoutCompat
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:orientation="horizontal"
+          >
+
+
+
+
+      </androidx.appcompat.widget.LinearLayoutCompat>
+        </androidx.appcompat.widget.LinearLayoutCompat>
+</RelativeLayout>

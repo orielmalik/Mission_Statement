@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/ic_outls"
+    tools:context=".Menu.ListOperator">
+
+
+<com.google.android.material.textview.MaterialTextView
+    android:id="@+id/Txt_OperatorList"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="Scroll to Discover"
+    android:textColor="@color/white"
+    android:textSize="35sp"
+    android:fontFamily="@font/lbl_comic_bold"
+    />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/lst_operator"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/Txt_OperatorList"
+        android:layout_marginTop="80dp"
+        android:background="@drawable/ic_whitelst"
+        android:layout_centerInParent="true" />
+
+</RelativeLayout>
