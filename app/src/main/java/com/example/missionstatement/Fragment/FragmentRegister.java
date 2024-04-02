@@ -19,6 +19,7 @@ import android.widget.EditText;
 import com.example.missionstatement.CallBackType.Callback_register;
 import com.example.missionstatement.Objects.Human;
 import com.example.missionstatement.R;
+import com.example.missionstatement.Tools.CryptoUtils;
 import com.example.missionstatement.Tools.Functions;
 
 import java.util.ArrayList;
@@ -138,7 +139,7 @@ public class FragmentRegister extends Fragment {
         Functions.erroronEditText(username,"Human Name (could contains family-Name) ",
                 "/^[a-z ,.'-]+$/i*$");
         Functions.erroronEditText(phoneNumber,"Israel valid Phone Number" , "^[01]{1}[3-5]{1}[0-9]{5,9}$");
-        Functions.erroronEditText(password,"At least 4 digits 0-9 ", "^[0-9]{4,}$");
+        //Functions.erroronEditText(password,"At least 6 digits 0-9 ", "^[0-9]{4,}$");
     }
 
     public  void removePresentedText()
@@ -163,8 +164,8 @@ public class FragmentRegister extends Fragment {
             return  false;
         }
         String regex = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
-        boolean numericPattern =(Functions.isValidPattern(Email,regex)&&
-                Functions.isValidPattern(password,"^[0-9]+$")&&
+        boolean numericPattern =(Functions.isValidPattern(Email.trim(),regex)&&
+               // Functions.isValidPattern(password,"^[0-9]+$")&&
                 /* Functions.isValidPattern(username,"^[A-Za-z]+([- ][A-Za-z]+)*$")*/
                 Functions.isValidPattern(phoneNumber,"^[0-9]+$"));
         ;
@@ -182,16 +183,16 @@ public class FragmentRegister extends Fragment {
 
     }
 
-    public void  putDeatilsWithHash(HashMap<String,String> deatils)
-    {
-
+    public void  putDeatilsWithHash(HashMap<String,String> deatils)  {
         if(deatils==null){return;}
+
+
         Email.setText(deatils.get("email"));
         username.setText(deatils.get("Username"));
         password.setText(deatils.get("Password"));
         phoneNumber.setText(deatils.get("PhoneNumber"));
-tgl_position.setChecked(true);
-tgl_gender.setChecked(true);
+        tgl_position.setChecked(true);
+        tgl_gender.setChecked(true);
 
 
     }

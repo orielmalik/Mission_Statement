@@ -48,5 +48,19 @@ public class ImageUtil {
 
         return Base64.encodeToString(outputStream.toByteArray(), Base64.DEFAULT);
     }
+    public static byte[] shiftLeft2(byte[] data) {
+        byte[] shiftedData = new byte[data.length];
+        for (int i = 0; i < data.length; i++) {
+            shiftedData[i] = (byte) ((data[i] & 0xFF) << 2);
+        }
+        return shiftedData;
+    }
 
+    public static byte[] shiftRight2(byte[] data) {
+        byte[] shiftedData = new byte[data.length];
+        for (int i = 0; i < data.length; i++) {
+            shiftedData[i] = (byte) ((data[i] & 0xFF) >>> 2);
+        }
+        return shiftedData;
+    }
 }

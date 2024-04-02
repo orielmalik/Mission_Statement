@@ -3,12 +3,16 @@ package com.example.missionstatement.Firebase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.util.Base64;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatImageView;
 
 import com.example.missionstatement.Objects.Test;
+import com.example.missionstatement.Tools.CryptoUtils;
+import com.example.missionstatement.Tools.ImageUtil;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -22,12 +26,14 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 
 public class Storage {
     private static Storage instance;//singelton design pattern
     private StorageReference storageReference;
 private Test test;
+private static int counter=0;//know when the first time user upload to states
     private Storage() {
         storageReference = FirebaseStorage.getInstance().getReference(/*"gs://mission-statement.appspot.com"*/);
     }
@@ -48,6 +54,7 @@ private Test test;
         if(imageView.getDrawable()==null){return;}
         imageView.setDrawingCacheEnabled(true);
         imageView.buildDrawingCache();
+
         Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
@@ -93,9 +100,11 @@ private Test test;
     }
 
     public  void showImage( AppCompatImageView imageView,String child,String pos) {
-        if (imageView == null) {
+        if (imageView == null||imageView.getDrawable()==null) {
             return;
         }
+       // long max = 1024*1024;
+    //    imagedec(this.storageReference.child(pos).child(child),imageView);
         long max = 550*550;
         storageReference.child(pos).child(child).getBytes(max).addOnSuccessListener(new OnSuccessListener<byte[]>() {
             @Override
@@ -164,10 +173,38 @@ private Test test;
         }
         return test;
     }
+    private String imgenc(AppCompatImageView imageView) throws Exception {//image encrypt
+        Bitmap bitmap = ImageUtil.getBitmapFromImageView(imageView);
+
+        String base64 = ImageUtil.convertBitmapToBase64(bitmap);
+
+     return  CryptoUtils.encrypt(base64);
+
+    }
+
+//image decrypt
+    public void imagedec(StorageReference imageRef, AppCompatImageView imageView) {
+
+        final long ONE_MEGABYTE = 1024 * 1024;
+        imageRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(bytes -> {
+
+            /*    String encryptedImage = Base64.encodeToString(bytes, Base64.DEFAULT);
+                String decryptedImage = CryptoUtils.decrypt(encryptedImage);
+                Bitmap bitmap = ImageUtil.convertBase64ToBitmap(decryptedImage);*/
+                Bitmap bitmap = BitmapFactory.decodeByteArray((bytes), 0, bytes.length);
+                imageView.setImageBitmap(bitmap);
+
+        }).addOnFailureListener(exception -> {
+            Log.d(null, "DownFailed: "+exception.getMessage());
+            Log.d(null, "DownFailedp: "+imageRef.getPath());
+        });
+    }
 
     public Test getTest() {
         return test;
     }
+
+
 }
 
 

@@ -4,6 +4,7 @@ import android.util.Base64;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
+import java.util.HashMap;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKeyFactory;
@@ -49,5 +50,37 @@ public class CryptoUtils {
             e.printStackTrace();
         }
         return new byte[0];
+    }
+
+    public static HashMap<String,String> encryptHuman(HashMap<String,String>mdeatils){
+        HashMap<String,String>deatils=mdeatils;
+        deatils.forEach((key, value) -> {
+            // בדיקה אם הערך הוא String
+            if (value instanceof String) {
+                // שינוי הערך
+                try {
+                    String strValue=CryptoUtils.encrypt((String) value.trim());
+                    deatils.put(key, strValue);
+                } catch (Exception e) {
+                    e.getMessage();
+                }
+            }
+        });
+        return  deatils;
+    }  public static HashMap<String,String> decryptHuman(HashMap<String,String>mdeatils){
+        HashMap<String,String>deatils=mdeatils;
+        deatils.forEach((key, value) -> {
+            // בדיקה אם הערך הוא String
+            if (value instanceof String) {
+                // שינוי הערך
+                try {
+                    String strValue=CryptoUtils.decrypt((String) value.trim());
+                    deatils.put(key, strValue);
+                } catch (Exception e) {
+                    e.getMessage();
+                }
+            }
+        });
+        return  deatils;
     }
 }

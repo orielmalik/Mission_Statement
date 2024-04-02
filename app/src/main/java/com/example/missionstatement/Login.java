@@ -14,6 +14,7 @@ import com.example.missionstatement.CallBackType.Callback_login;
 import com.example.missionstatement.Fragment.FragmentLogin;
 import com.example.missionstatement.Firebase.Realtime;
 import com.example.missionstatement.Menu.Menu;
+import com.example.missionstatement.Tools.CryptoUtils;
 import com.example.missionstatement.Tools.Functions;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -83,16 +84,13 @@ public class Login extends AppCompatActivity {
                 CompletableFuture<HashMap<String, HashMap<String, String>>> dataFuture = server.checkDataSnapshot("human");
                 dataFuture.thenAccept(data -> {
                     Toast.makeText(context, "Load Deatils", Toast.LENGTH_SHORT);
-                    for (HashMap<String, String> innerMap : data.values()) {
-                        // Iterate through key-value pairs in the inner HashMap
-                        if (((innerMap.get("email").equals(check[0].trim()) || innerMap.get("PhoneNumber").equals(check[0].trim())) && innerMap.get("Password").equals(check[1].trim()))) {
-                            Bundle b = new Bundle();
-                            b.putSerializable("deatils", innerMap);
-                            Log.d(null, "onClick: "+innerMap);
-                            i.putExtra("bundle", b);
-                            startActivity(i);
-                            return;
-                        }
+                    try {
+
+                        decryptLogin(data,check);
+                    } catch (Exception e) {
+                        // Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Log.e(null, "onClick: "+e.getMessage() );
+                        Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
 
                 }).exceptionally(e -> {
@@ -106,51 +104,90 @@ public class Login extends AppCompatActivity {
         });
     }
 
-     private void showPassword() {   forgetpassword.setVisibility(View.VISIBLE);
-         forgetpassword.setOnClickListener(new View.OnClickListener() {
-             @Override
-             public void onClick(View view) {
-                 clicked=0;
-                 back.setVisibility(View.VISIBLE);
-                 forgetpassword.setVisibility(View.INVISIBLE);//change fragment to state he change password
-                 fragmentLogin.Showpassword();
-                 String[]arr=new String[]{"oriel.malik@gmail.com","oriel.malik@gmail.com","MISSION STATEMENT","human"};
+    private void decryptLogin(HashMap<String, HashMap<String, String>>data,String[]mcheck) throws Exception {
+        String []check=mcheck;
+        Log.d(null, "dogin: "+check[1]+" m"+ check[1].trim());
+
+        for ( HashMap<String, String>innerMap: data.values()) {
+            // Iterate through key-value pairs in the inner HashMap
+                if ((CryptoUtils.decrypt(innerMap.get("email").trim()).equals(check[0].trim()) ||
+                        CryptoUtils.decrypt(innerMap.get("PhoneNumber")).equals(check[0]))
+                                && CryptoUtils.decrypt(innerMap.get("Password").trim()).equals(check[1].trim())) {
+                    Toast.makeText(context, "SUCC", Toast.LENGTH_SHORT).show();
+                    Bundle b = new Bundle();
+                    HashMap<String,String>p=  decryptHuman(innerMap);
+                    b.putSerializable("deatils", p);
+                    Log.d(null, "onClick: "+innerMap);
+                    i.putExtra("bundle", b);
+                    startActivity(i);
+                    return;
+                }
+
+        }
+        Toast.makeText(context, "NOTFOUND", Toast.LENGTH_SHORT).show();
+    }
+    private HashMap<String,String> decryptHuman(HashMap<String,String>mdeatils){
+        HashMap<String,String>deatils=mdeatils;
+        deatils.forEach((key, value) -> {
+            // בדיקה אם הערך הוא String
+            if (value instanceof String) {
+                // שינוי הערך
+                try {
+                    String strValue=CryptoUtils.decrypt((String) value);
+                    deatils.put(key, strValue);
+                } catch (Exception e) {
+                    e.getMessage();
+                }
+            }
+        });
+        return  deatils;
+    }
+
+    private void showPassword() {   forgetpassword.setVisibility(View.VISIBLE);
+        forgetpassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                clicked=0;
+                back.setVisibility(View.VISIBLE);
+                forgetpassword.setVisibility(View.INVISIBLE);//change fragment to state he change password
+                fragmentLogin.Showpassword();
+                String[]arr=new String[]{"oriel.malik@gmail.com","oriel.malik@gmail.com","MISSION STATEMENT","human"};
                 startActivity(Functions.sendEmail(arr));
 
-             }
-         });
+            }
+        });
 
-     }
+    }
 
-     public void sendEmail(String recipientEmail, String subject, String message) {
-         Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
-         emailIntent.setData(Uri.parse("mailto:" + recipientEmail));
-         emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
-         emailIntent.putExtra(Intent.EXTRA_TEXT, message);
+    public void sendEmail(String recipientEmail, String subject, String message) {
+        Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
+        emailIntent.setData(Uri.parse("mailto:" + recipientEmail));
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
+        emailIntent.putExtra(Intent.EXTRA_TEXT, message);
 
-         // Check if there's an email client available to handle the intent
-         if (emailIntent.resolveActivity(getPackageManager()) != null) {
-             startActivity(emailIntent);
-         } else {
-             // Handle the case where no email client is available (e.g., show an error message)
-         }
-     }
+        // Check if there's an email client available to handle the intent
+        if (emailIntent.resolveActivity(getPackageManager()) != null) {
+            startActivity(emailIntent);
+        } else {
+            // Handle the case where no email client is available (e.g., show an error message)
+        }
+    }
 
-     private void makeBackButton()
-     {
-         back.setOnClickListener(new View.OnClickListener() {
-             @Override
-             public void onClick(View view) {
-             }
-         });
-     }
+    private void makeBackButton()
+    {
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+            }
+        });
+    }
 
     @Override
     protected void onStart () {
         super.onStart();
         fragmentLogin.setCallback_login(callback_login);
         makeStartButton();
-      //  showPassword();
+        //  showPassword();
 
     }
     @Override

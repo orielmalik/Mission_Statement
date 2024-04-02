@@ -19,10 +19,12 @@ import com.example.missionstatement.Firebase.Realtime;
 import com.example.missionstatement.Fragment.FragmentRegister;
 import com.example.missionstatement.Menu.Menu;
 import com.example.missionstatement.Objects.Human;
+import com.example.missionstatement.Tools.CryptoUtils;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public class Register extends AppCompatActivity {
@@ -74,25 +76,32 @@ public class Register extends AppCompatActivity {
 
                 CompletableFuture<HashMap<String, HashMap<String, String>>> dataFuture = server.checkDataSnapshot("human");
                 dataFuture.thenAccept(data -> {
-                    if(data==null){
+                 /*   if(data==null){
                         server.getmDatabase().child("human").child(String.valueOf(fragmentRegister.createHuman().getPhoneNumber())).setValue(fragmentRegister.createHuman().toMap());
                         makeIntent(i);
-                    };
+                    };*/
 
-
+if(data!=null)
                         for (HashMap<String, String> innerMap : data.values()) {
-                            // Iterate through key-value pairs in the inner HashMap
-                            if ((innerMap).get("email").equals(fragmentRegister.createHuman().getEmail())) {
-                                Toast.makeText(context, "Email is already in use" + fragmentRegister.createHuman().getPhoneNumber(), Toast.LENGTH_SHORT).show();
+                            try {
+                                if (CryptoUtils.decrypt((innerMap).get("email")).equals(fragmentRegister.createHuman().getEmail())) {
+                                    Toast.makeText(context, "Email is already in use" + fragmentRegister.createHuman().getPhoneNumber(), Toast.LENGTH_SHORT).show();
 
-                                return;
-                            } else if ((innerMap).get("PhoneNumber").equals(fragmentRegister.createHuman().getEmail())) {
-                                Toast.makeText(context, "PhoneNumber is already in use" + fragmentRegister.createHuman().getPhoneNumber(), Toast.LENGTH_SHORT).show();
+                                    return;
+                                } else if (CryptoUtils.decrypt((innerMap).get("PhoneNumber")).equals(fragmentRegister.createHuman().getEmail())) {
+                                    Toast.makeText(context, "PhoneNumber is already in use" + fragmentRegister.createHuman().getPhoneNumber(), Toast.LENGTH_SHORT).show();
 
-                                return;
+                                    return;
+                                }
+                            }catch (Exception e)
+                            {
+                                Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
                             }
-                        }
-                        server.getmDatabase().child("human").child(String.valueOf(fragmentRegister.createHuman().getPhoneNumber())).setValue(fragmentRegister.createHuman().toMap());
+
+                            }
+
+                        server.getmDatabase().child("human").child(String.valueOf(fragmentRegister.createHuman().getPhoneNumber())).
+                                setValue(encryptHuman((HashMap<String, String>) fragmentRegister.createHuman().toMap()));
                         makeIntent(i);
 
                     dataFuture.cancel(true);
@@ -110,14 +119,34 @@ public class Register extends AppCompatActivity {
 
 
     };
-
-    private  void makeIntent(Intent i)
-    {
-        Bundle b = new Bundle();
-        b.putSerializable("deatils", (HashMap)((HashMap<String, String>) fragmentRegister.createHuman().toMap()));
-        i.putExtra("bundle", b);
-        startActivity(i);
+    private HashMap<String,String> encryptHuman(HashMap<String,String>mdeatils){
+        HashMap<String,String>deatils=mdeatils;
+   deatils.forEach((key, value) -> {
+            // בדיקה אם הערך הוא String
+            if (value instanceof String) {
+                // שינוי הערך
+                try {
+                    String strValue=CryptoUtils.encrypt((String) value.trim());
+                    deatils.put(key, strValue);
+                } catch (Exception e) {
+                    e.getMessage();
+                }
+            }
+        });
+return  deatils;
     }
+    private  void makeIntent(Intent i) {
+      HashMap<String,String>deatils=  ((HashMap<String, String>) fragmentRegister.createHuman().toMap());
+
+        Bundle b = new Bundle();
+
+
+                b.putSerializable("deatils", (HashMap) deatils);
+                i.putExtra("bundle", b);
+                startActivity(i);
+            }
+
+
 
     private  void  makeInfoCenter()
     {
