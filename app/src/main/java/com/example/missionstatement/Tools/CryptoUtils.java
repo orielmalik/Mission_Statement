@@ -7,6 +7,8 @@ import java.security.spec.KeySpec;
 import java.util.HashMap;
 
 import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
@@ -83,4 +85,6 @@ public class CryptoUtils {
         });
         return  deatils;
     }
+
+
 }

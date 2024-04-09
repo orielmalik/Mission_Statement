@@ -35,6 +35,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
+    implementation("com.google.android.gms:play-services-location:20.0.0")
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -42,6 +43,8 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-database")
     implementation("com.google.firebase:firebase-storage")
+    implementation("com.google.code.gson:gson:2.8.9")
+    implementation ("androidx.core:core-ktx:1.7.0")
 
     // Lottie Animation Library
     implementation("com.airbnb.android:lottie:5.2.0") // Adjust Lottie version as needed

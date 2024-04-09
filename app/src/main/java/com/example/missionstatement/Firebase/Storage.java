@@ -29,6 +29,8 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 
+import javax.crypto.SecretKey;
+
 public class Storage {
     private static Storage instance;//singelton design pattern
     private StorageReference storageReference;
@@ -49,9 +51,8 @@ private static int counter=0;//know when the first time user upload to states
         return instance;
     }
 
-    public void uploadImageToFirebase(AppCompatImageView imageView,String name,String pos) {
-        // Get the data from an ImageView as bytes
-        if(imageView.getDrawable()==null){return;}
+    public void uploadImageToFirebase(AppCompatImageView imageView, String name, String pos) {
+        if (imageView.getDrawable() == null) return;
         imageView.setDrawingCacheEnabled(true);
         imageView.buildDrawingCache();
 
@@ -60,25 +61,20 @@ private static int counter=0;//know when the first time user upload to states
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
         byte[] data = baos.toByteArray();
 
-        UploadTask uploadTask = getStorageReference().child(pos).child(name).putBytes(data);
-        Log.d(null, "uploadImageToFirebase: "+getStorageReference().child(name).getPath());
+        try {
+            // Encrypt the image data
+            String encryptedDataString = CryptoUtils.encrypt(Base64.encodeToString(data, Base64.DEFAULT));
+            byte[] encryptedData = Base64.decode(encryptedDataString, Base64.DEFAULT);
 
-        uploadTask.addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-                // Handle unsuccessful uploads
-                Log.d(null, "onFailure: " + exception);
-            }
-        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
-
-                // ...
-
-            }
-        });
+            UploadTask uploadTask = getStorageReference().child(pos).child(name).putBytes(encryptedData);
+            // Continue with your upload listener as before
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Handle encryption error
+        }
     }
+
+
 
 
 
@@ -98,28 +94,25 @@ private static int counter=0;//know when the first time user upload to states
             }}
         );
     }
+    public void showImage(AppCompatImageView imageView, String child, String pos) {
+        if (imageView == null) return;
+        long max = 550 * 550; // Define the max download size
+        storageReference.child(pos).child(child).getBytes(max).addOnSuccessListener(bytes -> {
+            try {
+                // Decrypt the image data
+                String decryptedDataString = CryptoUtils.decrypt(Base64.encodeToString(bytes, Base64.DEFAULT));
+                byte[] decryptedData = Base64.decode(decryptedDataString, Base64.DEFAULT);
 
-    public  void showImage( AppCompatImageView imageView,String child,String pos) {
-        if (imageView == null||imageView.getDrawable()==null) {
-            return;
-        }
-       // long max = 1024*1024;
-    //    imagedec(this.storageReference.child(pos).child(child),imageView);
-        long max = 550*550;
-        storageReference.child(pos).child(child).getBytes(max).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-            @Override
-            public void onSuccess(byte[] bytes) {
-                Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                Bitmap bitmap = BitmapFactory.decodeByteArray(decryptedData, 0, decryptedData.length);
                 imageView.setImageBitmap(bitmap);
+            } catch (Exception e) {
+                e.printStackTrace();
+                // Handle decryption error
             }
-        });
-        storageReference.child(pos).child(child).getBytes(max).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.d(null, "DownFailed: "+e.getMessage());
-            }
-        });
+        }).addOnFailureListener(e -> Log.d(null, "Download Failed: " + e.getMessage()));
     }
+
+
 
 
     public Test downloadTxtFile(String txtChoice)

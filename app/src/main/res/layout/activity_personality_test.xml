@@ -2,10 +2,16 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainTestRealtive"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bck_perso"
-    tools:context=".Menu.Personality_Test">
+    tools:context=".Menu.Personality_Test"
+    >
+    <com.example.missionstatement.HeatmapView
+        android:id="@+id/heatmapView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/TXT_personal"
@@ -17,11 +23,11 @@
         android:fontFamily="@font/lbl_comic_bold"
         />
 
- <FrameLayout
-     android:id="@+id/frame_quest"
-     android:layout_width="1000dp"
-     android:layout_height="400dp"
-     android:layout_below="@+id/TXT_personal"
-     />
-
+    <FrameLayout
+        android:id="@+id/frame_quest"
+        android:layout_width="1000dp"
+        android:layout_height="400dp"
+        android:layout_below="@+id/TXT_personal"
+        >
+    </FrameLayout>
 </RelativeLayout>

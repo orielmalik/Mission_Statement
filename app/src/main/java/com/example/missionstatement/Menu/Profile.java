@@ -3,17 +3,23 @@ package com.example.missionstatement.Menu;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatEditText;
 import androidx.appcompat.widget.AppCompatImageView;
+import androidx.core.app.ActivityCompat;
+import android.Manifest;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -38,7 +44,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 import android.widget.Toast;
-
+import android.provider.MediaStore;
+import android.provider.Settings;
 public class Profile extends AppCompatActivity {
     private HashMap<String, String> deatils;
     private MaterialButton ChangeButton, DescriptionButton;
@@ -100,7 +107,7 @@ public class Profile extends AppCompatActivity {
         public void showImage(AppCompatImageView image) {
             storage.uploadImageToFirebase(image, child, deatils.get("position"));
             storage.showImage(image, child, deatils.get("position"));
-         //   serverUpload();
+            //   serverUpload();
         }
 
 
@@ -217,7 +224,7 @@ public class Profile extends AppCompatActivity {
                 Operator operator = new Operator();
                 operator.setEmail(deatils.get("email"));
                 operator.writeAbout(description.getText().toString());
-               // server.getmDatabase().child("operator").setValue(operator.OperatorMap());
+                // server.getmDatabase().child("operator").setValue(operator.OperatorMap());
                 DesClick = 0;
                 break;
         }
@@ -230,6 +237,17 @@ public class Profile extends AppCompatActivity {
                     .hide(fragmentRegister)
                     .show(fragmentProfile)
                     .commit();
+            myprofile.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    ActivityCompat.requestPermissions(
+                            Profile.this,
+                            new String[]{Manifest.permission.CAMERA},
+                            100);
+
+                    return false;
+                }
+            });
 
         } else {
             getSupportFragmentManager().beginTransaction()
@@ -261,14 +279,7 @@ public class Profile extends AppCompatActivity {
 
     }
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        if (clickCount > 0) {
-            clickCount--;
-        }
 
-    }
 
     @Override
     protected void onStart() {
@@ -283,54 +294,27 @@ public class Profile extends AppCompatActivity {
         deleteImg();
     }
 
-    private void serverDownload()
 
-    {
-        if(fragmentProfile.getProfiler()==null||fragmentProfile.getProfiler().getDrawable()==null)
-        {
-            return;
-        }
-        CompletableFuture<HashMap<String, HashMap<String, String>>> dataFuture = server.checkDataSnapshot("pic");
-        dataFuture.thenAccept(data -> {
-            for ( HashMap<String, String> inner : data.values()) {
-                if (inner.containsKey(child)) {
-                    try {
-                        String decBase64 = CryptoUtils.decrypt(inner.get(child));
-                        Bitmap bitmapAfter = ImageUtil.convertBase64ToBitmap(decBase64);
-                        fragmentProfile.getProfiler().setImageBitmap(bitmapAfter);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
 
-        }).exceptionally(e -> {
-            // Handle exception if there was an error
-            Log.e("ProfileActivity", "Error: " + e.getMessage());
-            return null;
-        });
 
-    }
-    private void serverUpload()
 
-    {
-        if(fragmentProfile.getProfiler()==null||fragmentProfile.getProfiler().getDrawable()==null)
-        {
-            return;
-        }
-        Bitmap bitmap = ImageUtil.getBitmapFromImageView(fragmentProfile.getProfiler());
-
-        String base64 = ImageUtil.convertBitmapToBase64(bitmap);
-try {
-    String encBase64 = CryptoUtils.encrypt(base64);
-server.getmDatabase().child("pic").setValue(encBase64);
-}catch (Exception e)
-{
-    Log.e(null,"serverUpload"+e.getMessage());
-}
-
+    private void openPermissionSettings() {
+        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                Uri.fromParts("package", getPackageName(), null));
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case (100):
+            openPermissionSettings();
+        }
+
+    }
 }
 
 

@@ -2,4 +2,27 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+
+
+
+
+    <color name="heatmap_background">#FFFFFF</color>
+    <color name="heatmap_min_touch">#F0E0E0</color>
+    <color name="heatmap_max_touch">#FF0000</color>
+
+    <color name="heat0">#002ABF</color>
+    <color name="heat1">#3185CD</color>
+    <color name="heat2">#4FDBE8</color>
+    <color name="heat3">#3BCC8C</color>
+    <color name="heat4">#98DC39</color>
+    <color name="heat5">#D3DF10</color>
+    <color name="heat6">#FFD24D</color>
+    <color name="heat7">#F49836</color>
+    <color name="heat8">#F45C36</color>
+    <color name="heat9">#FF0000</color>
 </resources>
