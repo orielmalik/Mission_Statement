@@ -53,7 +53,7 @@
             android:drawableLeft="@drawable/ic_passwordlogo"
             android:text=" Password"
             android:textSize="26sp"
-
+            android:inputType="textPassword"
 
             />
 
@@ -86,37 +86,39 @@
             android:orientation="horizontal"
             android:weightSum="4"
             >
-<androidx.appcompat.widget.AppCompatToggleButton
-    android:id="@+id/tgl_position"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_weight="2"
-    android:backgroundTint="#92E320"
-    android:textOff="Choose Your Position"
+            <androidx.appcompat.widget.AppCompatToggleButton
+                android:id="@+id/tgl_position"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:backgroundTint="#92E320"
 
-    />
-        <androidx.appcompat.widget.AppCompatToggleButton
-            android:id="@+id/tgl_gender"
+                android:textOff="OPERATOR"
+                android:textOn="USER"
 
+                />
+            <androidx.appcompat.widget.AppCompatToggleButton
+                android:id="@+id/tgl_gender"
+
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:backgroundTint="#E32020"
+                android:textOff="FEMALE"
+                android:textOn="MALE"
+                />
+
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+        <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:backgroundTint="#E32020"
-            android:textOff="Choose Your Gender"
+            android:orientation="horizontal"
+            >
 
-            />
+
 
 
         </androidx.appcompat.widget.LinearLayoutCompat>
-      <androidx.appcompat.widget.LinearLayoutCompat
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:orientation="horizontal"
-          >
-
-
-
-
-      </androidx.appcompat.widget.LinearLayoutCompat>
-        </androidx.appcompat.widget.LinearLayoutCompat>
+    </androidx.appcompat.widget.LinearLayoutCompat>
 </RelativeLayout>

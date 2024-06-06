@@ -1,5 +1,6 @@
 package com.example.missionstatement.Firebase;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -24,6 +25,8 @@ import com.google.firebase.storage.UploadTask;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -75,6 +78,42 @@ private static int counter=0;//know when the first time user upload to states
     }
 
 
+    public StringBuilder downloadTextFile(String fileName, Context context, String root,String child) {
+        // Reference to the file to be downloaded
+        StorageReference fileRef = getStorageReference().child(root).child(child).child(fileName);
+        StringBuilder text = new StringBuilder();
+
+        // Create a local file to store the downloaded file
+        File localFile = new File(context.getFilesDir(), fileName);
+
+        fileRef.getFile(localFile).addOnSuccessListener(taskSnapshot -> {
+            // File has been downloaded successfully
+            try {
+                // Read the file content
+                BufferedReader br = new BufferedReader(new FileReader(localFile));
+                String line;
+                while ((line = br.readLine()) != null) {
+                    text.append(line);
+                    text.append('\n');
+                }
+                br.close();
+                // Handle the text from the file here (e.g., display it in a TextView)
+                // textView.setText(text.toString());
+            } catch (IOException e) {
+                e.printStackTrace();
+
+                Log.e(null, "downloadTextFile:INSIDE "+e.getMessage() );
+
+            }
+        }).addOnFailureListener(exception -> {
+            // Handle any errors
+            exception.printStackTrace();
+            Log.e(null, "downloadTextFile:OUTSIDE    "+exception.getMessage() );
+
+        });
+        return  text;
+    }
+
 
 
 
@@ -112,86 +151,6 @@ private static int counter=0;//know when the first time user upload to states
         }).addOnFailureListener(e -> Log.d(null, "Download Failed: " + e.getMessage()));
     }
 
-
-
-
-    public Test downloadTxtFile(String txtChoice)
-    {
-        // final Test[] t=new Test[1];
-       final   CompletableFuture<Test>t=new CompletableFuture<>();
-        getStorageReference().child("Test").child(txtChoice).getBytes(Long.MAX_VALUE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-            @Override
-            public void onSuccess(byte[] bytes) {
-
-             Test r= readContent(bytes);
-                //t.complete(test);
-                t.complete(r);
-            }
-
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-                // Handle any errors
-                exception.printStackTrace();
-                Log.e("STE",exception.getMessage());
-            }
-        });
-        return null;
-    }
-
-
-
-    public Test readContent(byte[] bytes)
-    {test =new Test();
-        try {
-            // Convert bytes to string
-            String content = new String(bytes);
-
-            // Use BufferedReader to read the content line by line
-            BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(bytes)));
-            String line;
-
-            // Read lines until the end of the file
-            while ((line = reader.readLine()) != null) {
-                test.fillContent(line,reader);
-                Log.d("FileContent", line);
-            }
-
-            // Close the BufferedReader
-            reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-            Log.d("FileContentERR", e.getMessage());
-
-        }
-        return test;
-    }
-    private String imgenc(AppCompatImageView imageView) throws Exception {//image encrypt
-        Bitmap bitmap = ImageUtil.getBitmapFromImageView(imageView);
-
-        String base64 = ImageUtil.convertBitmapToBase64(bitmap);
-
-     return  CryptoUtils.encrypt(base64);
-
-    }
-
-//image decrypt
-    public void imagedec(StorageReference imageRef, AppCompatImageView imageView) {
-
-        final long ONE_MEGABYTE = 1024 * 1024;
-        imageRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(bytes -> {
-
-            /*    String encryptedImage = Base64.encodeToString(bytes, Base64.DEFAULT);
-                String decryptedImage = CryptoUtils.decrypt(encryptedImage);
-                Bitmap bitmap = ImageUtil.convertBase64ToBitmap(decryptedImage);*/
-                Bitmap bitmap = BitmapFactory.decodeByteArray((bytes), 0, bytes.length);
-                imageView.setImageBitmap(bitmap);
-
-        }).addOnFailureListener(exception -> {
-            Log.d(null, "DownFailed: "+exception.getMessage());
-            Log.d(null, "DownFailedp: "+imageRef.getPath());
-        });
-    }
 
     public Test getTest() {
         return test;

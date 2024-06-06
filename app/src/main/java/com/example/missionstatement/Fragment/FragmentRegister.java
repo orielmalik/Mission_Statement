@@ -47,8 +47,9 @@ public class FragmentRegister extends Fragment {
         rootView=view;
         findViews(view);
         errorByRegex();
-        makeTgl(tgl_gender, "MALE", "FEMELE", Color.YELLOW, 0,genderClick);
-        makeTgl(tgl_position, "USER", "OPERATOR", Color.GRAY, 1,tglClick);
+
+        // makeTgl(tgl_gender, "MALE", "FEMELE", Color.YELLOW, 0,genderClick);
+        // makeTgl(tgl_position, "USER", "OPERATOR", Color.GRAY, 1,tglClick);
         return view;
     }
 
@@ -78,7 +79,8 @@ public class FragmentRegister extends Fragment {
             return null;
 
         }
-
+        position=tgl_position.getText().toString();
+        gender=tgl_gender.getText().toString();
 
         // upadateAgeFromSpinner();
         target.setPosition(position);
@@ -96,35 +98,7 @@ public class FragmentRegister extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
 
-                if (isChecked) {
-                    if (clickCount % 2 == 0 ) {
-                        tgl.setTextOff(option1);
-                        tgl.setTextOn(option2);
-
-                        // Set the text for Option 1 when the ToggleButton is checked
-                        tgl.setBackgroundTintList(ColorStateList.valueOf(opt1));
-                        if (what == 0) {
-                            position = "USER";
-                            tglClick++;
-                        } else {
-                            gender = "MALE";
-                            genderClick++;
-                        }
-                    } else{
-                        // Set the text for Option 2 when the ToggleButton is unchecked
-                        tgl.setTextOn(option1);
-                        tgl.setTextOff(option2);
-                        if (what == 0) {
-                            position = "OPERATOR";
-                            tglClick++;
-
-                        } else {
-                            gender = "FEMALE";
-                            genderClick++;
-
-                        }
-                    }
-                }
+                position=compoundButton.getText().toString();
 
             }
 
@@ -165,9 +139,10 @@ public class FragmentRegister extends Fragment {
         }
         String regex = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
         boolean numericPattern =(Functions.isValidPattern(Email.trim(),regex)&&
-               // Functions.isValidPattern(password,"^[0-9]+$")&&
+                // Functions.isValidPattern(password,"^[0-9]+$")&&
                 /* Functions.isValidPattern(username,"^[A-Za-z]+([- ][A-Za-z]+)*$")*/
-                Functions.isValidPattern(phoneNumber,"^[0-9]+$"));
+                Functions.isValidPattern(phoneNumber,   "^\\+?\\d{1,3}? ?\\d{1,4}? ?\\d{1,4}? ?\\d{1,4}? ?\\d{1,9}$"));
+
         ;
 
         return  numericPattern;
@@ -191,9 +166,8 @@ public class FragmentRegister extends Fragment {
         username.setText(deatils.get("Username"));
         password.setText(deatils.get("Password"));
         phoneNumber.setText(deatils.get("PhoneNumber"));
-        tgl_position.setChecked(true);
-        tgl_gender.setChecked(true);
-
+        position=tgl_position.getText().toString();
+        gender=tgl_gender.getText().toString();
 
     }
 

@@ -8,15 +8,15 @@
     tools:context=".Fragment.FragmentLogin">
 
 
-<TextView
-    android:id="@+id/txtlogin"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="Log In"
-    android:textSize="49sp"
-    android:backgroundTint="@color/white"
-    android:fontFamily="@font/lbl_comic_bold"
-    />
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/txtlogin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Log In"
+        android:textSize="49sp"
+        android:backgroundTint="@color/white"
+        android:fontFamily="@font/lbl_comic_bold"
+        />
 
 
     <EditText
@@ -25,7 +25,7 @@
         android:layout_height="60dp"
         android:drawableLeft="@drawable/ic_logouser"
         android:fontFamily="@font/lbl_comic_1"
-        android:text="Phone-Number"
+        android:text="2 way"
         android:gravity="center"
         android:background="#F3D1E0"
         android:layout_marginTop="100dp"
@@ -36,6 +36,7 @@
         android:layout_width="0dp"
         android:layout_height="30dp"
         ></Space>
+
     <EditText
         android:id="@+id/lbl_password"
         android:text=" Password"
@@ -45,11 +46,12 @@
         android:fontFamily="@font/lbl_comic_1"
         android:gravity="center"
         android:background="#BA8A9F"
+        android:inputType="textPassword"
         android:backgroundTintMode="src_over"
-android:layout_marginTop="20dp"
+        android:layout_marginTop="20dp"
         android:drawableLeft="@drawable/ic_passwordlogo"
 
-         />
+        />
 
 
 </LinearLayout>

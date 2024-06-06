@@ -81,14 +81,14 @@ public class Register extends AppCompatActivity {
                         makeIntent(i);
                     };*/
 
-if(data!=null)
+                    if(data!=null)
                         for (HashMap<String, String> innerMap : data.values()) {
                             try {
-                                if (CryptoUtils.decrypt((innerMap).get("email")).equals(fragmentRegister.createHuman().getEmail())) {
-                                    Toast.makeText(context, "Email is already in use" + fragmentRegister.createHuman().getPhoneNumber(), Toast.LENGTH_SHORT).show();
+                                if (CryptoUtils.decrypt((innerMap).get("email")).equals(fragmentRegister.createHuman().getEmail().toLowerCase())) {
+                                    Toast.makeText(context, "Email is already in use" + fragmentRegister.createHuman().getEmail(), Toast.LENGTH_SHORT).show();
 
                                     return;
-                                } else if (CryptoUtils.decrypt((innerMap).get("PhoneNumber")).equals(fragmentRegister.createHuman().getEmail())) {
+                                } else if (CryptoUtils.decrypt((innerMap).get("PhoneNumber")).equals(fragmentRegister.createHuman().getPhoneNumber())) {
                                     Toast.makeText(context, "PhoneNumber is already in use" + fragmentRegister.createHuman().getPhoneNumber(), Toast.LENGTH_SHORT).show();
 
                                     return;
@@ -98,11 +98,11 @@ if(data!=null)
                                 Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show();
                             }
 
-                            }
+                        }
 
-                        server.getmDatabase().child("human").child(String.valueOf(fragmentRegister.createHuman().getPhoneNumber())).
-                                setValue(encryptHuman((HashMap<String, String>) fragmentRegister.createHuman().toMap()));
-                        makeIntent(i);
+                    server.getmDatabase().child("human").child(String.valueOf(fragmentRegister.createHuman().getPhoneNumber())).
+                            setValue(encryptHuman((HashMap<String, String>) fragmentRegister.createHuman().toMap()));
+                    makeIntent(i);
 
                     dataFuture.cancel(true);
                 }).exceptionally(e -> {
@@ -121,7 +121,7 @@ if(data!=null)
     };
     private HashMap<String,String> encryptHuman(HashMap<String,String>mdeatils){
         HashMap<String,String>deatils=mdeatils;
-   deatils.forEach((key, value) -> {
+        deatils.forEach((key, value) -> {
             // בדיקה אם הערך הוא String
             if (value instanceof String) {
                 // שינוי הערך
@@ -133,18 +133,18 @@ if(data!=null)
                 }
             }
         });
-return  deatils;
+        return  deatils;
     }
     private  void makeIntent(Intent i) {
-      HashMap<String,String>deatils=  ((HashMap<String, String>) fragmentRegister.createHuman().toMap());
+        HashMap<String,String>deatils=  ((HashMap<String, String>) fragmentRegister.createHuman().toMap());
 
         Bundle b = new Bundle();
 
 
-                b.putSerializable("deatils", (HashMap) deatils);
-                i.putExtra("bundle", b);
-                startActivity(i);
-            }
+        b.putSerializable("deatils", (HashMap) deatils);
+        i.putExtra("bundle", b);
+        startActivity(i);
+    }
 
 
 
@@ -179,7 +179,7 @@ return  deatils;
         super.onResume();
         makeButton();
         fragmentRegister.removePresentedText();
-   }
+    }
 
     public Context getContext() {
         return context;

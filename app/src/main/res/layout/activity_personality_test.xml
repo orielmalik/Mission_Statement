@@ -13,12 +13,18 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone"
+        />
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/TXT_personal"
         android:layout_width="390dp"
         android:layout_height="200dp"
-        android:text="What is your field \n of business? "
-        android:textSize="45sp"
+        android:textSize="25sp"
         android:textColor="#F9A825"
         android:fontFamily="@font/lbl_comic_bold"
         />
@@ -30,4 +36,31 @@
         android:layout_below="@+id/TXT_personal"
         >
     </FrameLayout>
+
+
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+       android:id="@+id/BTN_leftAnswer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/frame_quest"
+        android:src="@drawable/ic_left"
+        android:backgroundTint="@color/white"
+        />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/BTN_RightAnswer"
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/frame_quest"
+        android:layout_marginLeft="328dp"
+
+        android:src="@drawable/ic_right"
+        android:backgroundTint="@color/white"
+
+        />
+
+    <!-- Add the ProgressBar -->
+
 </RelativeLayout>

@@ -71,7 +71,7 @@ public class Functions {
 
                                             @Override
                                             public void afterTextChanged(Editable editable) {
-                                                String text = editable.toString();
+                                                String text = editable.toString().replace(" ","");
 
                                                 if ((!text.matches(numericPattern) && numericPattern != null && text != null)) {
                                                     editText.setError(error);
@@ -217,6 +217,7 @@ public class Functions {
         intent.putExtra(Intent.EXTRA_TEXT, arr[3]);
         return intent;
     }
+
 
 
 

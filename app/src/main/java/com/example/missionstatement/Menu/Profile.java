@@ -1,5 +1,6 @@
 package com.example.missionstatement.Menu;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatEditText;
 import androidx.appcompat.widget.AppCompatImageView;
@@ -35,8 +36,12 @@ import com.example.missionstatement.Objects.Operator;
 import com.example.missionstatement.R;
 import com.example.missionstatement.Tools.CryptoUtils;
 import com.example.missionstatement.Tools.ImageUtil;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.storage.ListResult;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -91,6 +96,25 @@ public class Profile extends AppCompatActivity {
         if (!deatils.get("position").equals("OPERATOR")) {
             DescriptionButton.setVisibility(View.INVISIBLE);
         }
+        storage.getStorageReference().child("Test").child("BOTH").listAll().addOnSuccessListener(new OnSuccessListener<ListResult>() {
+            @Override
+            public void onSuccess(ListResult listResult) {
+                // טיפול ברשימת הפריטים
+                for (StorageReference item : listResult.getItems()) {
+                    Log.d("FirebaseStorage", "File: " + item.getPath());
+                }
+
+                for (StorageReference prefix : listResult.getPrefixes()) {
+                    Log.d("FirebaseStorage", "Directory: " + prefix.getPath());
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // טיפול בשגיאות
+                Log.e("FirebaseStorage", "Error listing items: " + exception.getMessage());
+            }
+        });
     }
 
     private void deleteImg() {

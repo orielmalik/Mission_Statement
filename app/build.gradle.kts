@@ -45,6 +45,7 @@ dependencies {
     implementation("com.google.firebase:firebase-storage")
     implementation("com.google.code.gson:gson:2.8.9")
     implementation ("androidx.core:core-ktx:1.7.0")
+    implementation("com.hankcs:hanlp:portable-1.7.8") // Use the latest portable version
 
     // Lottie Animation Library
     implementation("com.airbnb.android:lottie:5.2.0") // Adjust Lottie version as needed

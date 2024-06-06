@@ -45,7 +45,6 @@ private void  makebtn_updateDeatils()
 options[0].setOnClickListener(new View.OnClickListener() {
     @Override
     public void onClick(View view) {
-      // in.putStringArrayListExtra("deatilsHuman",Human_Deatils);
         in.putExtra("bundle",bundle);
         startActivity(in);
     }
@@ -53,6 +52,22 @@ options[0].setOnClickListener(new View.OnClickListener() {
 }
 private void  makebtn_option2()
 {
+    final Intent[] i = new Intent[1];
+    if (pos.equals("USER")) {
+options[1].setOnClickListener(new View.OnClickListener() {
+    @Override
+    public void onClick(View view) {
+        i[0] =new Intent(Menu.this,DeatilsTest.class);
+
+        i[0].putExtra("ph",deatils.get("PhoneNumber"));
+        startActivity(i[0]);
+    }
+});
+    }else {
+
+
+    }
+
 
 }
 private void  makebtn_option3() {

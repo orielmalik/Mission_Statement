@@ -20,9 +20,6 @@ import java.util.concurrent.CompletableFuture;
 
 public class Realtime  {
     private DatabaseReference mDatabase;
-    private FirebaseApp firebaseApp;
-    private Callback_register callback_register;
-    DatabaseReference ref;
     private  static  HashMap<String,String>accept;
     private final Context context;
     public  static  boolean newHuman=false;

@@ -19,6 +19,7 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
@@ -33,6 +34,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.example.missionstatement.Firebase.Realtime;
+import com.example.missionstatement.Objects.User;
 import com.example.missionstatement.R;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
@@ -47,11 +49,15 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textview.MaterialTextView;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Consumer;
 
+import com.example.missionstatement.Tools.MissionClassifierHanLP;
 public class DeatilsTest extends AppCompatActivity {
     private static final int REQUEST_LOCATION_PERMISSION = 100;  // Unique request code
     private LocationManager locationManager;
@@ -71,16 +77,25 @@ public class DeatilsTest extends AppCompatActivity {
     private FloatingActionButton fblocation;
     private Spinner month,day,year;
     private STATE state = STATE.NA;
-
+    private Bundle bundle;
+    private HashMap<String,String>deatils;
     private MaterialTextView locationTXT;
+    static User user;
+    private EditText description;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_deatils_test);
-        findViews();
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         server=new Realtime(this);
+
+
+
+            user = new User();
+            user.setPhoneNumber(getIntent().getStringExtra("ph"));
+            findViews();
+            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
     }
     private void findViews()
     {
@@ -90,6 +105,7 @@ public class DeatilsTest extends AppCompatActivity {
         year=findViewById(R.id.DTEST_yearSpinner);
         locationTXT=findViewById(R.id.locationDescriptionEditText);
         submit=findViewById(R.id.BTN_DEAT_SUBMIT);
+        description=findViewById(R.id.descriptionEditText);
         setSpinners();
     }
 
@@ -104,11 +120,11 @@ public class DeatilsTest extends AppCompatActivity {
             yearAdapter.add(String.valueOf(year));
         }
 
-     for (int i = 0; i < 31; i++) {
-         if(i<12)
-         {
-             monthAdapter.add(String.valueOf(i+1));
-         }
+        for (int i = 0; i < 31; i++) {
+            if(i<12)
+            {
+                monthAdapter.add(String.valueOf(i+1));
+            }
             dayAdapter.add(String.valueOf(i+1));
         }
 
@@ -182,8 +198,9 @@ public class DeatilsTest extends AppCompatActivity {
 
             }
         });
-
-
+        submit.setOnClickListener(v -> {
+            save();
+        });
     }
     private ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
@@ -428,7 +445,6 @@ public class DeatilsTest extends AppCompatActivity {
             });
             locationTXT.setText("Turn On");
             fblocation.setVisibility(View.VISIBLE);
-            fblocation.setVisibility(View.VISIBLE);
         } else if (state ==STATE.NO_REGULAR_PERMISSION) {
 
             fblocation.setOnClickListener(v -> {
@@ -447,18 +463,14 @@ public class DeatilsTest extends AppCompatActivity {
 
             //Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(, false));
         } else if (state == STATE.LOCATION_SETTINGS_OK) {
-            locationTXT.setText("Location services are running and all permissions have been granted.\n" +
-                    "You can now start recording.");
+            locationTXT.setText("Click again on Location button");
             fblocation.setOnClickListener(v -> {
                 //finish();
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,
                         0, locationListener);
             });
             submit.setVisibility(View.VISIBLE);
-            submit.setOnClickListener(v -> {
-                startActivity(new Intent(this,Personality_Test.class));
 
-            });
         }
     }
     public static String getCityName(Context context, double latitude, double longitude) {
@@ -469,7 +481,7 @@ public class DeatilsTest extends AppCompatActivity {
             List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
             if (addresses != null && !addresses.isEmpty()) {
                 Address address = addresses.get(0);
-                cityName = address.getLocality(); // Get the city name
+                cityName=(address.getThoroughfare()+","+address.getLocality()+", "+address.getCountryName());
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -477,5 +489,49 @@ public class DeatilsTest extends AppCompatActivity {
         }
 
         return cityName;
+    }
+
+
+
+
+    private  void save()
+    {
+
+        user.setBirthdate(getSelectedDate());
+        Log.d(null, "saveBierthdate:"+MissionClassifierHanLP.classifyMission(description.getText().toString()));
+        user.setDescription(MissionClassifierHanLP.classifyMission(description.getText().toString()));
+        user.setDescriptionText(description.getText().toString());
+        user.setLocation(locationTXT.getText().toString());
+        countChangePassword(user);
+        Toast.makeText(this, ""+MissionClassifierHanLP.classifyMission(description.getText().toString()), Toast.LENGTH_SHORT).show();
+        server.getmDatabase().child("USER").child(user.getPhoneNumber()).setValue(user);
+        Intent i=new Intent(this,Personality_Test.class);
+        i.putExtra("user",user);
+        startActivity(i);
+
+    }
+
+
+
+    //method to check past value of user at Realtime
+    private void countChangePassword(User user)
+    {
+        server.checkDataSnapshot("USER").thenAccept(new Consumer<HashMap<String, HashMap<String, String>>>() {
+            @Override
+            public void accept(HashMap<String, HashMap<String, String>> hashMap) {
+                if(hashMap.containsKey(user.getPhoneNumber()))
+                {
+                    if(user.getBirthdate().equals(hashMap.get(user.getPhoneNumber()).get("birthdate")))
+                    {
+                        user.setCountChangeDate(Integer.parseInt(hashMap.get(user.getPhoneNumber()).get("countChangeDate")+1));
+                    }
+                    if(!hashMap.get(user.getPhoneNumber()).get("descriptionText").isEmpty())
+                    {
+                        user.setDescriptionText(hashMap.get(user.getPhoneNumber()).get("descriptionText")+": "+user.getDescriptionText());
+                    }
+                }
+            }
+        });
+
     }
 }
