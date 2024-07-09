@@ -116,7 +116,6 @@ public class Login extends AppCompatActivity {
             User manager=new User("123123454");
             manager.setPassword("12345");
             manager.setManager(true);
-            server.getmDatabase().child("MANAGER").setValue(manager);
             ad.putExtra("user",manager);
             startActivity(ad);
         }else {
@@ -147,7 +146,7 @@ public class Login extends AppCompatActivity {
             if (value instanceof String) {
                 // שינוי הערך
                 try {
-                    String strValue=CryptoUtils.decrypt((String) value);
+                    String strValue=CryptoUtils.decrypt((String) value.toString());
                     deatils.put(key, strValue);
                 } catch (Exception e) {
                     e.getMessage();

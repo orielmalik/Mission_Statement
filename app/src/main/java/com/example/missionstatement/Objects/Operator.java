@@ -1,18 +1,19 @@
 package com.example.missionstatement.Objects;
 
+import com.example.missionstatement.Category;
 import com.example.missionstatement.Objects.Human;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class Operator extends Human {
-private enum proffesion{EDUCATION,FITNESS,CULUTURE,FINANCIAL};
- private  int rating,iconOption;
-private String description;
+    private  int rating,iconOption;
+    private Category proffession;
+    private String description;
     public Operator( String phonenumber, String Username, String password, String email, String gender)
     {
         super(phonenumber, Username, password, email, gender);
-setPosition("OPERATOR");// usually Automaticially come before
+        setPosition("OPERATOR");// usually Automaticially come before
     }
 
     public Operator() {
@@ -30,10 +31,10 @@ setPosition("OPERATOR");// usually Automaticially come before
 
     public void writeAbout(String text)
     {
-     if(text.length()==Integer.MAX_VALUE)
-     {
-         description=text.substring(0,Integer.MAX_VALUE);
-     }
+        if(text.length()==Integer.MAX_VALUE)
+        {
+            description=text.substring(0,Integer.MAX_VALUE);
+        }
 
     }
 

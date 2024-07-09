@@ -6,8 +6,6 @@ import androidx.appcompat.widget.AppCompatToggleButton;
 import androidx.fragment.app.Fragment;
 
 import android.content.Context;
-import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,14 +17,12 @@ import android.widget.EditText;
 import com.example.missionstatement.CallBackType.Callback_register;
 import com.example.missionstatement.Objects.Human;
 import com.example.missionstatement.R;
-import com.example.missionstatement.Tools.CryptoUtils;
 import com.example.missionstatement.Tools.Functions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import android.widget.Spinner;
 import android.widget.Toast;
 
 public class FragmentRegister extends Fragment {
@@ -34,8 +30,12 @@ public class FragmentRegister extends Fragment {
     private View rootView;
     private Context context;
     private Human target;
-    private EditText username, password, phoneNumber, Email;
-    private AppCompatToggleButton tgl_position, tgl_gender;
+    private EditText username;
+    private EditText password;
+    private EditText phoneNumber;
+    private EditText Email;
+    private AppCompatToggleButton tgl_position;
+    private AppCompatToggleButton tgl_gender;
     private Callback_register callback_register;
     private static  int tglClick=0,genderClick=0;
 
@@ -55,11 +55,11 @@ public class FragmentRegister extends Fragment {
 
     private void findViews(View view)
     {
-        tgl_gender = view.findViewById(R.id.tgl_gender);
-        tgl_position = view.findViewById(R.id.tgl_position);
-        username = view.findViewById(R.id.register_username);
+        setTgl_gender(view.findViewById(R.id.tgl_gender));
+        setTgl_position(view.findViewById(R.id.tgl_position));
+        setUsername(view.findViewById(R.id.register_username));
         password = view.findViewById(R.id.register_password);
-        Email = view.findViewById(R.id.register_email);
+        setEmail(view.findViewById(R.id.register_email));
         phoneNumber = view.findViewById(R.id.register_phoneNumber);
         BirthDateSpinner(view.getContext());
 
@@ -67,21 +67,26 @@ public class FragmentRegister extends Fragment {
     }
     public Human createHuman() {
 //check before and after if the deatils in numeric pattern-i did before and after for make sure without exception
-        if (!toArr(username.getText().toString(), phoneNumber.getText().toString(), Email.getText().toString(), password.getText().toString())) {
+        if (!toArr(getUsername().getText().toString(), phoneNumber.getText().toString(), getEmail().getText().toString(), password.getText().toString())) {
             return null;
         }
 
 
-        target = new Human(phoneNumber.getText().toString(), username.getText().toString(),
-                password.getText().toString(), Email.getText().toString(), gender);
+        target = new Human(phoneNumber.getText().toString(), getUsername().getText().toString(),
+                password.getText().toString(), getEmail().getText().toString(), gender);
 
         if (!toArr(target.getUsername(), target.getPhoneNumber(), target.getEmail(), target.getPassword())) {
             return null;
 
         }
-        position=tgl_position.getText().toString();
-        gender=tgl_gender.getText().toString();
+        if(getTgl_gender().getVisibility()==View.VISIBLE)
+        {
+            gender= getTgl_gender().getText().toString();
 
+        }
+        if(getTgl_position().getVisibility()==View.VISIBLE) {
+            position = getTgl_position().getText().toString();
+        }
         // upadateAgeFromSpinner();
         target.setPosition(position);
         target.setGender(gender);
@@ -109,8 +114,8 @@ public class FragmentRegister extends Fragment {
     private void errorByRegex()//enable to act fragmentRegister
     {
 
-        Functions.erroronEditText(Email,"Only  @,numbers,letters ", "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
-        Functions.erroronEditText(username,"Human Name (could contains family-Name) ",
+        Functions.erroronEditText(getEmail(),"Only  @,numbers,letters ", "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
+        Functions.erroronEditText(getUsername(),"Human Name (could contains family-Name) ",
                 "/^[a-z ,.'-]+$/i*$");
         Functions.erroronEditText(phoneNumber,"Israel valid Phone Number" , "^[01]{1}[3-5]{1}[0-9]{5,9}$");
         //Functions.erroronEditText(password,"At least 6 digits 0-9 ", "^[0-9]{4,}$");
@@ -118,9 +123,9 @@ public class FragmentRegister extends Fragment {
 
     public  void removePresentedText()
     {
-        Functions.RemovePrestentedText(username);
+        Functions.RemovePrestentedText(getUsername());
         Functions.RemovePrestentedText(password);
-        Functions.RemovePrestentedText(Email);
+        Functions.RemovePrestentedText(getEmail());
         Functions.RemovePrestentedText(phoneNumber);
     }
     private boolean toArr(String username,String phoneNumber,String Email,String password) //check if Fields in Runtime text==null
@@ -162,12 +167,12 @@ public class FragmentRegister extends Fragment {
         if(deatils==null){return;}
 
 
-        Email.setText(deatils.get("email"));
-        username.setText(deatils.get("Username"));
+        getEmail().setText(deatils.get("email"));
+        getUsername().setText(deatils.get("Username"));
         password.setText(deatils.get("Password"));
         phoneNumber.setText(deatils.get("PhoneNumber"));
-        position=tgl_position.getText().toString();
-        gender=tgl_gender.getText().toString();
+        position= getTgl_position().getText().toString();
+        gender= getTgl_gender().getText().toString();
 
     }
 
@@ -190,6 +195,34 @@ public class FragmentRegister extends Fragment {
 
     public void setRootView(View rootView) {
         this.rootView = rootView;
+    }
+
+    public EditText getUsername() {
+        return username;
+    }
+
+    public void setUsername(EditText username) {
+        this.username = username;
+    }
+
+    public void setEmail(EditText email) {
+        Email = email;
+    }
+
+    public AppCompatToggleButton getTgl_position() {
+        return tgl_position;
+    }
+
+    public void setTgl_position(AppCompatToggleButton tgl_position) {
+        this.tgl_position = tgl_position;
+    }
+
+    public AppCompatToggleButton getTgl_gender() {
+        return tgl_gender;
+    }
+
+    public void setTgl_gender(AppCompatToggleButton tgl_gender) {
+        this.tgl_gender = tgl_gender;
     }
 }
 

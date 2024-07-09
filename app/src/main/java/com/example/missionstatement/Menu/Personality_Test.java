@@ -1,10 +1,15 @@
 package com.example.missionstatement.Menu;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.InputType;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
@@ -16,12 +21,14 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.missionstatement.CallBackType.Callback_test;
+import com.example.missionstatement.Firebase.Realtime;
 import com.example.missionstatement.Firebase.Storage;
 import com.example.missionstatement.Fragment.FragmentQuest;
 import com.example.missionstatement.HeatmapView;
 import com.example.missionstatement.Objects.Test;
 import com.example.missionstatement.Objects.User;
 import com.example.missionstatement.R;
+import com.example.missionstatement.Tools.Functions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -31,15 +38,20 @@ import com.google.android.material.textview.MaterialTextView;
 import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageReference;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 public class Personality_Test extends AppCompatActivity {
     private FrameLayout frameLayout;
     private HeatmapView heatmapView;
     private ProgressBar progressBar;
+    private EditText questEditText;
+
     private MaterialTextView subject;
     private static int mycounter=1;
     String content;
@@ -50,6 +62,8 @@ public class Personality_Test extends AppCompatActivity {
     User user;
     private FloatingActionButton next,previous;
     private StorageReference myStorageReference;
+    private Realtime server;
+    private String path;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +71,7 @@ public class Personality_Test extends AppCompatActivity {
         setContentView(R.layout.activity_personality_test);
         initViews();
         test=new Test();
+        server=new Realtime(this);
         Storage storage = Storage.getInstance();
         try {
             user =(User) getIntent().getSerializableExtra("user");
@@ -70,18 +85,20 @@ public class Personality_Test extends AppCompatActivity {
 
     Callback_test callbackTest = new Callback_test() {
         @Override
-        public void uploadAnswers(RadioGroup radioGroup,int counter) {
+        public void uploadAnswers(RadioGroup radioGroup) {
 
             if (test.getAnswers() == null) {
                 return;
             }
+            String[]answers= (String[]) test.getAnswers().get(mycounter ).toArray();
             for (int i = 0; i < radioGroup.getChildCount(); i++) {
                 View view = radioGroup.getChildAt(i);
                 if (view instanceof RadioButton) {
                     RadioButton radioButton = (RadioButton) view;
-                    if (test.getAnswers().get(counter )[i] != null) {
-                        radioButton.setText(test.getAnswers().get(counter )[i]);
-                    } else if (test.getAnswers().get(mycounter - 1)[i] == null && user.isManager()) {
+
+                    if (answers[i] != null) {
+                        radioButton.setText(answers[i]);
+                    } else if (test.getAnswers().get(mycounter - 1).toArray()[i] == null && user.isManager()) {
                         radioButton.setText("");
                     } else {
                         radioButton.setVisibility(View.INVISIBLE);
@@ -92,10 +109,7 @@ public class Personality_Test extends AppCompatActivity {
         }
 
 
-        private setAnswersOnRadioGroup(RadioGroup radioGroup)
-        {
-            
-        }
+
         @Override
         public void getResult(int index) {
             if (!user.isManager()) {
@@ -106,57 +120,116 @@ public class Personality_Test extends AppCompatActivity {
 
         @Override
         public boolean getCounterQuestion(int counter) {
-
-            if (counter <= 8 && counter >= 1) {
-                mycounter = counter;
-                if(test.getQuestions().get(mycounter)!=null) {//because of manager
-                    subject.setText(test.getQuestions().get(counter));
+            if(!user.isManager()) {
+                if (counter <= 8 && counter >= 1&&mycounter!=counter) {
+                    mycounter = counter;
+                    if (test.getQuestions().get(counter) != null) {
+                        subject.setText(test.getQuestions().get(counter));
+                        Toast.makeText(Personality_Test.this, test.getQuestions().get(counter), Toast.LENGTH_SHORT).show();
+                    }
+                    //fragmentQuest.onAnswer();
+                    return true;
                 }
-                fragmentQuest.onAnswer();
-                return true;
-            }
-            return false;
+                else if(counter==9)
+                {
+                    if(Personality_Test.this.path==null){
+                        Personality_Test.this.path="e"+UUID.randomUUID();
+                    }
+                    test.setDone(true);
+                    if(user.getTests()==null){
+                        user.setTests(new ArrayList<>());
+                    }
+                    HashMap<String,Object>m=new HashMap<>();
+                    m.put(Functions.sanitizeKey(Personality_Test.this.path),Functions.fromMap(test.toMap()));
+                    user.getTests().add(m);
+                    server.getmDatabase().child("USER").child(user.getPhoneNumber()).setValue(user.ResultMap());
+                    Intent intent=new Intent(Personality_Test.this, ResultsGraph.class);
+                    intent.putExtra("user",user.getPhoneNumber());
+                    Personality_Test.this.startActivity(intent);
+                    return  false;
+                }else{return  false;}
+            }else {
 
+                if (counter > 0 || counter < 9) {
+                    mycounter = counter;
+                    boolean b= subject.getText().equals("Give points \n to every question Before")&&mycounter==0;
+                    if(!b)
+                    {
+                        test.getQuestions().add(subject.getText().toString());
+                        NewQuestion();
+                    }
+                }
+                if (counter == 8) {
+                    showAlertDialogAnswer();
+
+
+                }
+
+            }
+            return true;
         }
+
 
         @Override
         public void setAnswer(String string, int i) {
             if (user.isManager()) {
                 String[] arr = new String[4];
-                arr[i] = string;
-
-
-
-                test.getAnswers().add(mycounter - 1, arr);
-                if (subject.getText().toString().isEmpty()) {
-                    return;
-                }
-                for (String s : arr) {
-                    if (s.isEmpty()) {
-                        return;
+                int[]pointsPerAnswer= Functions.convertListToArray(test.pointsPerAnswer);
+                if(subject.getText().equals("Give points \n to every question Before"))
+                {
+                    try {
+                        pointsPerAnswer[i] = Integer.parseInt(string);
+                        Toast.makeText(Personality_Test.this, "Question is  "+mycounter, Toast.LENGTH_LONG).show();
+                    }catch (NumberFormatException numberFormatException)
+                    {
+                        numberFormatException.printStackTrace();
+                        Toast.makeText(Personality_Test.this, numberFormatException.getMessage(), Toast.LENGTH_SHORT).show();
                     }
-                }
-                showAlertDialogAnswer();
+                }//start
+                else {
+
+                    arr[i] = string;
+                    if(i==3) {
+                        test.getAnswers().add(Arrays.asList(arr));
+
+                    }
+                }//middle
 
             }
         }
 
         @Override
         public boolean canStartBuildTest() {
-            if(user.isManager()) {
-                return subject.getText().equals("Give points \n to every question Before")&&mycounter==0;
+            test.setDone(true);
+            // user.getTests().add(test);
+            return  true;
         }
-            return  false;}
+
+        @Override
+        public int state() {
+            return !user.isManager()? 0:1 ;
+        }
     };
     private void showAlertDialogAnswer() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(fragmentQuest.getContext());
-        builder.setTitle("Save Answer?")
-                .setMessage("finished to fill answer text and options?")
+        AlertDialog.Builder builder = new AlertDialog.Builder(frameLayout.getContext());
+        builder.setTitle("Save test?")
+                .setMessage("finished to fill test?")
                 .setPositiveButton("SAVE", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        NewQuestion();
-                        dialog.dismiss();
+
+                        StorageReference fileref=  storage.getStorageReference().child("Test")
+                                .child("EDUCATION");
+                        File f = test.buildEnd("EducationTest"+(Math.random()*100+2), Personality_Test.this);
+                        if (f != null) {
+                            storage.uploadTextFile(fileref, Personality_Test.this, f);
+                            test.setDone(true);
+                            dialog.dismiss();
+                        }
+                        else {
+                            Toast.makeText(Personality_Test.this, "ERROR UPLOAD TEXT", Toast.LENGTH_LONG).show();
+
+                        }
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -174,16 +247,59 @@ public class Personality_Test extends AppCompatActivity {
     private void NewQuestion() {
         fragmentQuest.clear();
         subject.setText("");
-    }
+        questEditText.setText("");
+        subject.setEnabled(true);
+        subject.setInputType(InputType.TYPE_CLASS_TEXT);
+        questEditText.setVisibility(View.VISIBLE);
+        questEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                subject.setText(charSequence);
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+
+
+
+       /* subject.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                // Check for touch event (e.g., only handle DOWN event)
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    fragmentQuest.getRadioGroup().setEnabled(false);
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.showSoftInput(subject, 0);
+                } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                    // שחרר את `RadioGroup` כאשר האצבע מורמת
+                    fragmentQuest.getRadioGroup().setEnabled(true);
+                }
+                return true;
+
+            }
+        });
+
+        */
+
+
+
+    }
     private void initViews() {
         fragmentQuest = new FragmentQuest();
         frameLayout = findViewById(R.id.frame_quest);
         subject = findViewById(R.id.TXT_personal);
         //    heatmapView = findViewById(R.id.heatmapView);
         progressBar=findViewById(R.id.progressBar);
-        next=findViewById(R.id.BTN_RightAnswer);
-        previous=findViewById(R.id.BTN_leftAnswer);
+        questEditText=findViewById(R.id.EditAdminSubject);
+
     }
 
     private void buildTest() {
@@ -212,18 +328,17 @@ public class Personality_Test extends AppCompatActivity {
                                                     progressBar.setVisibility(View.GONE);
                                                     fragmentQuest.setCallback_test(callbackTest);
                                                     test.fillContent(c);
-                                                    subject.setText(test.getQuestions().get(mycounter-1));
-
+                                                    subject.setText(test.getQuestions().get(mycounter));
+                                                    callbackTest.uploadAnswers(fragmentQuest.getRadioGroup());
                                                 }
                                             }
 
                                             @Override
                                             public void onFileReadFailure(Exception exception) {
-
+                                                Toast.makeText(Personality_Test.this, exception.getMessage(), Toast.LENGTH_SHORT).show();
                                             }
                                         });
                                         waiter.complete(fileRef);
-                                        //waiter.complete(fileRef);
 
 
                                     }
@@ -235,7 +350,7 @@ public class Personality_Test extends AppCompatActivity {
                 });
         waiter.thenAccept(f->
         {
-
+            this.path=f.getPath();
         });
 
     }
@@ -311,15 +426,13 @@ public class Personality_Test extends AppCompatActivity {
 
         if(!user.isManager()) {
             buildTest();
-            next.setVisibility(View.INVISIBLE);
-            previous.setVisibility(View.VISIBLE);
         }else {
+            mycounter=0;
             subject.setText("Give points \n to every question Before");
             test=new Test();
             test.buildStart();
             fragmentQuest.setCallback_test(callbackTest);
             //fragmentQuest.onBuildAdmin();
-            Nevigate();
         }
 
     }
@@ -330,39 +443,7 @@ public class Personality_Test extends AppCompatActivity {
     }
 
 
-    private  void Nevigate()
-    {
 
-        previous.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(mycounter>0)
-                    mycounter--;
-                if(test.getAnswers().size()>mycounter)
-                    fragmentQuest.onAnswer();
-                subject.setText(test.getQuestions().get(mycounter-1));
-            }
-        }); next.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            if(mycounter<8)
-                mycounter++;
-            if(test.getAnswers().size()-1>mycounter)
-                fragmentQuest.onAnswer();
-            subject.setText(test.getQuestions().get(mycounter-1));
-        }
-    });
-        if(mycounter-1==0)
-        {
-            previous.setVisibility(View.INVISIBLE);
-        }
-        else if (mycounter+1==8||subject.getText().equals("Give points \n to every question Before"))
-        {
-            next.setVisibility(View.INVISIBLE);
-        }
-
-
-    }
 }
 
 

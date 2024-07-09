@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/TBL_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/bck_rainboww"
+    android:padding="16dp">
+
+    <TableRow
+        android:id="@+id/TBL_titles"
+        android:layout_height="wrap_content"
+        android:paddingBottom="8dp">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="SCORE"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:background="@android:color/holo_orange_light"
+            android:padding="8dp"
+            android:textColor="@android:color/white" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@android:color/holo_orange_light"
+            android:gravity="center"
+            android:padding="8dp"
+            android:text="Path"
+            android:textColor="@android:color/white"
+            android:textStyle="bold" />
+    </TableRow>
+
+    <TableRow
+        android:id="@+id/TBL_economics"
+        android:layout_height="wrap_content"
+        android:paddingBottom="8dp">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="ECONOMICS"
+            android:gravity="center"
+            android:padding="8dp"
+            android:background="#FFF8DC" /> <!-- Cornsilk background -->
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text=""
+            android:gravity="center"
+            android:padding="8dp"
+            android:background="#FFF8DC" /> <!-- Cornsilk background -->
+    </TableRow>
+
+    <TableRow
+        android:id="@+id/TBL_education"
+        android:layout_height="wrap_content"
+        android:paddingBottom="8dp">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="EDUCATION"
+            android:gravity="center"
+            android:padding="8dp"
+            android:background="#FFF8DC" /> <!-- Cornsilk background -->
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text=""
+            android:gravity="center"
+            android:padding="8dp"
+            android:background="#FFF8DC" /> <!-- Cornsilk background -->
+    </TableRow>
+
+    <TableRow
+        android:id="@+id/TBL_medical"
+        android:layout_height="wrap_content"
+        android:paddingBottom="8dp">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="MEDICAL"
+            android:gravity="center"
+            android:padding="8dp"
+            android:background="#FFF8DC" /> <!-- Cornsilk background -->
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text=""
+            android:gravity="center"
+            android:padding="8dp"
+            android:background="#FFF8DC" /> <!-- Cornsilk background -->
+    </TableRow>
+
+    <TableRow
+        android:id="@+id/TBL_engineer"
+        android:layout_height="wrap_content"
+        android:paddingBottom="8dp">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="ENGINEER"
+            android:gravity="center"
+            android:padding="8dp"
+            android:background="#FFF8DC" /> <!-- Cornsilk background -->
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text=""
+            android:gravity="center"
+            android:padding="8dp"
+            android:background="#FFF8DC" /> <!-- Cornsilk background -->
+    </TableRow>
+
+</TableLayout>

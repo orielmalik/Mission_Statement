@@ -84,11 +84,11 @@ public class Register extends AppCompatActivity {
                     if(data!=null)
                         for (HashMap<String, String> innerMap : data.values()) {
                             try {
-                                if (CryptoUtils.decrypt((innerMap).get("email")).equals(fragmentRegister.createHuman().getEmail().toLowerCase())) {
+                                if (CryptoUtils.decrypt((innerMap).get("email").toString()).equals(fragmentRegister.createHuman().getEmail().toLowerCase())) {
                                     Toast.makeText(context, "Email is already in use" + fragmentRegister.createHuman().getEmail(), Toast.LENGTH_SHORT).show();
 
                                     return;
-                                } else if (CryptoUtils.decrypt((innerMap).get("PhoneNumber")).equals(fragmentRegister.createHuman().getPhoneNumber())) {
+                                } else if (CryptoUtils.decrypt((innerMap).get("PhoneNumber").toString()).equals(fragmentRegister.createHuman().getPhoneNumber())) {
                                     Toast.makeText(context, "PhoneNumber is already in use" + fragmentRegister.createHuman().getPhoneNumber(), Toast.LENGTH_SHORT).show();
 
                                     return;

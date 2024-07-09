@@ -16,6 +16,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 
 public class Realtime  {
@@ -35,8 +36,8 @@ public class Realtime  {
     public DatabaseReference getmDatabase() {
         return mDatabase;
     }
-    public void updateFieldatHuman(HashMap updates, String field) {
-        mDatabase.child("human").child(field).updateChildren(updates)
+    public void updateFieldatHuman(String root,HashMap updates, String field) {
+        mDatabase.child(root).child(field).updateChildren(updates)
                 .addOnSuccessListener(aVoid -> {
                     Log.d(null, "succUpdate");
                 })
@@ -86,4 +87,27 @@ return  resultFuture;
     }
 
 
+    public CompletableFuture<HashMap<String,HashMap<String,Object>>> checkDataSnapshotnew(String child )  {
+        final boolean[] arr=new boolean[1];
+        final CompletableFuture<HashMap<String,HashMap<String,Object>>> resultFuture = new CompletableFuture<>();
+
+        mDatabase.child(child).addValueEventListener(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                HashMap<String,HashMap<String,Object>> hashMap=(HashMap<String,HashMap<String,Object>>) dataSnapshot.getValue();
+                resultFuture.complete((hashMap));//check deatils before
+
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                resultFuture.completeExceptionally(databaseError.toException());
+            }
+
+
+        });
+        return  resultFuture;
+
+
+    }
 }

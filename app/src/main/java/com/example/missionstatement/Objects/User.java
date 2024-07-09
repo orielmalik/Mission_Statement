@@ -1,5 +1,7 @@
 package com.example.missionstatement.Objects;
 
+import com.example.missionstatement.Tools.Functions;
+
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -9,24 +11,24 @@ import java.util.Map;
 
 public class User extends Human  implements Serializable {
 
-    private List<Test> tests=new ArrayList<>();
-    private LocalDate birthdate;
+    private List<Map<String, Object>> tests = new ArrayList<>();
+    private String birthdate;
     private String location;
-    private int countChangeDate=0;
-private boolean isManager=false;
+    private int countChangeDate = 0;
+    private boolean isManager = false;
 
     private String description;//about what he wants from test
-private String descriptionText;
+    private String descriptionText;
 
     public User(String phonenumber, String Username, String password, String email, String gender) {
         super(phonenumber, Username, password, email, gender);
 
     }
 
-    public User(){}
+    public User() {
+    }
 
-    public User(String phoneNumber)
-    {
+    public User(String phoneNumber) {
         this.setPhoneNumber(phoneNumber);
     }
 
@@ -35,12 +37,45 @@ private String descriptionText;
     }
 
 
-    public Map<String, Object> UserMap() {
+    public Map<String, Object> ResultMap() {
         HashMap<String, Object> result = new HashMap<>();
         result.put("ph", getPhoneNumber());
-        result.put("description", getPhoneNumber());
-
+        result.put("description", getDescription());
+        result.put("birthdate", getBirthdate());
+        result.put("location", getLocation());
+        result.put("countChangeDate", getCountChangeDate());
+        result.put("isManager", isManager());
+        result.put("descriptionText", getDescriptionText());
+        result.put("tests", getTestsMap());
         return result;
+    }
+    // Method to create a User object from a HashMap
+    public static User fromMap(HashMap<String, Object> map) {
+        User user = new User();
+        user.setPhoneNumber((String) map.get("ph"));
+        user.setDescription((String) map.get("description"));
+        user.setBirthdate((String) map.get("birthdate"));
+        user.setLocation((String) map.get("location"));
+        user.setCountChangeDate((int) map.get("countChangeDate"));
+        user.setManager((boolean) map.get("isManager"));
+        user.setDescriptionText((String) map.get("descriptionText"));
+
+        // Assuming tests is stored as List<Map<String, Test>>
+        List<Map<String, Object>> testsList = (List<Map<String, Object>>) map.get("tests");
+        user.tests = new ArrayList<>();
+        if (testsList != null) {
+            for (Map<String, Object> testMap : testsList) {
+                Map<String, Object> testEntry = new HashMap<>();
+                for (Map.Entry<String, Object> entry : testMap.entrySet()) {
+                    testEntry.put(entry.getKey(), entry.getValue());
+                }
+                user.tests.add(testEntry);
+            }
+        }
+        return user;
+    }
+    private List<Map<String, Object>> getTestsMap() {
+        return tests;
     }
 
     public String getLocation() {
@@ -59,7 +94,7 @@ private String descriptionText;
         this.description = description;
     }
 
-    public void setBirthdate(LocalDate birthdate) {
+    public void setBirthdate(String birthdate) {
         this.birthdate = birthdate;
     }
 
@@ -79,30 +114,24 @@ private String descriptionText;
         this.countChangeDate = countChangeDate;
     }
 
-    public LocalDate getBirthdate() {
+    public String getBirthdate() {
         return birthdate;
     }
 
-    public List<Test> getTests() {
-        return tests;
-    }
-
-    public void setTests(List<Test> tests) {
-        this.tests = tests;
-    }
-
-
-    public boolean isTestName(String path)
-    {
-        boolean ok=false;
-        for (Test test:tests) {
-            if(test.getFileLocation().getPath().equals(path))
+//                    if (test.getFileLocation().getPath().replace(" ","").equals(Functions.sanitizeKey(path.replace(" ","")))) {
+    public boolean isTestName(String path) {
+        boolean ok = false;
+        for (int i = 0; i <tests.size() ; i++) {
+            Map<String,Object>map=tests.get(i);
+            if(map.containsKey(Functions.sanitizeKey(path)))
             {
-             ok=true;
+                return  true;
             }
+
         }
         return  ok;
     }
+
 
     public boolean isManager() {
         return isManager;
@@ -111,5 +140,13 @@ private String descriptionText;
     public void setManager(boolean manager) {
         isManager = manager;
     }
-}
 
+
+    public List<Map<String, Object>> getTests() {
+        return tests;
+    }
+
+    public void setTests(List<Map<String, Object>> tests) {
+        this.tests = tests;
+    }
+}

@@ -17,38 +17,40 @@
             android:id="@+id/BTN_test_opt1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Option 1" />
+            android:text="" />
 
         <RadioButton
             android:id="@+id/BTN_test_opt2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Option 2" />
+            android:text="" />
 
         <RadioButton
             android:id="@+id/BTN_test_opt3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Option 3" />
+            android:text="" />
 
         <RadioButton
             android:id="@+id/BTN_test_opt4"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Option 4" />
+            android:text="" />
 
     </RadioGroup>
 
-    <com.google.android.material.button.MaterialButton
+        <com.google.android.material.button.MaterialButton
         android:id="@+id/BTN_test_ok"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="Submit"
         android:clickable="true"
+        android:focusable="true"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginEnd="150dp"
         android:backgroundTint="#F9A825"
         app:layout_constraintTop_toBottomOf="@+id/test_radio_group" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

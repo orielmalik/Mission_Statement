@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
@@ -157,7 +158,20 @@ private static int counter=0;//know when the first time user upload to states
     }
 
 
-}
+    public void uploadTextFile(StorageReference filePath,Context context,File f)
+    {
+        Uri fileUri = Uri.fromFile(f);
+
+        UploadTask uploadTask = filePath.putFile(fileUri);
+        uploadTask.addOnSuccessListener(taskSnapshot -> {
+            Toast.makeText(context, "File uploaded successfully", Toast.LENGTH_SHORT).show();
+        }).addOnFailureListener(e -> {
+            Toast.makeText(context, "File upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        });
+    }
+    }
+
+
 
 
 

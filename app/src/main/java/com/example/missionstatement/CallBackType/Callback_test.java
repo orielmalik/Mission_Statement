@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface Callback_test {
 
-    public void uploadAnswers(RadioGroup radioGroup,int counter);
+     void uploadAnswers(RadioGroup radioGroup);
     void getResult(int index);
 
     boolean getCounterQuestion(int counter);
@@ -15,4 +15,9 @@ public interface Callback_test {
     void setAnswer(String string, int i);
 
     boolean canStartBuildTest();
+
+    int state();
+
+
+
 }

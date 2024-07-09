@@ -8,10 +8,7 @@
     android:background="@drawable/bck_perso"
     tools:context=".Menu.Personality_Test"
     >
-    <com.example.missionstatement.HeatmapView
-        android:id="@+id/heatmapView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -39,26 +36,16 @@
 
 
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-       android:id="@+id/BTN_leftAnswer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+
+    <EditText
+        android:id="@+id/EditAdminSubject"
         android:layout_below="@+id/frame_quest"
-        android:src="@drawable/ic_left"
-        android:backgroundTint="@color/white"
-        />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/BTN_RightAnswer"
-
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/frame_quest"
-        android:layout_marginLeft="328dp"
-
-        android:src="@drawable/ic_right"
-        android:backgroundTint="@color/white"
-
+        android:layout_width="400dp"
+        android:layout_height="match_parent"
+        android:text="   write your question here"
+        android:background="@color/white"
+        android:layout_marginBottom="34dp"
+        android:visibility="invisible"
         />
 
     <!-- Add the ProgressBar -->

@@ -18,12 +18,14 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import com.example.missionstatement.CallBackType.Callback_profile;
@@ -43,7 +45,10 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageReference;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
@@ -57,14 +62,14 @@ public class Profile extends AppCompatActivity {
     private FloatingActionButton delete;
     String child;
     private FrameLayout myprofile;
-    private static boolean clicked = false;
+    private static boolean clicked = false,finishEdit=false;
     private Context context;
     private boolean conditionFragment;
     private FragmentRegister fragmentRegister;
     private Realtime server;
     private Human human;
     private FragmentProfile fragmentProfile;
-    private static int backPressedCount = 0, clickCount = 0, DesClick = 0;
+    private  int backPressedCount = 0, clickCount = 0, DesClick = 0;
 
     AppCompatImageView target_image;
     private Storage storage;
@@ -93,28 +98,7 @@ public class Profile extends AppCompatActivity {
         // fragmentProfile.editProfile();
         delete = findViewById(R.id.BTN_removeProfiler);
         DescriptionButton = findViewById(R.id.profile_AddDescription);
-        if (!deatils.get("position").equals("OPERATOR")) {
-            DescriptionButton.setVisibility(View.INVISIBLE);
-        }
-        storage.getStorageReference().child("Test").child("BOTH").listAll().addOnSuccessListener(new OnSuccessListener<ListResult>() {
-            @Override
-            public void onSuccess(ListResult listResult) {
-                // טיפול ברשימת הפריטים
-                for (StorageReference item : listResult.getItems()) {
-                    Log.d("FirebaseStorage", "File: " + item.getPath());
-                }
 
-                for (StorageReference prefix : listResult.getPrefixes()) {
-                    Log.d("FirebaseStorage", "Directory: " + prefix.getPath());
-                }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-                // טיפול בשגיאות
-                Log.e("FirebaseStorage", "Error listing items: " + exception.getMessage());
-            }
-        });
     }
 
     private void deleteImg() {
@@ -131,7 +115,6 @@ public class Profile extends AppCompatActivity {
         public void showImage(AppCompatImageView image) {
             storage.uploadImageToFirebase(image, child, deatils.get("position"));
             storage.showImage(image, child, deatils.get("position"));
-            //   serverUpload();
         }
 
 
@@ -149,18 +132,24 @@ public class Profile extends AppCompatActivity {
         }
         ChangeButton.setOnClickListener(new View.OnClickListener() {
 
+            @SuppressLint("ResourceAsColor")
             @Override
             public void onClick(View view) {
                 clickCount++;
                 chooseShowFragment(false);
-                // setLayoutParms();
+                fragmentProfile.putDeatilsWithHash(deatils);
+                if(clickCount%2==0)
+                {
+                    finishEdit=true;
+                }
+                setLayoutParms();
                 myprofile.setBackgroundColor(Color.rgb(102, 133, 34));
                 storage.uploadImageToFirebase(fragmentProfile.getProfiler(), child, deatils.get("position"));
-                if (clickCount > 1) {
+                if (finishEdit ) {
                     showYesNoDialog("Upload Deatils", "Save the Changes", context, 0);
+                    myprofile.setBackgroundColor(android.R.color.transparent);
+                    clickCount=0;
                 } else {//avoid dischange
-                    fragmentRegister.putDeatilsWithHash(deatils);
-//serverDownload();;
                 }
 
             }
@@ -186,10 +175,10 @@ public class Profile extends AppCompatActivity {
     private void setLayoutParms() {
         ViewGroup.LayoutParams ProfileParams = myprofile.getLayoutParams();
         ProfileParams.height = 1500;
-        RelativeLayout.LayoutParams btn_parm = (RelativeLayout.LayoutParams) ChangeButton.getLayoutParams();
+        LinearLayout.LayoutParams btn_parm = (LinearLayout.LayoutParams) ChangeButton.getLayoutParams();
         btn_parm.setMargins(btn_parm.leftMargin, 43, btn_parm.rightMargin, btn_parm.bottomMargin);
         myprofile.setLayoutParams(ProfileParams);
-        ChangeButton.setLayoutParams(btn_parm);
+        // ChangeButton.setLayoutParams(btn_parm);
     }
 
 
@@ -213,8 +202,7 @@ public class Profile extends AppCompatActivity {
             @SuppressLint("ResourceAsColor")
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                 /*  chooseShowFragment(false);
-                    myprofile.setBackgroundColor(android.R.color.transparent);*/
+                chooseShowFragment(true);
 
             }
 
@@ -232,25 +220,37 @@ public class Profile extends AppCompatActivity {
         switch (condition) {
             case (0):
                 String field = deatils.get("PhoneNumber");
-                if (fragmentRegister.createHuman() == null) {
+                fragmentRegister.getTgl_position().setVisibility(View.INVISIBLE);
+                fragmentRegister.getTgl_gender().setVisibility(View.INVISIBLE);
+                if (fragmentRegister.createHuman() == null||deatils.get("Username").replace(" ","").equals("Name")) {
                     Toast.makeText(context, "One Or MoreFields are Null", Toast.LENGTH_SHORT).show();
-                } else {
-                    // deatils = (HashMap<String, String>) fragmentRegister.createHuman().toMap();
+                }
+                else {
+                    String pos=deatils.get("position");
+                     String gender=deatils.get("Gender");
                     deatils = CryptoUtils.encryptHuman((HashMap<String, String>)
                             fragmentRegister.createHuman().toMap());
-                    server.updateFieldatHuman(deatils, field);
+                    try {
+                        deatils.put("position", CryptoUtils.encrypt(pos));
+                        deatils.put("Gender", CryptoUtils.encrypt(gender));
+                    } catch (Exception e) {
+                        Toast.makeText(context, "GENDER OR POSITION BAD", Toast.LENGTH_SHORT).show();
+
+                        throw new RuntimeException(e);
+                    }
+                    if(!field.equals(deatils.get("PhoneNumber").replace(" ","")))
+                    {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            deatils.put("phoneChangedAt"+ LocalDate.now().toString(),field);
+                        }
+                    }
                     chooseShowFragment(true);
                     myprofile.setBackgroundColor(android.R.color.transparent);
-                    clickCount = 0;
+                    server.updateFieldatHuman("human",deatils, field);
+
                     break;
                 }
-            case (1):
-                Operator operator = new Operator();
-                operator.setEmail(deatils.get("email"));
-                operator.writeAbout(description.getText().toString());
-                // server.getmDatabase().child("operator").setValue(operator.OperatorMap());
-                DesClick = 0;
-                break;
+
         }
     }
 
@@ -335,7 +335,7 @@ public class Profile extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case (100):
-            openPermissionSettings();
+                openPermissionSettings();
         }
 
     }

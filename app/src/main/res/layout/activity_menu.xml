@@ -17,11 +17,10 @@
         android:layout_width="wrap_content"
         android:layout_height="158dp"
         android:layout_marginTop="30dp"
+        android:drawableEnd="@drawable/ic_left"
         android:fontFamily="@font/lbl_comic_bold"
         android:textColor="#2E7D32"
-        android:textSize="40sp"
-
-        />
+        android:textSize="30sp" />
 
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"

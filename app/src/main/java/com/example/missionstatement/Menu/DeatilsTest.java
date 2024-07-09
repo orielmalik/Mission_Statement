@@ -20,6 +20,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
@@ -34,8 +35,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.example.missionstatement.Firebase.Realtime;
+import com.example.missionstatement.Objects.Test;
 import com.example.missionstatement.Objects.User;
 import com.example.missionstatement.R;
+import com.example.missionstatement.Tools.EducationClassifierHanLP;
+import com.example.missionstatement.Tools.Functions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.LocationRequest;
@@ -51,10 +55,12 @@ import com.google.android.material.textview.MaterialTextView;
 import java.io.IOException;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import com.example.missionstatement.Tools.MissionClassifierHanLP;
@@ -64,6 +70,7 @@ public class DeatilsTest extends AppCompatActivity {
     private static  int counter=0;
     private MaterialButton submit;
     private Realtime server;
+    private ProgressBar progressBar;
     private enum STATE {
         NA,
         NO_REGULAR_PERMISSION,
@@ -88,15 +95,19 @@ public class DeatilsTest extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_deatils_test);
         server=new Realtime(this);
+        progressBar=findViewById(R.id.progressBarDea);
+        user = new User();
+        user.setTests(new ArrayList<>());
 
+        findViews();
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        //if you entered deatils so go on
 
-
-            user = new User();
-            user.setPhoneNumber(getIntent().getStringExtra("ph"));
-            findViews();
-            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
     }
+
+
+
     private void findViews()
     {
         fblocation=findViewById(R.id.locationFab);
@@ -184,12 +195,29 @@ public class DeatilsTest extends AppCompatActivity {
         }
         updateUI();
     }
+private  void  init()
+{    server.checkDataSnapshotnew("USER").thenAccept(hashMap -> {
 
+    hashMap.forEach((s, map) ->  {
+        if (s.equals(getIntent().getStringExtra("ph"))) {
+            if (map.containsKey("tests")) {
+                user.getTests().addAll((List<Map<String, Object>>) map.get("tests"));
+                progressBar.setVisibility(View.GONE);
+
+                if (map.containsKey("location") && map.get("location") != null) {
+                    startActivity(new Intent(this, ResultsGraph.class).putExtra("user", user.fromMap(map)));
+                }
+            }
+        }
+
+    }); });
+    progressBar.setVisibility(View.GONE);
+    user.setPhoneNumber(getIntent().getStringExtra("ph"));}
 
     @Override
     protected void onResume() {
         super.onResume();
-
+init();
         fblocation.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("MissingPermission")
             @Override
@@ -211,11 +239,8 @@ public class DeatilsTest extends AppCompatActivity {
                     start();
                 } else {
                     Log.d("pttt", "NOT Granted");
-                    // Explain to the user that the feature is unavailable because the
-                    // features requires a permission that the user has denied. At the
-                    // same time, respect the user's decision. Don't link to system
-                    // settings in an effort to convince the user to change their
-                    // decision.
+                    Toast.makeText(this, " the feature is unavailable because the\n" +
+                            "                     features requires a permission that the user has denied", Toast.LENGTH_LONG).show();
 
                     if (shouldShowRequestPermissionRationale(checkForMissingPermission(DeatilsTest.this))) {
                         Snackbar.make(findViewById(android.R.id.content),
@@ -496,14 +521,18 @@ public class DeatilsTest extends AppCompatActivity {
 
     private  void save()
     {
-
-        user.setBirthdate(getSelectedDate());
+        if(getSelectedDate()==null)
+        {
+            Toast.makeText(this, "FillBirthDate", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        user.setBirthdate(Functions.toBirthdateFormat(getSelectedDate()));
         Log.d(null, "saveBierthdate:"+MissionClassifierHanLP.classifyMission(description.getText().toString()));
-        user.setDescription(MissionClassifierHanLP.classifyMission(description.getText().toString()));
-        user.setDescriptionText(description.getText().toString());
+        user.setDescription("EDUCATION");//because we decided to this category
+        user.setDescriptionText( EducationClassifierHanLP.classifyEducation(description.getText().toString()));
         user.setLocation(locationTXT.getText().toString());
-        countChangePassword(user);
-        Toast.makeText(this, ""+MissionClassifierHanLP.classifyMission(description.getText().toString()), Toast.LENGTH_SHORT).show();
+        // countChangePassword(user);
+
         server.getmDatabase().child("USER").child(user.getPhoneNumber()).setValue(user);
         Intent i=new Intent(this,Personality_Test.class);
         i.putExtra("user",user);
@@ -514,24 +543,5 @@ public class DeatilsTest extends AppCompatActivity {
 
 
     //method to check past value of user at Realtime
-    private void countChangePassword(User user)
-    {
-        server.checkDataSnapshot("USER").thenAccept(new Consumer<HashMap<String, HashMap<String, String>>>() {
-            @Override
-            public void accept(HashMap<String, HashMap<String, String>> hashMap) {
-                if(hashMap.containsKey(user.getPhoneNumber()))
-                {
-                    if(user.getBirthdate().equals(hashMap.get(user.getPhoneNumber()).get("birthdate")))
-                    {
-                        user.setCountChangeDate(Integer.parseInt(hashMap.get(user.getPhoneNumber()).get("countChangeDate")+1));
-                    }
-                    if(!hashMap.get(user.getPhoneNumber()).get("descriptionText").isEmpty())
-                    {
-                        user.setDescriptionText(hashMap.get(user.getPhoneNumber()).get("descriptionText")+": "+user.getDescriptionText());
-                    }
-                }
-            }
-        });
 
-    }
 }
