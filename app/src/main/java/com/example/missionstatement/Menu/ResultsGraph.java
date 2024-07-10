@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.missionstatement.CallBackType.Callback_results;
 import com.example.missionstatement.Firebase.Realtime;
 import com.example.missionstatement.Objects.Test;
 import com.example.missionstatement.Objects.User;
@@ -16,7 +17,9 @@ import com.example.missionstatement.R;
 import com.example.missionstatement.Tools.DecisionMaker;
 import com.example.missionstatement.Tools.Functions;
 import com.example.missionstatement.paints.DinicGraph;
+import com.example.missionstatement.paints.Edge;
 import com.example.missionstatement.paints.Graph;
+import com.example.missionstatement.paints.Node;
 import com.google.android.material.textview.MaterialTextView;
 
 import java.text.ParseException;
@@ -53,23 +56,18 @@ public class ResultsGraph extends AppCompatActivity {
 
     }
 
-    private void initServer(String ph) {
+    private void initServer(String ph, Callback_results callback) {
         server.checkDataSnapshotnew("USER").thenAccept(hashMap -> {
             hashMap.forEach((s, map) -> {
                 if (s.equals(ph)) {
                     this.usermap = map;
-                    DecisionMaker decisionMaker = new DecisionMaker(this.usermap);
-                    getTests();
-                    decisionMaker.setTests(tests);
-                    if(tests!=null)
-                    {
-                        graph=decisionMaker.getDGraph();
+                        callback.initmap(map);
                     }else
                     {
                         Toast.makeText(ResultsGraph.this, "error with grpah", Toast.LENGTH_SHORT).show();
                     }
 
-                }});
+                });
         }).exceptionally(throwable -> {
             // Log any exception that might occur
             Log.e("tagaa", "Error processing data", throwable);
@@ -117,12 +115,12 @@ public class ResultsGraph extends AppCompatActivity {
 
 
 
-    private void getTests()
+    private void getTests(HashMap<String,Object>usermap)
     {
 
         AtomicInteger check= new AtomicInteger();
         check.set(0);
-        this.usermap.forEach((s, o) ->
+        usermap.forEach((s, o) ->
         {
             if(s.equals("tests"))
             {
@@ -157,10 +155,11 @@ public class ResultsGraph extends AppCompatActivity {
                                 Map<String, Object> v = (Map<String, Object>) value;
 
                                 Test t = new Test();
+                                t.setDone(true);
                                 try {
                                     t.setResults((List<Integer>) Functions.convertLongListToIntList((List<?>) (v.get("results"))));
                                     score.addAll(t.getResults());
-                                    t.setPointsPerAnswer((List<Integer>) Functions.convertLongListToIntList((List<?>) (List<Integer>) Functions.convertLongListToIntList((List<?>) (v.get("results")))));
+                                    t.setPointsPerAnswer((List<Integer>) Functions.convertLongListToIntList((List<?>) (List<Integer>) Functions.convertLongListToIntList((List<?>) (v.get("pointsPerAnswer")))));
                                 }catch (NullPointerException numberFormatException)
                                 {
                                     numberFormatException.printStackTrace();
@@ -196,8 +195,26 @@ public class ResultsGraph extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        initServer(field);
-        graph(graph);
+        initServer(field, new Callback_results() {
+            @Override
+            public void initmap(HashMap<String,Object> usermap) {
+                decisionMaker = new DecisionMaker(usermap);
+                getTests(usermap);
+                decisionMaker.setTests(tests);
+                if(tests!=null&&!tests.isEmpty())
+                {
+                 // ResultsGraph.this.graph=decisionMaker.getDGraph();
+graph(decisionMaker.getDGraph());
+
+
+
+
+
+                }else {
+                    Toast.makeText(ResultsGraph.this, "error with grpah", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
 
@@ -209,8 +226,8 @@ public class ResultsGraph extends AppCompatActivity {
             return;
         }
 
-        Log.d("graph",graph.dinicMaxFlow(1,graph.getV()+10).toString(graph));
-
+Log.d("map",graph.toString());
+        // ((MaterialTextView) ((TableRow) tableLayout.getChildAt(1)).getChildAt(0)).setText(result.getMaxFlow());
 
     }
 

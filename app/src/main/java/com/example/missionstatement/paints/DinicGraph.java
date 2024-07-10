@@ -22,6 +22,10 @@ public class DinicGraph {
     }
 
     public void addEdge(Node source, Node destination, int capacityValue) {
+        if(source==null||adjList==null||destination==null)
+        {
+            return;
+        }
         adjList.get(source).add(new Edge(source, destination, capacityValue));
         capacity[source.getId()][destination.getId()] = capacityValue;
     }
@@ -73,6 +77,10 @@ public class DinicGraph {
         }
         List<Integer> path = getAugmentingPath(source, sink);
         return new Result(maxFlow, path);
+    }
+
+    public Map<Node, List<Edge>> getAdjList() {
+        return adjList;
     }
 
     private List<Integer> getAugmentingPath(int source, int sink) {
@@ -166,6 +174,19 @@ public class DinicGraph {
                     ", flow=" + flow +
                     '}';
         }
+    }
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Nodes:\n");
+        for (Node node : adjList.keySet()) {
+            sb.append(node.toString()).append("\n");
+            sb.append("  Edges:\n");
+            for (Edge edge : adjList.get(node)) {
+                sb.append("    ").append(edge.toString()).append("\n");
+            }
+        }
+        return sb.toString();
     }
 }
 

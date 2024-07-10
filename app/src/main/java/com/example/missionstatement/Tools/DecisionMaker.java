@@ -1,12 +1,17 @@
 package com.example.missionstatement.Tools;
 
+import android.util.Log;
+
 import com.example.missionstatement.Objects.Test;
 import com.example.missionstatement.Objects.User;
 import com.example.missionstatement.paints.DinicGraph;
 import com.example.missionstatement.paints.Graph;
 import com.example.missionstatement.paints.Node;
 
+import java.util.AbstractCollection;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,16 +27,20 @@ public class DecisionMaker {
     private int sizeTests;
     private List<Map<String, Object>> testsMap;
     private List<Test> tests;
+    private Node saver;
     private  List<Node>path;
     private DinicGraph graph;
     private int totalos;
     private int[] sum;
+    private List<int[]>sumList;
+    private List<Node> pro;
+    private List<Node> saverList;
 
     public DecisionMaker(HashMap<String, Object> usermap) {
         categories = new int[4];
         this.usermap = usermap;
         totalos=0;
-        sum=new int[4];
+
     }
 
 
@@ -64,10 +73,12 @@ public class DecisionMaker {
 
 
     public DinicGraph getDGraph() {
+        sum=new int[4];
+        sumList=new ArrayList<>();
         String location = this.usermap.get("location").toString().toUpperCase();
         locationpoints = calcLocation(location);
-        int v = 32;
-        DinicGraph graph = new DinicGraph(v + tests.size());
+        int v = 10;
+        DinicGraph graph = new DinicGraph(v + tests.size()* Edu.length);
         Node start = new Node(1, "start");
         Node agemin = new Node(2, "age<20");
         Node agemid = new Node(3, "20<age<35");
@@ -76,7 +87,7 @@ public class DecisionMaker {
         graph.addNode(agemin);
         graph.addNode(agemid);
         graph.addNode(agemax);
-        Node source = new Node(v + tests.size() + 10, "source");
+        Node source = new Node(v + tests.size()+1 , "source");
         graph.addNode(source);
 
         graph.addEdge(start, agemin, locationpoints);
@@ -90,53 +101,68 @@ public class DecisionMaker {
         graph.addEdge(agemid, center, 10);
 
         List<Integer> score = new ArrayList<>();
-        List<Node> pro = new ArrayList<>();
-        pro.add(new Node(10, this.Edu[0]));
-        pro.add(new Node(11, this.Edu[1]));
-        pro.add(new Node(12, this.Edu[2]));
-        pro.add(new Node(13, this.Edu[3]));
+        pro = new ArrayList<>();
+        pro.add(new Node(10-4, this.Edu[0]));
+        pro.add(new Node(11-4, this.Edu[1]));
+        pro.add(new Node(12-4, this.Edu[2]));
+        pro.add(new Node(13-4, this.Edu[3]));
 
         AtomicInteger i = new AtomicInteger(1);
-        Node saver = null;
-        sum = new int[4]; // Initialize sum array outside of the loop
 
-        if (tests != null) {
+        if (tests != null||!tests.isEmpty()) {
             for (Test test : tests) {
                 if (test == null) {
                     continue;
                 }
-                Node tNode = new Node(20 + i.get(), "test" + i.get());
+                int id=10 + i.get();
+                if(null!=graph.getNodeById(10 + i.get()))
+                {
+                    id+=2;
+                }
+                Node tNode = new Node(id, "test" + i.get());
+                graph.addNode(tNode);
                 score.addAll(test.getResults());
                 int frequentNumber = Functions.findMostFrequentNumber(score);
                 sum[frequentNumber % Edu.length] += 20;
-                i.getAndIncrement();
+                i.getAndIncrement();//i++
                 if (saver != null) {
                     graph.addEdge(saver, tNode, 4); // Add edge between every test
                 }
                 saver = tNode; // The next test
 
                 for (Node node : pro) {
-                    if (node != null && test.getResults() != null) {
-                        for (Integer integer : test.getResults()) {
-                            sum[integer % Edu.length] += test.getPointsPerAnswer().get(integer % Edu.length);
-                        }
-
-                        for (Integer integer : test.getResults()) {
-                            if (integer!=null&&node.getLabel().equals(Edu[integer % Edu.length])&&saver!=null) {
-                                graph.addEdge(saver, node, sum[node.getId() / 10 - 1]);
-                                graph.addEdge(node, source, 0);
+                    if (node != null) {
+                        graph.addNode(node);
+                        graph.addEdge(node,source,1);
+                        if (node != null && test.getResults() != null) {
+                            for (Integer integer : test.getResults()) {
+                                sum[integer.intValue() % Edu.length] += test.getPointsPerAnswer().get(integer.intValue() % Edu.length);
+                            }for (Integer integer : test.getResults()) {
+                           graph.addEdge(tNode,node,sum[integer.intValue()]);
                             }
+                            Log.d("map", Arrays.toString(sum));
                         }
                     }
                 }
-                sum = new int[4]; // Reset sum array after processing each test
+                sum=new int[]{0,0,0,0};
+
             }
         }
 
         return graph;
     }
 
+private  void addToSumList()
+{
+   saverList.forEach(node -> {
+       for (int i = 0; i < sumList.size() ; i++) {
+           graph.addEdge(node,graph.getNodeById(10+i),sum[i]);
 
+       }
+
+   });
+
+}
     private int calcLocation(String location) {
         if(location.contains("ISRAEL"))//i dont care if some street at OTHER COUNTRY     with this name
         {
