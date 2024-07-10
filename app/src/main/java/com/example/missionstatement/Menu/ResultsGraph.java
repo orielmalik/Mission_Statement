@@ -1,6 +1,5 @@
 package com.example.missionstatement.Menu;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TableLayout;
@@ -17,9 +16,7 @@ import com.example.missionstatement.R;
 import com.example.missionstatement.Tools.DecisionMaker;
 import com.example.missionstatement.Tools.Functions;
 import com.example.missionstatement.paints.DinicGraph;
-import com.example.missionstatement.paints.Edge;
 import com.example.missionstatement.paints.Graph;
-import com.example.missionstatement.paints.Node;
 import com.google.android.material.textview.MaterialTextView;
 
 import java.text.ParseException;
@@ -62,9 +59,6 @@ public class ResultsGraph extends AppCompatActivity {
                 if (s.equals(ph)) {
                     this.usermap = map;
                         callback.initmap(map);
-                    }else
-                    {
-                        Toast.makeText(ResultsGraph.this, "error with grpah", Toast.LENGTH_SHORT).show();
                     }
 
                 });
@@ -204,7 +198,7 @@ public class ResultsGraph extends AppCompatActivity {
                 if(tests!=null&&!tests.isEmpty())
                 {
                  // ResultsGraph.this.graph=decisionMaker.getDGraph();
-graph(decisionMaker.getDGraph());
+graph(usermap,decisionMaker.getDGraph());
 
 
 
@@ -219,21 +213,61 @@ graph(decisionMaker.getDGraph());
 
 
 
-    private void graph(DinicGraph graph)
+    private void graph(Map<String,Object> usermap,DinicGraph graph)
     {
         if(graph==null)
         {
             return;
         }
 
-Log.d("map",graph.toString());
-        // ((MaterialTextView) ((TableRow) tableLayout.getChildAt(1)).getChildAt(0)).setText(result.getMaxFlow());
+
+        Log.d("map",""+graph.getNodeById(1).getId()+" label "+graph.getNodeById(1).getLabel());
+        Log.d("map",""+graph.getNodeById(graph.getV()-1).getLabel()+" id"+graph.getNodeById(graph.getV()-1).getId());
+        // Log.d("map",""+graph.dinicMaxFlow(1,12).getMaxFlow());
+        int id=switchcaseAge(usermap);
+
+        if(id>0) {
+            ((MaterialTextView) ((TableRow) ResultsGraph.this.tableLayout.getChildAt(1)).getChildAt(1)).setText("" + graph.dinicMaxFlow(id, graph.getV()-1).getMaxFlow());
+        }
+      //  ((MaterialTextView) ((TableRow) ResultsGraph.this.tableLayout.getChildAt(1)).getChildAt(2)).setText(""+graph.dinicMaxFlow(1, graph.getV()-1).getMaxFlow());
+        graph.dinicMaxFlow(id, graph.getV()-1).getPath()
+                .forEach(integer ->
+                {
+                    Log.d("map","id: "+integer.intValue());
+
+    });
 
     }
 
 
 
 
+
+
+
+private  int  switchcaseAge(Map<String,Object>map)
+{
+    int id=-1;
+    try {
+        id=Functions.calculateAge(map.get("birthdate").toString());
+    } catch (ParseException e) {
+        e.printStackTrace();
+        Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+        return -2;
+    }
+    if(id<20)
+    {
+        return 2;
+    }
+    else if(id>35)
+    {
+        return  4;
+    }
+    else
+    {
+        return 3;
+    }
+}
     public User getUser() {
         return user;
     }

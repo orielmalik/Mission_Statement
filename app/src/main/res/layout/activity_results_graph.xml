@@ -16,7 +16,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="SCORE"
+            android:text="CASE"
             android:textStyle="bold"
             android:gravity="center"
             android:background="@android:color/holo_orange_light"
@@ -44,7 +44,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="ECONOMICS"
+            android:text="YOUR "
             android:gravity="center"
             android:padding="8dp"
             android:background="#FFF8DC" /> <!-- Cornsilk background -->
@@ -68,7 +68,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="EDUCATION"
+            android:text="PERFECT"
             android:gravity="center"
             android:padding="8dp"
             android:background="#FFF8DC" /> <!-- Cornsilk background -->

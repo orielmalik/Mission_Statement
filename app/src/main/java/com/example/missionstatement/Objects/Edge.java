@@ -1,6 +1,8 @@
-package com.example.missionstatement.paints;
+package com.example.missionstatement.Objects;
 
 import androidx.annotation.NonNull;
+
+import com.example.missionstatement.paints.Node;
 
 // Edge.java
 public class Edge {

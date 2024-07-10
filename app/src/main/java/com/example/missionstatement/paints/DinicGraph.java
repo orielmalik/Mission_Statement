@@ -38,6 +38,7 @@ public class DinicGraph {
 
         while (!queue.isEmpty()) {
             int u = queue.poll();
+            if(null!=adjList.get(getNodeById(u))){
             for (Edge edge : adjList.get(getNodeById(u))) {
                 int v = edge.destination.getId();
                 if (level[v] < 0 && flow[u][v] < capacity[u][v]) {
@@ -45,22 +46,24 @@ public class DinicGraph {
                     queue.add(v);
                 }
             }
-        }
+        }}
         return level[sink] >= 0;
     }
 
     private int dfs(int u, int sink, int minFlow) {
         if (u == sink) return minFlow;
-        for (Edge edge : adjList.get(getNodeById(u))) {
-            int v = edge.destination.getId();
-            if (level[v] == level[u] + 1 && flow[u][v] < capacity[u][v]) {
-                int currFlow = Math.min(minFlow, capacity[u][v] - flow[u][v]);
-                int tempFlow = dfs(v, sink, currFlow);
+            if (adjList.get(getNodeById(u))!=null) {
+            for (Edge edge : adjList.get(getNodeById(u))) {
+                int v = edge.destination.getId();
+                if (level[v] == level[u] + 1 && flow[u][v] < capacity[u][v]) {
+                    int currFlow = Math.min(minFlow, capacity[u][v] - flow[u][v]);
+                    int tempFlow = dfs(v, sink, currFlow);
 
-                if (tempFlow > 0) {
-                    flow[u][v] += tempFlow;
-                    flow[v][u] -= tempFlow;
-                    return tempFlow;
+                    if (tempFlow > 0) {
+                        flow[u][v] += tempFlow;
+                        flow[v][u] -= tempFlow;
+                        return tempFlow;
+                    }
                 }
             }
         }
@@ -126,6 +129,10 @@ public class DinicGraph {
         public Result(int maxFlow, List<Integer> path) {
             this.maxFlow = maxFlow;
             this.path = path;
+        }
+
+        public List<Integer> getPath() {
+            return path;
         }
 
         public String toString(DinicGraph graph) {
