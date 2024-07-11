@@ -61,7 +61,7 @@ public class EducationClassifierHanLP {
         } else if (educationScore > economicScore && educationScore > engineerScore && educationScore > medicalScore) {
             return "EDUCATION";
         } else {
-            return "UNCERTAIN";
+            return "EDUCATION";
         }
     }
 }

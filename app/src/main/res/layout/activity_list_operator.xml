@@ -7,23 +7,35 @@
     android:background="@drawable/ic_outls"
     tools:context=".Menu.ListOperator">
 
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/Txt_OperatorList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Scroll to Discover"
+        android:textColor="@color/white"
+        android:textSize="35sp"
+        android:fontFamily="@font/lbl_comic_bold"
+        />
 
-<com.google.android.material.textview.MaterialTextView
-    android:id="@+id/Txt_OperatorList"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="Scroll to Discover"
-    android:textColor="@color/white"
-    android:textSize="35sp"
-    android:fontFamily="@font/lbl_comic_bold"
-    />
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/searchView_LST"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/Txt_OperatorList"
+        android:layout_marginTop="10dp"
+        android:queryHint="Search..."
+        app:iconifiedByDefault="false"
+        android:background="@color/white"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/lst_operator"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/Txt_OperatorList"
-        android:layout_marginTop="80dp"
+        android:layout_below="@id/searchView_LST"
+        android:layout_marginTop="10dp"
         android:background="@drawable/ic_whitelst"
         android:layout_centerInParent="true" />
 

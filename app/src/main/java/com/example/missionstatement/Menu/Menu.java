@@ -84,6 +84,7 @@ public class Menu extends AppCompatActivity {
 
     private void makebtn_option3() {
         Intent i3 = new Intent(this, ListOperator.class);
+        i3.putExtra("ph",this.name);
         View.OnClickListener operatorClick;
         View.OnClickListener UserClick = new View.OnClickListener() {
             @Override

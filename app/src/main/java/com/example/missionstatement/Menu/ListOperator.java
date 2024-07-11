@@ -1,78 +1,116 @@
 package com.example.missionstatement.Menu;
-
+import android.os.Bundle;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.PopupMenu;
+import android.widget.Toast;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.os.Bundle;
-import android.util.Log;
-
-import com.example.missionstatement.Firebase.Realtime;
-import com.example.missionstatement.Firebase.Storage;
-import com.example.missionstatement.Fragment.FragmentProfile;
 import com.example.missionstatement.R;
-import com.example.missionstatement.Tools.CryptoUtils;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.concurrent.CompletableFuture;
 
 public class ListOperator extends AppCompatActivity {
-    RecyclerView recyclerView;
-    Realtime server;
-    Storage storage;
-    ArrayList<FragmentProfile> lst;
-    private static int i = 0;
+
+    private RecyclerView recyclerView;
+    private SearchView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        lst = new ArrayList<>();
         setContentView(R.layout.activity_list_operator);
+
         recyclerView = findViewById(R.id.lst_operator);
-        server = new Realtime(this);
-        storage = Storage.getInstance();
-        CompletableFuture<HashMap<String, HashMap<String, String>>> future = server.checkDataSnapshot("human");
-        future.thenAccept(data -> {
-            for (HashMap<String, String> minnerMap : data.values()) {
-                HashMap<String, String> innerMap=decryptHuman(minnerMap);
-                if (innerMap.get("position").equals("OPERATOR")) {
-                    Log.d(null, "HashCreate: " + innerMap);
-                    FragmentProfile fragmentProfile = new FragmentProfile();
-                    fragmentProfile.setDeatils(innerMap);
-                    lst.add(fragmentProfile);
+        searchView = findViewById(R.id.searchView_LST);
 
-                }
+        // Set up SearchView
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                performSearch(query);
+                return true;
             }
-            Log.d(null, "HashCreate: " + lst.get(0).getDeatils());
-            MyAdapter adapter = new MyAdapter(lst, getSupportFragmentManager());
 
-            recyclerView.setLayoutManager(new LinearLayoutManager(this));
-            recyclerView.setAdapter(adapter);
-
-        }).exceptionally(e -> {
-            // Handle exception if there was an error
-            Log.e("lstActivity", "Error: " + e.getMessage());
-            return null;
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
         });
 
+        // Show popup menu when the SearchView is clicked
+        searchView.setOnSearchClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showPopupMenu(v);
+            }
+        });
+
+        searchView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showPopupMenu(v);
+            }
+        });
+    }
+
+    private void performSearch(String query) {
+        // Perform search action here
+        // For example, filter the RecyclerView based on the query
+        Toast.makeText(this, "Searching for: " + query, Toast.LENGTH_SHORT).show();
+    }
+
+    private void showPopupMenu(View view) {
+        PopupMenu popup = new PopupMenu(this, view);
+        MenuInflater inflater = popup.getMenuInflater();
+        inflater.inflate(R.menu.popu_menu, popup.getMenu());
+        int[]id={R.id.menu_item1,R.id.menu_item2,R.id.menu_item3,R.id.menu_item4,R.id.menu_item5};
+
+        int[]Operatoricon={R.drawable.ic_locat,R.drawable.ic_heartt,R.drawable.ic_validate,R.drawable.ic_google,R.drawable.ic_smiley,R.drawable.ic_operatorseven};
+        for (int i = 0; i <id.length ; i++) {
+            popup.getMenu().findItem(id[i]).setIcon(Operatoricon[i]);
+        }
+
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                boolean ok=false;
+getIconAction(id,item,Operatoricon);
+
+
+
+
+
+
+
+
+
+
+                return  ok;
+            }
+        });
+        popup.show();
+    }
+
+    private void getIconAction(int[] id, MenuItem item,int[]op) {
+        for (int i = 0; i < id.length; i++) {
+            if(id[i]==item.getItemId())
+            {
+                doSwitch(op[i],id);
+            }
+        }
 
     }
 
-    private HashMap<String, String> decryptHuman(HashMap<String, String> mdeatils) {
-        HashMap<String, String> deatils = mdeatils;
-        deatils.forEach((key, value) -> {
-            // בדיקה אם הערך הוא String
-            if (value instanceof String) {
-                // שינוי הערך
-                try {
-                    String strValue = CryptoUtils.decrypt((String) value);
-                    deatils.put(key, strValue);
-                } catch (Exception e) {
-                    e.getMessage();
-                }
-            }
-        });
-        return deatils;
+    private void doSwitch(int i,int[]id) {
+        switch (i)
+        {
+            case id[0]:
+
+        }
+
     }
+
+
 }

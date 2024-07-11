@@ -126,8 +126,8 @@ public class DecisionMaker {
                 int frequentNumber = Functions.findMostFrequentNumber(score);
                 sum[frequentNumber % Edu.length] += 20;
                 saver = tNode; // The next test
-                 id=10 + i.getAndIncrement()-1;
-               tNode=new Node(id, "test" + (id-10));
+                id=10 + i.getAndIncrement()-1;
+                tNode=new Node(id, "test" + (id-10));
                 graph.addNode(tNode);
 
                 if (saver != null) {
@@ -148,6 +148,7 @@ public class DecisionMaker {
                         }
                     }
                 }
+                score=new ArrayList<>();
                 sum=new int[]{0,0,0,0};
 
             }

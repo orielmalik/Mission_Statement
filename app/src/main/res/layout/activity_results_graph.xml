@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/TBL_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -7,7 +8,8 @@
     android:background="@drawable/bck_rainboww"
     android:padding="16dp">
 
-    <TableRow
+
+<TableRow
         android:id="@+id/TBL_titles"
         android:layout_height="wrap_content"
         android:paddingBottom="8dp">
@@ -30,7 +32,7 @@
             android:background="@android:color/holo_orange_light"
             android:gravity="center"
             android:padding="8dp"
-            android:text="Path"
+            android:text="CATEGORY"
             android:textColor="@android:color/white"
             android:textStyle="bold" />
     </TableRow>
@@ -92,7 +94,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="MEDICAL"
+            android:text="FAVORITE"
             android:gravity="center"
             android:padding="8dp"
             android:background="#FFF8DC" /> <!-- Cornsilk background -->
@@ -116,7 +118,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="ENGINEER"
+            android:text="LOWER"
             android:gravity="center"
             android:padding="8dp"
             android:background="#FFF8DC" /> <!-- Cornsilk background -->
@@ -130,5 +132,15 @@
             android:padding="8dp"
             android:background="#FFF8DC" /> <!-- Cornsilk background -->
     </TableRow>
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/lottie_res"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        app:lottie_rawRes="@raw/lottie_til"
+        android:tintMode="src_in"
+
+        />
 
 </TableLayout>
