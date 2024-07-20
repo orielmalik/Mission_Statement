@@ -95,8 +95,7 @@ private Storage storage;
                 // If the child view has a parent, remove it from the current parent
                 ((ViewGroup) fragmentProfile.getView().getParent()).removeView(fragmentProfile.getView());
             }
-            fragmentProfile.putDeatilsWithHash(fragmentProfile.getDeatils());
-// Now you can safely add the child view to the new parent
+            fragmentProfile.putOperatorWithHash(fragmentProfile.getDeatils());
             container.addView(fragmentProfile.getView());
         }
     }

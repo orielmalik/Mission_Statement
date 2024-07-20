@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,6 +30,7 @@ import com.example.missionstatement.R;
 import com.google.android.material.textview.MaterialTextView;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class FragmentProfile extends Fragment {
     private MaterialTextView username,phoneNumber,email;
@@ -45,6 +47,7 @@ public class FragmentProfile extends Fragment {
     private boolean isEditing=false;
     Uri selectedImageUri;
     private View rootView;
+    private int currentIcon;
 
     //init to only watch version without editing
     @SuppressLint("MissingInflatedId")
@@ -124,8 +127,27 @@ public class FragmentProfile extends Fragment {
             icon.setImageResource(R.drawable.ic_logouser);
         }
         else {
-            ratingBar.setRating(2.5F);//this data will be by ratings of people
+            ratingBar.setRating(0.5F);//this data will be by ratings of people
 
+        }
+
+    }
+    public void  putOperatorWithHash(HashMap<String,String> deatils)
+    {
+        findviews(rootView);
+        if(deatils==null){return;}
+
+
+        phoneNumber.setText(deatils.get("PhoneNumber"));
+        email.setText(deatils.get("area"));
+        deatils.put("icon", String.valueOf(this.currentIcon));
+        try {
+            ratingBar.setRating(Float.parseFloat(deatils.get("rating")));
+            icon.setImageResource(Integer.parseInt(deatils.get("icon")));
+
+        }catch (NumberFormatException numberFormatException)
+        {
+            Log.d("NUMBEREX", ": "+numberFormatException.getMessage());
         }
 
     }
@@ -178,6 +200,7 @@ public class FragmentProfile extends Fragment {
         }
         menuItem.setIcon(source[pid]);
         icon.setImageResource(source[pid]);
+        this.currentIcon=source[pid];
     }
 
 

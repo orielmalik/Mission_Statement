@@ -25,6 +25,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ResultsGraph extends AppCompatActivity {
@@ -239,20 +244,66 @@ public class ResultsGraph extends AppCompatActivity {
     {
         int id=switchcaseAge(usermap);
         int fav=calcFavorite(usermap);
+        ExecutorService executorService = Executors.newFixedThreadPool(4);
 
-        List<Integer>list=new ArrayList<>();
-        list.addAll( graph.dinicMaxFlow(1, graph.getV()-1).getPath());//personal
-        list.addAll( graph.dinicMaxFlow(id, graph.getV()-1).getPath());//personal
-        list.addAll( graph.dinicMaxFlow(id, fav).getPath());//favorite
-        list.addAll( graph.dinicMaxFlow(id, 9).getPath());//lower
+        List<List<Integer>> list=new ArrayList<>();
+        try {
+            // Define tasks
+            Callable<List<Integer>> task1 = () -> graph.dinicMaxFlow(1, graph.getV() - 1).getPath();
+            Callable<List<Integer>> task2 = () -> graph.dinicMaxFlow(switchcaseAge(usermap), graph.getV() - 1).getPath();
+            Callable<List<Integer>> task3 = () -> graph.dinicMaxFlow(switchcaseAge(usermap), calcFavorite(usermap)).getPath();
+            Callable<List<Integer>> task4 = () -> graph.dinicMaxFlow(switchcaseAge(usermap), 7).getPath();
 
-        for (int i = 0; i <list.size() ; i++) {
-            ((MaterialTextView) ((TableRow) ResultsGraph.this.tableLayout.getChildAt(i+1)).getChildAt(1)).setText("" + list.get(i));
+            // Submit tasks to the executor
+            List<Future<List<Integer>>> futures = new ArrayList<>();
+            futures.add(executorService.submit(task1));
+            futures.add(executorService.submit(task2));
+            futures.add(executorService.submit(task3));
+            futures.add(executorService.submit(task4));
 
+            // Collect results from futures
+            for (Future<List<Integer>> future : futures) {
+                try {
+                    list.add(future.get());
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                    // Handle exceptions if needed
+                }
+            }
+        } finally {
+            // Shut down the executor service
+            executorService.shutdown();
         }
+        int viewIndex = 1; // Start from the second row as the first is header presumably
+        List<String>way=new ArrayList<>();
+        for (List<Integer> path : list) {
+            if (path.size() >= 2) { // Ensure there are at least 2 elements in the path
+                int index = path.size() - 2;// Get the index of the second last element
+                int value = path.get(index); // Get the value at the second last index
+                String description = getDescriptionText(value); // Get the description text
+                Log.d("tag","id "+index+" fav "+value);
+
+                way.add(description);
+                // Set the text in the appropriate MaterialTextView
+                if(viewIndex>=list.size()-1)
+                {
+                    ((MaterialTextView) ((TableRow) ResultsGraph.this.tableLayout.getChildAt(viewIndex)).getChildAt(1)).setText(getDescriptionText(path.get(path.size()-1)));
+                    Log.d("tag",index+" ind "+(path.get(path.size()-1)));
+
+
+                }else {
+                    ((MaterialTextView) ((TableRow) ResultsGraph.this.tableLayout.getChildAt(viewIndex)).getChildAt(1)).setText(description);
+
+                }
+
+                    viewIndex++;
+            }
+        }
+
+
         if(server!=null)
         {
-            server.getmDatabase().child("Results").child(user.getPhoneNumber()).setValue(list);
+            server.getmDatabase().child("Results").child(field).setValue(way);
         }
 
     }
@@ -281,7 +332,19 @@ public class ResultsGraph extends AppCompatActivity {
         }
         return  -1;
     }
-
+    private String getDescriptionText(int value) {
+        switch (value) {
+            case 6:
+                return "ECONOMIC";
+            case 7:
+                return "ENGINEER";
+            case 8:
+                return "MEDICAL";
+            case 9:
+                return "EDUCATION";
+            default:
+                return "EDUCATION";
+        } }
 
     private  int  switchcaseAge(Map<String,Object>map)
     {
@@ -291,7 +354,7 @@ public class ResultsGraph extends AppCompatActivity {
         } catch (ParseException e) {
             e.printStackTrace();
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
-            return -2;
+            return 4;//default maybe he didnt want to say his age
         }
         if(id<20)
         {
