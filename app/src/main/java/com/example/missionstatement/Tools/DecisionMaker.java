@@ -73,6 +73,7 @@ public class DecisionMaker {
 
 
     public DinicGraph getDGraph() {
+        //String category =test.contains
         sum=new int[4];
         sumList=new ArrayList<>();
         String location = this.usermap.get("location").toString().toUpperCase();
@@ -90,17 +91,17 @@ public class DecisionMaker {
         Node source = new Node(graph.getV()-1, "source");
         graph.addNode(source);
 
-        graph.addEdge(start, agemin, locationpoints);
-        graph.addEdge(start, agemax, locationpoints);
-        graph.addEdge(start, agemid, locationpoints);
+        graph.addEdge(start, agemin, locationpoints+14);
+        graph.addEdge(start, agemax, locationpoints+18);
+        graph.addEdge(start, agemid, locationpoints+10);
 
         Node center = new Node(5, "center");
         graph.addNode(center);
 
         // Every node gets its agePoints
-        graph.addEdge(agemin, center, 14);
-        graph.addEdge(agemax, center, 18);
-        graph.addEdge(agemid, center, 10);
+        graph.addEdge(agemin, center, 1);
+        graph.addEdge(agemax, center, 1);
+        graph.addEdge(agemid, center, 1);
 
         List<Integer> score = new ArrayList<>();
         pro = new ArrayList<>();
@@ -141,6 +142,10 @@ public class DecisionMaker {
                         if (node != null && test.getResults() != null) {
                             for (Integer integer : test.getResults()) {
                                 sum[integer.intValue() % Edu.length] += test.getPointsPerAnswer().get(integer.intValue() % Edu.length);
+                                if(test.getCategory()!=null&&integer.intValue()!=Functions.indexCategory(test.getCategory()))//if we have specific category BY TEST AUTHOR so minus score or not
+                                {
+                                    sum[Functions.indexCategory(test.getCategory()) % Edu.length] -= test.getPointsPerAnswer().get(Functions.indexCategory(test.getCategory()) % Edu.length)/2;
+                                }
                             }for (Integer integer : test.getResults()) {
                                 graph.addEdge(tNode,node,sum[integer.intValue()]);
                             }

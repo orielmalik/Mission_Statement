@@ -157,8 +157,8 @@ public class ResultsGraph extends AppCompatActivity {
                 if (stringObjectMap != null) {
                     stringObjectMap.forEach((key, value) ->{
                         Map<String, Object> v = (Map<String, Object>) value;
-
                         Test t = new Test();
+                        t.setCategory(Functions.isContains(key).name());//set Category to name of AUTHOR WROTE
                         t.setDone(true);
                         try {
                             t.setResults((List<Integer>) Functions.convertLongListToIntList((List<?>) (v.get("results"))));
@@ -171,6 +171,7 @@ public class ResultsGraph extends AppCompatActivity {
                         }
                         if(t.getResults()!=null&&t.getPointsPerAnswer()!=null) {
                             Log.d("map",""+t.toMap().values());
+
                             tests.add(t);
                         }
                     });
@@ -222,7 +223,6 @@ public class ResultsGraph extends AppCompatActivity {
         lottie.setRepeatCount(10000);
         lottie.resumeAnimation();*/
     }
-
 
 
     private void graph(Map<String,Object> usermap,DinicGraph graph)

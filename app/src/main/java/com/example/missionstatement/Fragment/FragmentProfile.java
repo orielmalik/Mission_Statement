@@ -40,7 +40,7 @@ public class FragmentProfile extends Fragment {
     private AppCompatRatingBar ratingBar;
     private AppCompatImageView icon,profiler;
     Drawable drawable;
-
+public boolean isAdded=false;
     private ActivityResultLauncher<Intent> pickImageLauncher;
     private Callback_profile callback_profile;
     private AppCompatSpinner spinner;
@@ -67,9 +67,18 @@ public class FragmentProfile extends Fragment {
                     }
                 });
         rootView=view;
+        if (getArguments() != null) {
+            Deatils = (HashMap<String, String>) getArguments().getSerializable("details");
+        }
         return view;
     }
-
+    public static FragmentProfile newInstance(FragmentProfile f) {
+        FragmentProfile fragment = new FragmentProfile();
+        Bundle args = new Bundle();
+        args.putSerializable("details", f.getDeatils());
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     private   void  findviews(View view)
     {
@@ -223,6 +232,9 @@ public class FragmentProfile extends Fragment {
     public AppCompatImageView getProfiler() {
         return profiler;
     }
+
+
+
 }
 
 

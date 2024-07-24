@@ -46,6 +46,9 @@ dependencies {
     implementation("com.google.code.gson:gson:2.8.9")
     implementation ("androidx.core:core-ktx:1.7.0")
     implementation("com.hankcs:hanlp:portable-1.7.8") // Use the latest portable version
+    implementation ("androidx.viewpager2:viewpager2:1.0.0")
+    implementation("com.google.android.material:material:1.4.0")
+    implementation("androidx.appcompat:appcompat:1.3.1")
 
     // Lottie Animation Library
     implementation("com.airbnb.android:lottie:5.2.0") // Adjust Lottie version as needed

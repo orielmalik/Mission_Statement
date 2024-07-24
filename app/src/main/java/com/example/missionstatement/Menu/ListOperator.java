@@ -1,5 +1,6 @@
 package com.example.missionstatement.Menu;
 
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuInflater;
@@ -22,6 +23,7 @@ import com.example.missionstatement.Fragment.FragmentProfile;
 import com.example.missionstatement.Objects.Operator;
 import com.example.missionstatement.R;
 import com.example.missionstatement.Tools.CryptoUtils;
+import com.example.missionstatement.Tools.Functions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ListOperator extends AppCompatActivity {
     private Operator operator;
@@ -58,7 +61,6 @@ public class ListOperator extends AppCompatActivity {
         setCategory=new HashSet<>();
         // Set up SearchView
         setSearchView();
-
 
 
     }
@@ -103,10 +105,10 @@ public class ListOperator extends AppCompatActivity {
         callbackList = new Callback_list() {
             @Override
             public void addToList(FragmentProfile f) {
-                if(f.getDeatils().get(ListOperator.this.filter).equalsIgnoreCase(query.replace(" ",""))||additionalCondition( query,f))
+                if((!f.isAdded&&!getLst().contains(f))&&Functions.filterBy(filter,query,f.getDeatils(),searchView))
                 {
                     lst.add(f);
-
+f.isAdded=true;
                 }
             }
 
@@ -116,7 +118,6 @@ public class ListOperator extends AppCompatActivity {
                 for (Map<String,String>map:getMapList()) {
                     try {
                         initOpeartor((String) CryptoUtils.decrypt(map.get("email")), (String) CryptoUtils.decrypt(map.get("PhoneNumber")));
-
                     } catch (Exception e) {
                         Log.e("err", e.getMessage());
                     }
@@ -133,7 +134,7 @@ public class ListOperator extends AppCompatActivity {
 
                 recyclerView.setLayoutManager(new LinearLayoutManager(ListOperator.this));
                 recyclerView.setAdapter(adapter);
-                ListOperator.this.lst=new ArrayList<>();
+                setLst(new ArrayList<>());
             }
 
             @Override
@@ -149,23 +150,8 @@ public class ListOperator extends AppCompatActivity {
         Toast.makeText(this, "Searching for: " + query, Toast.LENGTH_SHORT).show();
     }
 
-    private boolean additionalCondition(String query,FragmentProfile f) {
-        int v;
-        float t;
-        if(filter.equals("rating"))
-        {
-            try {
-                 v=Integer.parseInt(query);
-                 t=Float.parseFloat(f.getDeatils().get(filter));
-            }catch (NumberFormatException numberFormatException)
-            {
-                numberFormatException.printStackTrace();
-                Toast.makeText(this,"NOT NUMBER",Toast.LENGTH_SHORT);
-                return  false;
-            }
-           return  (int) t>=v;
-        }
-        return  false;
+    public void setLst(List<FragmentProfile> lst) {
+        this.lst = lst;
     }
 
     private void showPopupMenu(View view) {
@@ -173,7 +159,7 @@ public class ListOperator extends AppCompatActivity {
         MenuInflater inflater = popup.getMenuInflater();
 
         inflater.inflate(R.menu.popu_menu, popup.getMenu());
-        String[]op={"area","rating","category","email","clients"};
+        String[]op={"results","area","rating","category","email"};
         int[]Operatoricon={R.drawable.ic_locat,R.drawable.ic_heartt,R.drawable.ic_validate,R.drawable.ic_google,R.drawable.ic_smiley,R.drawable.ic_operatorseven};
         for (int i = 0; i <id.length ; i++) {
             popup.getMenu().findItem(id[i]).setIcon(Operatoricon[i]);
@@ -185,7 +171,6 @@ public class ListOperator extends AppCompatActivity {
             public boolean onMenuItemClick(MenuItem item) {
                 boolean ok=false;
                 getIconAction(id,item,op);
-
 
                 return  true;
             }
@@ -204,7 +189,22 @@ public class ListOperator extends AppCompatActivity {
 
     }
 
+private  boolean uploadOperatorsOnce(String email)
+{
+    AtomicBoolean bool=new AtomicBoolean(false);
+    server.checkDataSnapshotnew("OPERATOR").thenAccept(big -> {
 
+        big.forEach((s, hashMap) -> {
+if(email.equals(operator.getEmail()))
+{
+    bool.set(true);
+}
+        });
+    });
+
+
+    return bool.get();
+}
 
 
 
@@ -250,9 +250,23 @@ public class ListOperator extends AppCompatActivity {
     }
     private  void initOpeartor(String email,String ph)
     {
-        operator=new Operator(getRandomCategory(),getRandomArea()," i am professtiona at education",getRandomFloat(),getRandomIcon());
-        operator.setEmail(email);
-        operator.setPhoneNumber(ph);
+        if(!uploadOperatorsOnce(email.replace(" ",""))) {
+
+            switch (email.replace(" ", "")) {
+                case "mirham@afeka.ac.il":
+                    operator = new Operator(Category.ENGINEER, AREA.TLV, " COLLEGE OF ENGINEERING  B.SC(SW,MD,MACHINE,ELECTRICITY ,INDUSTRIAL AND MORE)", 3.7f, getRandomIcon());
+                    break;
+                case "international@mta.ac.il":
+                    operator = new Operator(Category.ENGINEER, AREA.TLV, " the college offers a variety of undergraduate and graduate programs in a variety of fields, including business, computer science, social work, and education.", 0.4f, getRandomIcon());
+                    break;
+                default:
+                    operator = new Operator(getRandomCategory(), getRandomArea(), " i am professtiona at education", getRandomFloat(), getRandomIcon());
+                    break;
+            }
+            operator.setEmail(email);
+            operator.setPhoneNumber(ph);
+            server.getmDatabase().child("OPERATOR").setValue(operator.OperatorMap());
+        }
     }
     public AREA getRandomArea() {
         AREA[] areas = AREA.values();

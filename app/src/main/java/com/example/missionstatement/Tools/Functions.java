@@ -13,10 +13,12 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import androidx.appcompat.widget.SearchView;
 
 
 import androidx.annotation.RequiresApi;
 
+import com.example.missionstatement.Category;
 import com.example.missionstatement.Objects.Test;
 import com.google.firebase.storage.StorageReference;
 
@@ -31,9 +33,12 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -427,6 +432,57 @@ return  0;
             // אם הרשימה אינה מטיפוס Long, החזר את הרשימה כפי שהיא
             return originalList;
         }
+    }
+
+    public static boolean isFloatNumber(String str) {
+        try {
+            Float.parseFloat(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+//LIST OPERATOR FILTER BY
+
+
+    public  static  boolean filterBy(String criteria, String query, HashMap<String,String>deatils, SearchView enable)
+    {
+
+       switch (criteria.toLowerCase())
+       {
+           case "email":case"area": case "category":
+               return deatils.get(criteria).equals(query);
+           case  "rating":
+               return isFloatNumber(query)&&Float.parseFloat(deatils.get(criteria))>=Float.parseFloat(query);
+           case "results":
+               enable.setQueryHint("");
+
+       }
+return  false;
+    }
+    public  static Category isContains(String con)
+    {
+        Category []values=Category.values();
+        for (int i = 0; i<values.length ; i++) {
+            if(con.contains("x"+values[i].name()+"x"))
+            {
+
+                return  values[i];
+            }
+        }
+        return  null;
+    }
+
+    public  static int indexCategory(String name)
+    {
+        Category [] arr=Category.values();
+        for (int i = 0; i < arr.length; i++) {
+            if(name.equals(arr[i].name()))
+            {
+                return  i;
+            }
+        }
+        return  0;
     }
 }
 
