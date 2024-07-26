@@ -99,7 +99,7 @@ public class FragmentQuest extends Fragment {
                                 break;
                             }
                         }
-                        if (callback_test.getCounterQuestion(counter+1)) {
+                        if (callback_test.getCounterQuestion(counter+1)&&callback_test.state()==0) {
                             counter++;
                             getRadioGroup().clearCheck();
                             onAnswer();

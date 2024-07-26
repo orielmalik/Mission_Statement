@@ -22,6 +22,7 @@ import com.google.android.material.textview.MaterialTextView;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -237,68 +238,47 @@ public class ResultsGraph extends AppCompatActivity {
         Log.d("map",""+graph.getNodeById(graph.getV()-1).getLabel()+" id"+graph.getNodeById(graph.getV()-1).getId());
 
 
-        saveResults(graph);
+        saveResults(new DinicGraph[]{graph,graph,graph,graph});
     }
 
-    private void  saveResults(DinicGraph graph)
-    {
-        int id=switchcaseAge(usermap);
-        int fav=calcFavorite(usermap);
+    private void  saveResults(DinicGraph[] graph) {
+        int id = switchcaseAge(usermap);
+        Log.d("tag", "saveResults: " + id);
+        int fav = calcFavorite(usermap);
         ExecutorService executorService = Executors.newFixedThreadPool(4);
 
-        List<List<Integer>> list=new ArrayList<>();
-        try {
-            // Define tasks
-            Callable<List<Integer>> task1 = () -> graph.dinicMaxFlow(1, graph.getV() - 1).getPath();
-            Callable<List<Integer>> task2 = () -> graph.dinicMaxFlow(switchcaseAge(usermap), graph.getV() - 1).getPath();
-            Callable<List<Integer>> task3 = () -> graph.dinicMaxFlow(switchcaseAge(usermap), calcFavorite(usermap)).getPath();
-            Callable<List<Integer>> task4 = () -> graph.dinicMaxFlow(switchcaseAge(usermap), 7).getPath();
+        List<Integer> list = new ArrayList<>();
+        Log.d("tag","dinic "+ Arrays.toString( graph[0].dinicMaxFlow(1, graph[0].getV() - 1).getPath().toArray())+" s "+graph[2].dinicMaxFlow(1, graph[2].getV() - 1).getMaxFlow());
 
-            // Submit tasks to the executor
-            List<Future<List<Integer>>> futures = new ArrayList<>();
-            futures.add(executorService.submit(task1));
-            futures.add(executorService.submit(task2));
-            futures.add(executorService.submit(task3));
-            futures.add(executorService.submit(task4));
+        // Define tasks
+        Callable<Integer> task1 = () -> graph[0].dinicMaxFlow(1, graph[0].getV() - 1).getPath().get(graph[0].dinicMaxFlow(1, graph[0].getV() - 1).getPath().size() - 2);
+        Callable<Integer> task2 = () -> graph[1].dinicMaxFlow(switchcaseAge(usermap), graph[0].getV() - 1).getPath().get(graph[1].dinicMaxFlow(switchcaseAge(usermap), graph[1].getV() - 1).getPath().size() - 2);
+        Callable<Integer> task3 = () -> graph[2].dinicMaxFlow(switchcaseAge(usermap), calcFavorite(usermap)).getMaxFlow();
+        Callable<Integer> task4 = () -> graph[3].dinicMaxFlow(switchcaseAge(usermap), 7).getMaxFlow();
+        // Submit tasks to the executor
+        List<Future<Integer>> futures = new ArrayList<>();
+        futures.add(executorService.submit(task1));
+        futures.add(executorService.submit(task2));
+        futures.add(executorService.submit(task3));
+        futures.add(executorService.submit(task4));
 
-            // Collect results from futures
-            for (Future<List<Integer>> future : futures) {
-                try {
-                    list.add(future.get());
-                } catch (InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
-                    // Handle exceptions if needed
-                }
+        // Collect results from futures
+        for (Future<Integer> future : futures) {
+            try {
+                list.add(future.get());
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+                // Handle exceptions if needed
+            } finally {
+                // Shut down the executor service
+                executorService.shutdown();
             }
-        } finally {
-            // Shut down the executor service
-            executorService.shutdown();
         }
-        int viewIndex = 1; // Start from the second row as the first is header presumably
         List<String>way=new ArrayList<>();
-        for (List<Integer> path : list) {
-            if (path.size() >= 2) { // Ensure there are at least 2 elements in the path
-                int index = path.size() - 2;// Get the index of the second last element
-                int value = path.get(index); // Get the value at the second last index
-                String description = getDescriptionText(value); // Get the description text
-                Log.d("tag","id "+index+" fav "+value);
-
-                way.add(description);
-                // Set the text in the appropriate MaterialTextView
-                if(viewIndex>=list.size()-1)
-                {
-                    ((MaterialTextView) ((TableRow) ResultsGraph.this.tableLayout.getChildAt(viewIndex)).getChildAt(1)).setText(getDescriptionText(path.get(path.size()-1)));
-                    Log.d("tag",index+" ind "+(path.get(path.size()-1)));
-
-
-                }else {
-                    ((MaterialTextView) ((TableRow) ResultsGraph.this.tableLayout.getChildAt(viewIndex)).getChildAt(1)).setText(description);
-
-                }
-
-                    viewIndex++;
-            }
-        }
+        ((MaterialTextView) ((TableRow) ResultsGraph.this.tableLayout.getChildAt(1)).getChildAt(1)).setText((list.get(0).toString()));
+        ((MaterialTextView) ((TableRow) ResultsGraph.this.tableLayout.getChildAt(2)).getChildAt(1)).setText((list.get(1).toString()));
+        ((MaterialTextView) ((TableRow) ResultsGraph.this.tableLayout.getChildAt(3)).getChildAt(1)).setText((list.get(2)).toString());
+        ((MaterialTextView) ((TableRow) ResultsGraph.this.tableLayout.getChildAt(4)).getChildAt(1)).setText((list.get(3)).toString());
 
 
         if(server!=null)
@@ -354,7 +334,7 @@ public class ResultsGraph extends AppCompatActivity {
         } catch (ParseException e) {
             e.printStackTrace();
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
-            return 4;//default maybe he didnt want to say his age
+            return 0;//default maybe he didnt want to say his age
         }
         if(id<20)
         {

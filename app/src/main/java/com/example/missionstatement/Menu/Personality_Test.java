@@ -3,6 +3,7 @@ package com.example.missionstatement.Menu;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputType;
@@ -21,6 +22,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.missionstatement.CallBackType.Callback_test;
+import com.example.missionstatement.Category;
 import com.example.missionstatement.Firebase.Realtime;
 import com.example.missionstatement.Firebase.Storage;
 import com.example.missionstatement.Fragment.FragmentQuest;
@@ -39,10 +41,12 @@ import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageReference;
 
 import java.io.File;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -90,30 +94,54 @@ public class Personality_Test extends AppCompatActivity {
             if (test.getAnswers() == null) {
                 return;
             }
-            String[]answers= (String[]) test.getAnswers().get(mycounter ).toArray();
+            String[] answers;
+            if (!user.isManager()) {
+                answers = (String[]) test.getAnswers().get(mycounter).toArray();
+            } else {
+                answers = new String[4];
+
+            }
+
             for (int i = 0; i < radioGroup.getChildCount(); i++) {
                 View view = radioGroup.getChildAt(i);
                 if (view instanceof RadioButton) {
                     RadioButton radioButton = (RadioButton) view;
-
-                    if (answers[i] != null) {
+                    if (answers[i] != null && !user.isManager()) {
                         radioButton.setText(answers[i]);
-                    } else if (test.getAnswers().get(mycounter - 1).toArray()[i] == null && user.isManager()) {
-                        radioButton.setText("");
-                    } else {
+                    } else if (answers[i] != null && user.isManager()) {
+                        answers[i] = radioButton.getText().toString();
+                    } else if (!user.isManager()) {
                         radioButton.setVisibility(View.INVISIBLE);
 
                     }
+
+                }
+            }
+            if (user.isManager()) {
+                if (test.getAnswers() == null) {
+                    test.setAnswers(new ArrayList<>());
+                }
+                if (test.getQuestions() == null) {
+                    test.setQuestions(new ArrayList<>());
+                }
+                if (!subject.getText().toString().isEmpty()) {
+                    test.getQuestions().add(test.getQuestions().size() - 1,subject.getText().toString());
+                }
+                if (!Arrays.asList(answers).isEmpty() && Arrays.asList(answers).size() == 4) {
+                    test.getAnswers().get(test.getAnswers().size() - 1).addAll(Arrays.asList(answers));
+
+                    mycounter++;
+                    uploadGenerateTest(test);
                 }
             }
         }
-
 
 
         @Override
         public void getResult(int index) {
             if (!user.isManager()) {
                 test.getResults().add(mycounter - 1, Integer.valueOf(index));
+
             }
         }
 
@@ -130,7 +158,7 @@ public class Personality_Test extends AppCompatActivity {
                     //fragmentQuest.onAnswer();
                     return true;
                 }
-                else if(counter==9)
+                else if(counter==9&&user.isManager())
                 {
                     if(Personality_Test.this.path==null){
                         Personality_Test.this.path="e"+UUID.randomUUID();
@@ -152,18 +180,14 @@ public class Personality_Test extends AppCompatActivity {
 
                 if (counter > 0 || counter < 9) {
                     mycounter = counter;
-                    boolean b= subject.getText().equals("Give points \n to every question Before")&&mycounter==0;
+                    boolean b= subject.getText().equals("Give points \n to every question Before")&&mycounter==1;
                     if(!b)
                     {
                         test.getQuestions().add(subject.getText().toString());
                         NewQuestion();
                     }
                 }
-                if (counter == 8) {
-                    showAlertDialogAnswer();
 
-
-                }
 
             }
             return true;
@@ -189,7 +213,14 @@ public class Personality_Test extends AppCompatActivity {
                 else {
 
                     arr[i] = string;
-                    if(i==3) {
+                    boolean k=false;
+                    for (int j = 0; j <arr.length ; j++) {
+                        if(arr[j]==null)
+                        {
+                            k=true;
+                        }
+                    }
+                    if(!k) {
                         test.getAnswers().add(Arrays.asList(arr));
 
                     }
@@ -210,6 +241,19 @@ public class Personality_Test extends AppCompatActivity {
             return !user.isManager()? 0:1 ;
         }
     };
+
+    private void uploadGenerateTest(Test test) {
+        if(test.getQuestions().size()>7&&test.getAnswers().size()>7)
+test.setFileLocation(storage.getStorageReference().child("TEST").child(Functions.sanitizeKey(getRandomCategory().name()+"Test"+((int)(Math.random()*88+22)))));
+            File f=test.buildEnd(Functions.sanitizeKey(getRandomCategory().name()+"Test"+((int)(Math.random()*88+22))+".txt"),this);
+storage.uploadTextFile(test.getFileLocation(),this,f);
+    }
+    public Category getRandomCategory() {
+        Category[] categories = Category.values();
+        Random random = new Random();
+        int index = random.nextInt(categories.length);
+        return categories[index];
+    }
     private void showAlertDialogAnswer() {
         AlertDialog.Builder builder = new AlertDialog.Builder(frameLayout.getContext());
         builder.setTitle("Save test?")

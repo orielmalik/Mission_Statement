@@ -91,17 +91,17 @@ public class DecisionMaker {
         Node source = new Node(graph.getV()-1, "source");
         graph.addNode(source);
 
-        graph.addEdge(start, agemin, locationpoints+14);
-        graph.addEdge(start, agemax, locationpoints+18);
-        graph.addEdge(start, agemid, locationpoints+10);
+        graph.addEdge(start, agemin, locationpoints);
+        graph.addEdge(start, agemax, locationpoints);
+        graph.addEdge(start, agemid, locationpoints);
 
         Node center = new Node(5, "center");
         graph.addNode(center);
 
         // Every node gets its agePoints
-        graph.addEdge(agemin, center, 1);
-        graph.addEdge(agemax, center, 1);
-        graph.addEdge(agemid, center, 1);
+        graph.addEdge(agemin, center, 14);
+        graph.addEdge(agemax, center, 18);
+        graph.addEdge(agemid, center, 10);
 
         List<Integer> score = new ArrayList<>();
         pro = new ArrayList<>();

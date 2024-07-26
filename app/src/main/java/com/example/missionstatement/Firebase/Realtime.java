@@ -13,6 +13,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
@@ -25,7 +26,7 @@ public class Realtime  {
     private final Context context;
     public  static  boolean newHuman=false;
     DatabaseReference usersReference;
-   // public static AtomicBoolean checked=new AtomicBoolean(false);
+    // public static AtomicBoolean checked=new AtomicBoolean(false);
 
     public Realtime(Context c) {
         FirebaseApp.initializeApp(c);
@@ -50,13 +51,17 @@ public class Realtime  {
     public CompletableFuture<HashMap<String,HashMap<String,String>>> checkDataSnapshot(String child )  {
         final boolean[] arr=new boolean[1];
         final CompletableFuture<HashMap<String,HashMap<String,String>>> resultFuture = new CompletableFuture<>();
-
-        mDatabase.child(child).addValueEventListener(new ValueEventListener() {
+        DatabaseReference ref=mDatabase;
+        if(child != null &&! child.isEmpty())
+        {
+            ref=mDatabase.child(child);
+        }
+        ref.addValueEventListener(new ValueEventListener() {
 
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 HashMap<String,HashMap<String,String>> hashMap=(HashMap<String,HashMap<String,String>>) dataSnapshot.getValue();
-                    resultFuture.complete((hashMap));//check deatils before
+                resultFuture.complete((hashMap));//check deatils before
 
             }
             @Override
@@ -66,7 +71,7 @@ public class Realtime  {
 
 
         });
-return  resultFuture;
+        return  resultFuture;
 
 
     }
@@ -90,8 +95,12 @@ return  resultFuture;
     public CompletableFuture<HashMap<String,HashMap<String,Object>>> checkDataSnapshotnew(String child )  {
         final boolean[] arr=new boolean[1];
         final CompletableFuture<HashMap<String,HashMap<String,Object>>> resultFuture = new CompletableFuture<>();
-
-        mDatabase.child(child).addValueEventListener(new ValueEventListener() {
+        DatabaseReference ref=mDatabase;
+        if(child != null &&! child.isEmpty())
+        {
+            ref=mDatabase.child(child);
+        }
+        ref.addValueEventListener(new ValueEventListener() {
 
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -110,4 +119,6 @@ return  resultFuture;
 
 
     }
+
+
 }

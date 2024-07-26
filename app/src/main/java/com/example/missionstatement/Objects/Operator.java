@@ -40,8 +40,8 @@ public class Operator extends Human {
         HashMap<String, Object> results = new HashMap<>();
         HashMap<String, Object> result = new HashMap<>();
         result.put("area",getArea().name());
-        results.put("PhoneNumber",getPhoneNumber());
-        results.put("email",getEmail());
+        result.put("PhoneNumber",getPhoneNumber());
+        result.put("email",getEmail());
         result.put("category", getProffession().name());
         result.put("description", getDescription());
         result.put("rating", String.valueOf(getRating()));
@@ -77,10 +77,10 @@ public class Operator extends Human {
 
 
 
-    public double getRating() {
+    public float getRating() {
         return rating;
     }
-    public void setRating(int rating) {
+    public void setRating(float rating) {
         this.rating = rating;
     }
 

@@ -48,7 +48,7 @@ public class ListOperator extends AppCompatActivity {
     private Set<String> setCategory;
     private Callback_list callbackList;
     private boolean fillHash=false;
-
+private  String userId;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,7 +61,12 @@ public class ListOperator extends AppCompatActivity {
         setCategory=new HashSet<>();
         // Set up SearchView
         setSearchView();
-
+try {
+  userId=  getIntent().getStringExtra("ph");
+}catch (NullPointerException nullPointerException)
+{
+    nullPointerException.printStackTrace();
+}
 
     }
     private  void  setSearchView()
@@ -76,7 +81,7 @@ public class ListOperator extends AppCompatActivity {
             @Override
             public boolean onQueryTextChange(String query) {
 
-                performSearch(query);
+             //   performSearch(query);
 
                 return true;
             }
@@ -105,36 +110,45 @@ public class ListOperator extends AppCompatActivity {
         callbackList = new Callback_list() {
             @Override
             public void addToList(FragmentProfile f) {
-                if((!f.isAdded&&!getLst().contains(f))&&Functions.filterBy(filter,query,f.getDeatils(),searchView))
+                if((!f.isAddedd()&&!getLst().contains(f))&&Functions.filterBy(filter,query,f.getDeatils(),searchView))
                 {
                     lst.add(f);
-f.isAdded=true;
+                    f.setAdded(true);
+                    Functions.orderList(getLst(),filter);
                 }
             }
 
             @Override
             public void start() {
-                ListOperator.this.fillHash=true;
                 for (Map<String,String>map:getMapList()) {
-                    try {
-                        initOpeartor((String) CryptoUtils.decrypt(map.get("email")), (String) CryptoUtils.decrypt(map.get("PhoneNumber")));
-                    } catch (Exception e) {
-                        Log.e("err", e.getMessage());
+                    if(! ListOperator.this.fillHash) {
+                        try {
+                            initOpeartor((String) CryptoUtils.decrypt(map.get("email")), (String) CryptoUtils.decrypt(map.get("PhoneNumber")));
+                        } catch (Exception e) {
+                            Log.e("err", e.getMessage());
+                        }
                     }
                     FragmentProfile frag = new FragmentProfile();
 
                     frag.setDeatils(operator.OperatorStringMap());
                     ListOperator.this.setCategory = frag.getDeatils().keySet();
-                    //getLst().add(frag);//adhashmapd to j
+
+                      //  getLst().add(frag);//adhashmapd to j
+                   // frag.setAdded(true);
+                    frag.getDeatils().put("user",getUserId());
                     this.addToList(frag);
-                    Log.d("sta", "" + getLst().get(0).getDeatils().get("email"));
+                    ListOperator.this.fillHash=true;
 
                 }
                 MyAdapter adapter = new MyAdapter(getLst(), getSupportFragmentManager());
-
                 recyclerView.setLayoutManager(new LinearLayoutManager(ListOperator.this));
                 recyclerView.setAdapter(adapter);
+                for(FragmentProfile fragmentProfile: getLst())
+                {
+                    fragmentProfile.setAdded(false);
+                }
                 setLst(new ArrayList<>());
+
             }
 
             @Override
@@ -143,8 +157,22 @@ f.isAdded=true;
 
             }
 
+            @Override
+            public void cleanup(List<FragmentProfile> list) {
+                for(FragmentProfile f:list)
+                {
+                    f.setAdded(false);
+                }
+            }
+
+            @Override
+            public Operator containsData(String ph, String email) {
+                return null;
+            }
+
 
         };
+        callbackList.cleanup(getLst());
         joinTables(server, callbackList);
 
         Toast.makeText(this, "Searching for: " + query, Toast.LENGTH_SHORT).show();
@@ -183,38 +211,41 @@ f.isAdded=true;
             if(id[i]==item.getItemId())
             {
 //callbackList.addCategory(op[i]);
+                setLst(new ArrayList<>());
                 this.filter=op[i];
             }
         }
 
     }
 
-private  boolean uploadOperatorsOnce(String email)
-{
-    AtomicBoolean bool=new AtomicBoolean(false);
-    server.checkDataSnapshotnew("OPERATOR").thenAccept(big -> {
+    private  boolean uploadOperatorsOnce(String email)
+    {
+        AtomicBoolean bool=new AtomicBoolean(false);
+        server.checkDataSnapshotnew("OPERATOR").thenAccept(big -> {
 
-        big.forEach((s, hashMap) -> {
-if(email.equals(operator.getEmail()))
-{
-    bool.set(true);
-}
+            big.forEach((s, hashMap) -> {
+                if(email.equals(operator.getEmail()))
+                {
+                    bool.set(true);
+                }
+            });
         });
-    });
 
 
-    return bool.get();
-}
+        return bool.get();
+    }
 
 
 
     private  void joinTables(Realtime server, Callback_list init)
     {
-        server.checkDataSnapshot("human").thenAccept(big ->
-        {
-            if(!isSetData()) {
+        if(!isSetData()) {
+
+            server.checkDataSnapshot("human").thenAccept(big ->
+            {
                 big.forEach((s, hashMap) ->
                 {
+
                     try {
                         if (hashMap.containsKey("position") && CryptoUtils.decrypt((String) hashMap.get("position")).equals("OPERATOR")) {
                             init.addHashList(hashMap, getMapList());
@@ -225,12 +256,12 @@ if(email.equals(operator.getEmail()))
                         throw new RuntimeException(e);
 
                     }
-
                 });
-            }
-            init.start();
 
-        });
+            });
+        }
+        init.start();
+
     }
 
     private boolean isSetData() {
@@ -265,7 +296,7 @@ if(email.equals(operator.getEmail()))
             }
             operator.setEmail(email);
             operator.setPhoneNumber(ph);
-            server.getmDatabase().child("OPERATOR").setValue(operator.OperatorMap());
+            server.getmDatabase().child("OPERATOR").child(ph).setValue(operator.OperatorMap());
         }
     }
     public AREA getRandomArea() {
@@ -290,5 +321,13 @@ if(email.equals(operator.getEmail()))
 
     public void setMapList(List<Map<String, String>> mapList) {
         this.mapList = mapList;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 }

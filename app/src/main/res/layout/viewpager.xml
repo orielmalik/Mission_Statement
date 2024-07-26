@@ -8,6 +8,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/VP_fab_close"
         android:layout_width="wrap_content"
@@ -26,6 +28,6 @@
         android:contentDescription="@string/vpnext"
 
         android:layout_margin="16dp"
-        android:src="@android:drawable/ic_menu_close_clear_cancel"/>
+        android:src="@drawable/ic_userone"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

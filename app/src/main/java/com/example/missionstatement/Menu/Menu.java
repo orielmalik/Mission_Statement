@@ -76,7 +76,7 @@ public class Menu extends AppCompatActivity {
             });
         } else {
 
-
+//TODO ListView of people
         }
 
 
@@ -84,7 +84,7 @@ public class Menu extends AppCompatActivity {
 
     private void makebtn_option3() {
         Intent i3 = new Intent(this, ListOperator.class);
-        i3.putExtra("ph",this.name);
+        i3.putExtra("ph",deatils.get("PhoneNumber"));
         View.OnClickListener operatorClick;
         View.OnClickListener UserClick = new View.OnClickListener() {
             @Override

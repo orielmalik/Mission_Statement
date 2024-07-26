@@ -53,7 +53,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
                 storage.showImage(fragmentProfile.getProfiler(), fragmentProfile.getDeatils().get("email") + "jpeg.jpg", "OPERATOR");
                 if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
                     // Show the image on touch
-                    showViewPager(holder.getAdapterPosition());
+                    showViewPager(holder.getAdapterPosition(),holder.container);
 
                 }
                 return true;
@@ -88,16 +88,19 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
         }
     }
 
-    private void showViewPager(int position) {
-        String tag = "VIEW_PAGER_FRAGMENT";
+    private void showViewPager(int position,ViewGroup container) {
+        String tag = "VIEW_PAGER_FRAGMENT"+position;
         ViewPagerFragment existingFragment = (ViewPagerFragment) fragmentManager.findFragmentByTag(tag);
 
         if (existingFragment == null || !existingFragment.isAdded()) {
-            ViewPagerFragment viewPagerFragment = ViewPagerFragment.newInstance(data, position);
+            ViewPagerFragment viewPagerFragment = ViewPagerFragment.newInstance(data, position,container);
             fragmentManager.beginTransaction()
                     .replace(R.id.fragmentContainer, viewPagerFragment, tag)
                     .addToBackStack(null)
                     .commit();
+
         }
+
+        // Hide the mirror view
     }
 }

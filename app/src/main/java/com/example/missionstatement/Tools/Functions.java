@@ -18,7 +18,10 @@ import androidx.appcompat.widget.SearchView;
 
 import androidx.annotation.RequiresApi;
 
+import com.example.missionstatement.AREA;
 import com.example.missionstatement.Category;
+import com.example.missionstatement.Fragment.FragmentProfile;
+import com.example.missionstatement.Objects.Operator;
 import com.example.missionstatement.Objects.Test;
 import com.google.firebase.storage.StorageReference;
 
@@ -30,6 +33,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -451,11 +455,11 @@ return  0;
        switch (criteria.toLowerCase())
        {
            case "email":case"area": case "category":
-               return deatils.get(criteria).equals(query);
+               return deatils.get(criteria).equalsIgnoreCase(query);
            case  "rating":
                return isFloatNumber(query)&&Float.parseFloat(deatils.get(criteria))>=Float.parseFloat(query);
            case "results":
-               enable.setQueryHint("");
+               return  true;
 
        }
 return  false;
@@ -484,6 +488,49 @@ return  false;
         }
         return  0;
     }
+
+    public static void orderList(List<FragmentProfile> lst,String filter) {
+        if(filter=="rating")
+        {
+            lst.sort((f0, f1) ->
+            {
+                return (int) Math.max(Float.parseFloat(f0.getDeatils().get(filter)),Float.parseFloat(f1.getDeatils().get(filter)));
+            });
+        }
+
+    }
+    public static Operator fromOperatorMap(Map<String, Object> map) {
+        Operator operator = new Operator();
+
+        // Assuming the map structure is the same as created in OperatorMap
+        if (map.containsKey("area")) {
+            operator.setArea(AREA.valueOf((String) map.get("area")));
+        }
+        if (map.containsKey("PhoneNumber")) {
+            operator.setPhoneNumber((String) map.get("PhoneNumber"));
+        }
+        if (map.containsKey("email")) {
+            operator.setEmail((String) map.get("email"));
+        }
+        if (map.containsKey("category")) {
+            operator.setProffession(Category.valueOf((String) map.get("category")));
+        }
+        if (map.containsKey("description")) {
+            operator.setDescription((String) map.get("description"));
+        }
+        if (map.containsKey("rating")) {
+            operator.setRating(Float.parseFloat( map.get("rating").toString()));
+        }
+        if (map.containsKey("icon")) {
+            operator.setIcon(Integer.parseInt((String) map.get("icon")));
+        }
+        if (map.containsKey("clients")) {
+            operator.setClients((List<String>) map.get("clients"));
+        }
+
+        return operator;
+    }
+
 }
 
 
