@@ -241,16 +241,11 @@ ResultsGraph.this.canWrite.set(true);
         //Log.d("tag","dinic "+ Arrays.toString( graph[0].dinicMaxFlow(1, graph[0].getV() - 1).getPath().toArray())+" s "+graph[2].dinicMaxFlow(1, graph[2].getV() - 1).getMaxFlow());
 
         Callable<List<Integer>> task2 = () -> graph[1].dinicMaxFlow(switchcaseAge(usermap), graph[0].getV() - 1).getPath();
-        Callable<List<Integer>> task3 = () -> Functions.convertIntToList(graph[0].dinicMaxFlow(5, 7).getMaxFlow());
-        Callable<List<Integer>> task4= () -> Functions.convertIntToList(graph[2].dinicMaxFlow(5, 8).getMaxFlow());
-        Callable<List<Integer>> task5 = () -> Functions.convertIntToList(graph[3].dinicMaxFlow(5, 9).getMaxFlow());
 
         // Submit tasks to the executor
         List<Future<List<Integer>>> futures = new ArrayList<>();
         futures.add(executorService.submit(task2));
-        futures.add(executorService.submit(task3));
-        futures.add(executorService.submit(task4));
-        futures.add(executorService.submit(task5));
+
         List<String>way=new ArrayList<>();
 
         // Collect results from futures
@@ -258,7 +253,7 @@ ResultsGraph.this.canWrite.set(true);
             try {
                 list.add(future.get());
                 Log.d("tagit",(future.get().toString()));
-                    canWrite.set(list.size()==futures.size());
+                    canWrite.set(true);
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             } finally {
@@ -267,19 +262,16 @@ ResultsGraph.this.canWrite.set(true);
             }
         }
         if(canWrite.get()) {
-            if (list != null && !list.isEmpty() && list.get(0).size() > 1) {
+            if (list != null && !list.isEmpty() && list.get(0).size() > 2) {
                 int index = list.get(0).size() - 2;
                 int value = list.get(0).get(index).intValue();
                 String description = getDescriptionText(value);
                 ((MaterialTextView) ((TableRow) ResultsGraph.this.tableLayout.getChildAt(1)).getChildAt(1)).setText(description);
-                if(server!=null)
-                {
+                if (server != null) {
                     server.getmDatabase().child("Results").child(field).setValue(description);
                 }
-            } else {
-                // Handle the case where the list is null, empty or does not have enough elements
-                ((MaterialTextView) ((TableRow) ResultsGraph.this.tableLayout.getChildAt(1)).getChildAt(1)).setText("No data available");
-            }}
+            }
+        }
 
 
     }

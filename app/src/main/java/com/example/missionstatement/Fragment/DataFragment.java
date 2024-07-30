@@ -28,6 +28,7 @@ public class DataFragment extends Fragment {
     private GridView gridView;
     private Button buttonAction;
 private ManagerActivity.Callbackk callbackk;
+private List<String[]>data=new ArrayList<>();
     @SuppressLint("MissingInflatedId")
     @Nullable
     @Override
@@ -41,15 +42,12 @@ private ManagerActivity.Callbackk callbackk;
         buttonAction = view.findViewById(R.id.buttonDataAction);
 
         // Initialize data
+if(callbackk!=null) {
+    buttonAction.setOnClickListener(view1 -> {
+        callbackk.gridVieFill(getGridView(), getContext(), getData(), new String[]{"gaya", "Alma"});
 
-
-     callbackk.gridVieFill(gridView,context);
-
-        // Set button click listener
-        buttonAction.setOnClickListener(v -> {
-            // Perform action
-            Toast.makeText(context, "Button clicked!", Toast.LENGTH_SHORT).show();
-        });
+    });
+}
 
         return view;
     }
@@ -60,5 +58,23 @@ private ManagerActivity.Callbackk callbackk;
 
     public void setCallbackk(ManagerActivity.Callbackk callbackk) {
         this.callbackk = callbackk;
+    }
+
+    public GridView getGridView() {
+        return gridView;
+    }
+
+    @Nullable
+    @Override
+    public Context getContext() {
+        return context;
+    }
+
+    public List<String[]> getData() {
+        return data;
+    }
+
+    public void setData(List<String[]> data) {
+        this.data = data;
     }
 }

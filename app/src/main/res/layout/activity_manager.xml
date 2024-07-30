@@ -8,11 +8,23 @@
     android:orientation="vertical"
     tools:context=".Manager.ManagerActivity">
 
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/manager_above"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:background="@drawable/bck_manager" />
 
     <FrameLayout
         android:id="@+id/manager_fragment"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        />
+        android:layout_height="330dp" />
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        android:indeterminate="true" />
 
 </LinearLayout>
