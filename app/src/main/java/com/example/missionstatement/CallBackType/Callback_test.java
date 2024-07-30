@@ -18,6 +18,7 @@ public interface Callback_test {
 
     int state();
 
-
+boolean isFirst();
+void ToastFrom(String s);
 
 }

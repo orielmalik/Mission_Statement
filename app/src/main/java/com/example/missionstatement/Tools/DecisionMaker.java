@@ -77,7 +77,7 @@ public class DecisionMaker {
         sum=new int[4];
         sumList=new ArrayList<>();
         String location = this.usermap.get("location").toString().toUpperCase();
-        locationpoints = calcLocation(location);
+        locationpoints = calcLocation(location.toUpperCase());
         int v = 10;
         DinicGraph graph = new DinicGraph(v + tests.size()+2);graph.addNode(new Node(0,"none"));
         Node start = new Node(1, "start");
@@ -91,17 +91,17 @@ public class DecisionMaker {
         Node source = new Node(graph.getV()-1, "source");
         graph.addNode(source);
 
-        graph.addEdge(start, agemin, locationpoints);
-        graph.addEdge(start, agemax, locationpoints);
-        graph.addEdge(start, agemid, locationpoints);
+        graph.addEdge(start, agemin, 1);
+        graph.addEdge(start, agemax, 1);
+        graph.addEdge(start, agemid, 1);
 
         Node center = new Node(5, "center");
         graph.addNode(center);
-
+        additional();
         // Every node gets its agePoints
-        graph.addEdge(agemin, center, 14);
-        graph.addEdge(agemax, center, 18);
-        graph.addEdge(agemid, center, 10);
+        graph.addEdge(agemin, center, 14+locationpoints);
+        graph.addEdge(agemax, center, 18+locationpoints);
+        graph.addEdge(agemid, center, 10+locationpoints);
 
         List<Integer> score = new ArrayList<>();
         pro = new ArrayList<>();
@@ -137,6 +137,7 @@ public class DecisionMaker {
 
                 for (Node node : pro) {
                     if (node != null) {
+                        additional();
                         graph.addNode(node);
                         graph.addEdge(node,source,1);
                         if (node != null && test.getResults() != null) {
@@ -147,8 +148,17 @@ public class DecisionMaker {
                                     sum[Functions.indexCategory(test.getCategory()) % Edu.length] -= test.getPointsPerAnswer().get(Functions.indexCategory(test.getCategory()) % Edu.length)/2;
                                 }
                             }for (Integer integer : test.getResults()) {
-                                graph.addEdge(tNode,node,sum[integer.intValue()]);
+                                if(node.getId()==calcFavorite()&&calcFavorite()!=-1)
+                                {
+                                    sum[integer.intValue()]+=7;
+                                    graph.addEdge(tNode,node,sum[integer.intValue()]);
+                                }else
+                                {
+                                    graph.addEdge(tNode,node,sum[integer.intValue()]);
+
+                                }
                             }
+
                             Log.d("map", Arrays.toString(sum));
                         }
                     }
@@ -162,27 +172,76 @@ public class DecisionMaker {
         return graph;
     }
 
-    private  void addToSumList()
+    private  void additional()
     {
-        saverList.forEach(node -> {
-            for (int i = 0; i < sumList.size() ; i++) {
-                graph.addEdge(node,graph.getNodeById(10+i),sum[i]);
-
+        try {
+            int psyc = Integer.parseInt(usermap.get("psych").toString());
+            boolean driver = Boolean.parseBoolean(usermap.get("driver").toString());
+            if (driver) {
+                locationpoints += 10;
             }
+            if(psyc>600)
+            {
+                sum[0]+=8;
+                sum[2]+=8;
+                sum[3]+=8;
+            }
+            if(psyc>710)
+            {
+                sum[0]+=8;
+                sum[2]+=8;
 
-        });
+if(psyc>745)
+{
+    sum[2]+=7;
+}
+            }
+        }catch (NumberFormatException|NullPointerException nullPointerException)
+        {
+            nullPointerException.printStackTrace();
+            Log.e("tag", "additional: "+nullPointerException.getMessage());
+        }
 
     }
     private int calcLocation(String location) {
-        if(location.contains("ISRAEL"))//i dont care if some street at OTHER COUNTRY     with this name
+        if(location.endsWith("ISRAEL"))
         {
+            if(location.replace(" ","").contains("TELAVIV"))
+            {
+                return 14;
+            }
             return 10;
+
         }
         else {
             return  5;
         }
     }
+    private int calcFavorite() {
+        String calc;
+        try {
 
+            calc=usermap.get("descriptionText").toString();
+        }
+        catch (NullPointerException nullPointerException)
+        {
+            return -1;
+        }
+        // private String[] Edu = {"ECONOMIC", "ENGINEER", "MEDICAL", "EDUCATION"};
+
+        switch (calc.replace(" ","").toUpperCase())
+        {
+            case "ECONOMIC":
+                return  6;
+            case "MEDICAL":
+                return  8;
+            case "ENGINEER":
+                return  7;
+            case "EDUCATION":
+                return  9;
+        }
+        return  -1;
+    }
     public User getUser() {
         return user;
     }

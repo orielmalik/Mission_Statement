@@ -20,7 +20,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
     private Storage storage;
     private List<FragmentProfile> data;
     private FragmentManager fragmentManager;
-
+    private static  int touchtovp=0;
     public MyAdapter(List<FragmentProfile> data, FragmentManager fragmentManager) {
         this.data = data;
         this.fragmentManager = fragmentManager;
@@ -42,19 +42,20 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
             // Check if fragment is already added
             if (fragmentManager.findFragmentByTag(fragmentTag) == null) {
                 fragmentManager.beginTransaction()
-                        .add(holder.container.getId(), data.get(position), fragmentTag)
+                        .replace(holder.container.getId(), data.get(position), fragmentTag)
                         .commit();
             }
 
             holder.itemView.setOnTouchListener((view, motionEvent) -> {
                 holder.bind(data.get(holder.getAdapterPosition()), fragmentManager, holder.getAdapterPosition());
+                touchtovp++;
 
                 FragmentProfile fragmentProfile = data.get(holder.getAdapterPosition());
                 storage.showImage(fragmentProfile.getProfiler(), fragmentProfile.getDeatils().get("email") + "jpeg.jpg", "OPERATOR");
-                if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                if (motionEvent.getAction() == MotionEvent.ACTION_UP&&touchtovp>1) {
                     // Show the image on touch
                     showViewPager(holder.getAdapterPosition(),holder.container);
-
+                    touchtovp=0;
                 }
                 return true;
             });
@@ -93,7 +94,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
         ViewPagerFragment existingFragment = (ViewPagerFragment) fragmentManager.findFragmentByTag(tag);
 
         if (existingFragment == null || !existingFragment.isAdded()) {
-            ViewPagerFragment viewPagerFragment = ViewPagerFragment.newInstance(data, position,container);
+            ViewPagerFragment viewPagerFragment = ViewPagerFragment.newInstance(data, position);
             fragmentManager.beginTransaction()
                     .replace(R.id.fragmentContainer, viewPagerFragment, tag)
                     .addToBackStack(null)

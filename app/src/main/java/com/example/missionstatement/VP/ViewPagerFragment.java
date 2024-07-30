@@ -1,5 +1,6 @@
 package com.example.missionstatement.VP;
 
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,13 +24,11 @@ import java.util.List;
 public class ViewPagerFragment extends Fragment {
     private List<FragmentProfile> data;
     private int initialPosition;
-    static  int currentPage=0;
-    private  ViewGroup first;
-    static int counter=0;
+    static int currentPage = 0;
+    static int counter = 0;
 
-    public static ViewPagerFragment newInstance(List<FragmentProfile> data, int initialPosition, ViewGroup container) {
+    public static ViewPagerFragment newInstance(List<FragmentProfile> data, int initialPosition) {
         ViewPagerFragment fragment = new ViewPagerFragment();
-        // data.get(initialPosition).setVisability(View.INVISIBLE);
         Bundle args = new Bundle();
         args.putSerializable("data", (Serializable) data);
         args.putInt("initialPosition", initialPosition);
@@ -47,8 +46,7 @@ public class ViewPagerFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.viewpager, container, false);
 
         ViewPager2 viewPager = view.findViewById(R.id.viewPager);
@@ -62,40 +60,30 @@ public class ViewPagerFragment extends Fragment {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
-                currentPage=position;
+                currentPage = position;
                 Log.d("ViewPagerFragment", "Current position: " + position);
-                Storage.getInstance().showImage(data.get(position).getProfiler(),data.get(position).getDeatils().get("email")+"jpeg.jpg","OPERATOR");
-                //bring to back the container
-            if(data.get(position).getRootView()!=null)
-                {
-                    //container.setVisibility(View.GONE);
-                    ViewGroup parent = (ViewGroup) data.get(position).getRootView().getParent();
-                    if (parent != null) {
-                        parent.removeView(data.get(position).getRootView());
-                        parent.addView(data.get(position).getRootView(), 0); // Adding the view at the first position
-                    }
+                Storage.getInstance().showImage(data.get(position).getProfiler(), data.get(position).getDeatils().get("email") + "jpeg.jpg", "OPERATOR");
+
+                // Bring ViewPager to the front
+                if (container != null) {
+                    container.bringChildToFront(viewPager);
                 }
-                //view.bringToFront();
                 counter++;
             }
         });
 
-        fabClose.setOnClickListener(v ->{
+        fabClose.setOnClickListener(v -> {
             getParentFragmentManager().popBackStack();
         });
+
         fabNext.setOnClickListener(v -> {
-            Realtime server=new Realtime(view.getContext());
-            List<String>list=new ArrayList<>();
-            if(null!= server.getmDatabase().child("OPERATOR").child(data.get(currentPage).getDeatils().get("PhoneNumber")).child("clients"))
-            {
-                // list= (List<String>)   server.getmDatabase().child("OPERATOR").child(data.get(currentPage).getDeatils().get("PhoneNumber")).child("clients").get().getResult().getValue();
-                server.checkDataSnapshotnew("OPERATOR"+"/"+data.get(currentPage).getDeatils().get("PhoneNumber")).thenAccept(big ->
-                {
-                    big.forEach((s, hashMap) ->
-                    {
-                        if(big.containsKey("clients"))
-                        {
-                            list.addAll((List<String>)big.get("clients"));
+            Realtime server = new Realtime(view.getContext());
+            List<String> list = new ArrayList<>();
+            if (null != server.getmDatabase().child("OPERATOR").child(data.get(currentPage).getDeatils().get("PhoneNumber")).child("clients")) {
+                server.checkDataSnapshotnew("OPERATOR" + "/" + data.get(currentPage).getDeatils().get("PhoneNumber")).thenAccept(big -> {
+                    big.forEach((s, hashMap) -> {
+                        if (big.containsKey("clients")) {
+                            list.addAll((List<String>) big.get("clients"));
                         }
                     });
                 });

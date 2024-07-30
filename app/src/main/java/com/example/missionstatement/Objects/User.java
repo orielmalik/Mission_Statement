@@ -8,15 +8,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class User extends Human  implements Serializable {
 
     private List<Map<String, Object>> tests = new ArrayList<>();
     private String birthdate;
     private String location;
+    private  boolean driver;
     private int countChangeDate = 0;
     private boolean isManager = false;
-
+    private int psychometric=0;
     private String description;//about what he wants from test
     private String descriptionText;
 
@@ -45,6 +47,8 @@ public class User extends Human  implements Serializable {
         result.put("location", getLocation());
         result.put("countChangeDate", getCountChangeDate());
         result.put("isManager", isManager());
+        result.put("psych", getPsychometric());
+        result.put("driver", isDriver());
         result.put("descriptionText", getDescriptionText());
         result.put("tests", getTestsMap());
         return result;
@@ -59,7 +63,8 @@ public class User extends Human  implements Serializable {
         user.setCountChangeDate((int) map.get("countChangeDate"));
         user.setManager((boolean) map.get("isManager"));
         user.setDescriptionText((String) map.get("descriptionText"));
-
+        user.setDriver((boolean) map.get("driver"));
+        user.setPsychometric((int)map.get("psych"));
         // Assuming tests is stored as List<Map<String, Test>>
         List<Map<String, Object>> testsList = (List<Map<String, Object>>) map.get("tests");
         user.tests = new ArrayList<>();
@@ -118,9 +123,13 @@ public class User extends Human  implements Serializable {
         return birthdate;
     }
 
-//                    if (test.getFileLocation().getPath().replace(" ","").equals(Functions.sanitizeKey(path.replace(" ","")))) {
+    //                    if (test.getFileLocation().getPath().replace(" ","").equals(Functions.sanitizeKey(path.replace(" ","")))) {
     public boolean isTestName(String path) {
         boolean ok = false;
+        if(tests==null||tests.isEmpty())
+        {
+            return  false;
+        }
         for (int i = 0; i <tests.size() ; i++) {
             Map<String,Object>map=tests.get(i);
             if(map.containsKey(Functions.sanitizeKey(path)))
@@ -129,6 +138,7 @@ public class User extends Human  implements Serializable {
             }
 
         }
+
         return  ok;
     }
 
@@ -148,5 +158,21 @@ public class User extends Human  implements Serializable {
 
     public void setTests(List<Map<String, Object>> tests) {
         this.tests = tests;
+    }
+
+    public int getPsychometric() {
+        return psychometric;
+    }
+
+    public void setPsychometric(int psychometric) {
+        this.psychometric = psychometric;
+    }
+
+    public boolean isDriver() {
+        return driver;
+    }
+
+    public void setDriver(boolean driver) {
+        this.driver = driver;
     }
 }

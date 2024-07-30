@@ -13,6 +13,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.TableLayout;
+import android.widget.TableRow;
+
 import androidx.appcompat.widget.SearchView;
 
 
@@ -46,7 +49,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import androidx.core.content.ContextCompat;
 
+
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 public class Functions {
 
 
@@ -259,7 +269,32 @@ public class Functions {
         }
         return  0;
     }
+    public static String findMostFrequent(Set<String> set) {
+        List<String> list = new ArrayList<>(set);
+        Map<String, Integer> frequencyMap = new HashMap<>();
 
+        for (String str : list) {
+            frequencyMap.put(str, frequencyMap.getOrDefault(str, 0) + 1);
+        }
+
+        String mostFrequent = "";
+        int maxCount = 0;
+        for (Map.Entry<String, Integer> entry : frequencyMap.entrySet()) {
+            if (entry.getValue() > maxCount) {
+                maxCount = entry.getValue();
+                mostFrequent = entry.getKey();
+            }
+        }
+
+        return mostFrequent;
+    }
+
+        public static float findMaxInSet(Set<Float> set) {
+            return set.stream().max(Float::compare).orElse(Float.NEGATIVE_INFINITY);
+        }
+    public static int findMaxInList(List<Integer> list) {
+        return list.stream().max(Integer::compare).orElse(Integer.MIN_VALUE);
+    }
     public static Intent sendEmail(String[] arr) {
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("message/rfc822");
@@ -287,10 +322,10 @@ public class Functions {
         // Return a new array with the minimum value as the first element
         return arr;
     }
-public static double distance(int x1,int x2,int y1,int y2)
-{
-    return Math.sqrt(Math.pow(x2-x1,2)+Math.pow(y1-y2,2));
-}
+    public static double distance(int x1,int x2,int y1,int y2)
+    {
+        return Math.sqrt(Math.pow(x2-x1,2)+Math.pow(y1-y2,2));
+    }
 
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -363,7 +398,7 @@ public static double distance(int x1,int x2,int y1,int y2)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             return Period.between(birthDate, currentDate).getYears();
         }
-return  0;
+        return  0;
     }
     public static  String toBirthdateFormat(LocalDate date)
     {
@@ -452,25 +487,25 @@ return  0;
     public  static  boolean filterBy(String criteria, String query, HashMap<String,String>deatils, SearchView enable)
     {
 
-       switch (criteria.toLowerCase())
-       {
-           case "email":case"area": case "category":
-               return deatils.get(criteria).equalsIgnoreCase(query);
-           case  "rating":
-               return isFloatNumber(query)&&Float.parseFloat(deatils.get(criteria))>=Float.parseFloat(query);
-           case "results":
-               return  true;
+        switch (criteria.toLowerCase())
+        {
+            case "email":case"area": case "category":
+            return deatils.get(criteria).equalsIgnoreCase(query);
+            case  "rating":
+                return isFloatNumber(query)&&Float.parseFloat(deatils.get(criteria))>=Float.parseFloat(query);
+            case "results":
+                return  true;
 
-       }
-return  false;
+        }
+        return  false;
     }
     public  static Category isContains(String con)
     {
+
         Category []values=Category.values();
         for (int i = 0; i<values.length ; i++) {
-            if(con.contains("x"+values[i].name()+"x"))
+            if(con.toUpperCase().contains("X"+values[i].name()+"TESTXTXT"))
             {
-
                 return  values[i];
             }
         }
@@ -530,6 +565,60 @@ return  false;
 
         return operator;
     }
+
+    public static  int findMaxList(List<List<Integer>>lst)
+    {
+        lst.sort(new Comparator<List<Integer>>() {
+            @Override
+            public int compare(List<Integer> integers, List<Integer> t1) {
+                return Math.max(integers.get(0),t1.get(0));
+            }
+        });
+        return  lst.get(0).get(0);
+    }
+    public static List<Integer> convertIntToList(int value) {
+        List<Integer> list = new ArrayList<>();
+        list.add(value);
+        return list;
+    }
+
+    public static boolean isNonNegativeNumber(String str) {
+        try {
+            int num = Integer.parseInt(str);
+            return num >= 0;
+        } catch (NumberFormatException e) {
+            return false; // Not a number or negative
+        }
+    }
+    public static boolean containsAfterRemoval(Set<String> strings, String suffix) {
+        for (String str : strings) {
+            if (str.endsWith(suffix)) {
+                String modifiedStr = str.substring(0, str.length() - suffix.length());
+                if (str.endsWith(modifiedStr)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public static boolean checkQuestion(String question, Test test) {
+        if(test.getQuestions()!=null &&!test.getQuestions().isEmpty()) {
+            return !test.getQuestions().stream().anyMatch(question::equals)&&question!=null&&!question.isEmpty();
+
+        }
+        return question!=null&&!question.isEmpty();
+    }
+
+
+
+
+
+
+
+
+
+
 
 }
 

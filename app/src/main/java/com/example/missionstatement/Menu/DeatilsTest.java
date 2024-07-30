@@ -21,6 +21,8 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
@@ -71,6 +73,10 @@ public class DeatilsTest extends AppCompatActivity {
     private MaterialButton submit;
     private Realtime server;
     private ProgressBar progressBar;
+    private MaterialTextView locatdesc;
+    private EditText psyc;
+    private RadioButton psy,driver;
+
     private enum STATE {
         NA,
         NO_REGULAR_PERMISSION,
@@ -103,11 +109,32 @@ public class DeatilsTest extends AppCompatActivity {
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         //if you entered deatils so go on
 
+RadioMethod();
+
 
     }
 
 
+private void  RadioMethod()
+{
+if(psy.isChecked())
+{
+    psyc.setVisibility(View.VISIBLE);
+    try {
+        int value= Integer.parseInt(psyc.getText().toString());
+        if(value<200||value>800)
+        {
+            Toast.makeText(this, "199<NUMBER<801", Toast.LENGTH_SHORT).show();
+        }else {
+            user.setPsychometric(value);
+        }
+    }catch (NumberFormatException numberFormatException)
+    {
+        numberFormatException.printStackTrace();
 
+    }
+}
+}
     private void findViews()
     {
         fblocation=findViewById(R.id.locationFab);
@@ -117,6 +144,10 @@ public class DeatilsTest extends AppCompatActivity {
         locationTXT=findViewById(R.id.locationDescriptionEditText);
         submit=findViewById(R.id.BTN_DEAT_SUBMIT);
         description=findViewById(R.id.descriptionEditText);
+        psyc=findViewById(R.id.additionalPsygrade);
+        psy=findViewById(R.id.additionalPsy);
+        driver=findViewById(R.id.radioDriverLicense);
+        locatdesc=findViewById(R.id.locationFabdesc);
         setSpinners();
     }
 
@@ -195,29 +226,36 @@ public class DeatilsTest extends AppCompatActivity {
         }
         updateUI();
     }
-private  void  init()
-{    server.checkDataSnapshotnew("USER").thenAccept(hashMap -> {
+    private  void  init()
+    {    server.checkDataSnapshotnew("USER").thenAccept(hashMap -> {
 
-    hashMap.forEach((s, map) ->  {
-        if (s.equals(getIntent().getStringExtra("ph"))) {
-            if (map.containsKey("tests")) {
-                user.getTests().addAll((List<Map<String, Object>>) map.get("tests"));
-                progressBar.setVisibility(View.GONE);
+        hashMap.forEach((s, map) ->  {
+            user.setBirthdate(map.get("birthdate").toString());
+            try {
+                user.setCountChangeDate(Integer.parseInt(map.get("countChangeDate").toString()));
+            }catch (NumberFormatException numberFormatException)
+            {
+                Toast.makeText(this, numberFormatException.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+            if (s.equals(getIntent().getStringExtra("ph"))) {
+                if (map.containsKey("tests")) {
+                    user.getTests().addAll((List<Map<String, Object>>) map.get("tests"));
+                    progressBar.setVisibility(View.GONE);
 
-                if (map.containsKey("location") && map.get("location") != null) {
-                    startActivity(new Intent(this, ResultsGraph.class).putExtra("user", user.fromMap(map)));
+                    if (map.containsKey("location") && map.get("location") != null) {
+                        startActivity(new Intent(this, ResultsGraph.class).putExtra("user", user.fromMap(map)));
+                    }
                 }
             }
-        }
 
-    }); });
-    progressBar.setVisibility(View.GONE);
-    user.setPhoneNumber(getIntent().getStringExtra("ph"));}
+        }); });
+        progressBar.setVisibility(View.GONE);
+        user.setPhoneNumber(getIntent().getStringExtra("ph"));}
 
     @Override
     protected void onResume() {
         super.onResume();
-init();
+        init();
         fblocation.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("MissingPermission")
             @Override
@@ -493,6 +531,7 @@ init();
                 //finish();
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,
                         0, locationListener);
+                locatdesc.setText("");
             });
             submit.setVisibility(View.VISIBLE);
 
@@ -506,7 +545,11 @@ init();
             List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
             if (addresses != null && !addresses.isEmpty()) {
                 Address address = addresses.get(0);
-                cityName=(address.getThoroughfare()+","+address.getLocality()+", "+address.getCountryName());
+                Address english=new Address(Locale.ENGLISH);
+                english.setCountryName(address.getCountryName());
+                english.setThoroughfare(address.getThoroughfare());
+                english.setLocality(address.getLocality());
+                cityName=(english.getThoroughfare()+","+english.getLocality()+", "+english.getCountryName());
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -526,13 +569,17 @@ init();
             Toast.makeText(this, "FillBirthDate", Toast.LENGTH_SHORT).show();
             return;
         }
+        if(Functions.toBirthdateFormat(getSelectedDate()).equals(user.getBirthdate()))
+        {
+            user.setCountChangeDate(user.getCountChangeDate()+1);
+        }
+        psyc.setVisibility(View.GONE);
         user.setBirthdate(Functions.toBirthdateFormat(getSelectedDate()));
         Log.d(null, "saveBierthdate:"+MissionClassifierHanLP.classifyMission(description.getText().toString()));
         user.setDescription("EDUCATION");//because we decided to this category
         user.setDescriptionText( EducationClassifierHanLP.classifyEducation(description.getText().toString()));
         user.setLocation(locationTXT.getText().toString());
-        // countChangePassword(user);
-
+        user.setDriver((driver.isChecked()));
         server.getmDatabase().child("USER").child(user.getPhoneNumber()).setValue(user);
         Intent i=new Intent(this,Personality_Test.class);
         i.putExtra("user",user);

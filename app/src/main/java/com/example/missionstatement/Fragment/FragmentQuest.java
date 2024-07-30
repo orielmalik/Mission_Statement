@@ -17,6 +17,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.missionstatement.CallBackType.Callback_test;
 import com.example.missionstatement.R;
+import com.example.missionstatement.Tools.Functions;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textview.MaterialTextView;
 
@@ -52,8 +53,14 @@ public class FragmentQuest extends Fragment {
                     if (button != selectedButton) {
                         button.setChecked(false);
                     }
+                    
                     else if (callback_test != null && callback_test.state() == 1) {
                         handleRadioButtonClick(button);
+                        /*if(button.getText().toString()!=null&&!button.getText().toString().isEmpty()&&(!callback_test.isFirst()&&!Functions.isNonNegativeNumber(button.getText().toString())))
+                        {
+                            callback_test.ToastFrom("MUST CHOOSE NUMBER >0 ");
+                            return;
+                        }*/
                     }
                 }
             }
@@ -98,6 +105,11 @@ public class FragmentQuest extends Fragment {
 
                                 break;
                             }
+                            if(callback_test.state()==1&&button.getText().toString()!=null&&!button.getText().toString().isEmpty()&&(callback_test.isFirst()&&!Functions.isNonNegativeNumber(button.getText().toString())))
+                            {
+                                callback_test.ToastFrom("MUST CHOOSE NUMBER >0 ");
+                                return;
+                            }
                         }
                         if (callback_test.getCounterQuestion(counter+1)&&callback_test.state()==0) {
                             counter++;
@@ -105,6 +117,13 @@ public class FragmentQuest extends Fragment {
                             onAnswer();
 
                         }
+                        else if(callback_test.state()==1)
+                        {
+                            for (int i = 0; i < getRadioGroup().getChildCount(); i++) {
+                                callback_test.setAnswer(((RadioButton) (getRadioGroup().getChildAt(i))).getText().toString(), i);
+                            }
+                            counter++;
+                            callback_test.getCounterQuestion(counter-1);                        }
                         Log.d("counter", "onClickCounter: " + counter);
                     } else {
                         // Handle the case when no radio button is selected

@@ -13,6 +13,7 @@ import android.widget.Toast;
 import com.example.missionstatement.CallBackType.Callback_login;
 import com.example.missionstatement.Fragment.FragmentLogin;
 import com.example.missionstatement.Firebase.Realtime;
+import com.example.missionstatement.Manager.ManagerActivity;
 import com.example.missionstatement.Menu.DeatilsTest;
 import com.example.missionstatement.Menu.Menu;
 import com.example.missionstatement.Menu.Personality_Test;
@@ -112,7 +113,7 @@ public class Login extends AppCompatActivity {
         Log.d(null, "dogin: "+check[1]+" m"+ check[1].trim());
         if(check[1].trim().equals("12345")&&check[0].equals("123123454"))
         {
-            Intent ad=new Intent(this, Personality_Test.class);
+            Intent ad=new Intent(this, ManagerActivity.class);
             User manager=new User("123123454");
             manager.setPassword("12345");
             manager.setManager(true);

@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.example.missionstatement.CallBackType.Callback_results;
+import com.example.missionstatement.Category;
 import com.example.missionstatement.Firebase.Realtime;
 import com.example.missionstatement.Objects.Test;
 import com.example.missionstatement.Objects.User;
@@ -23,6 +24,7 @@ import com.google.android.material.textview.MaterialTextView;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +33,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ResultsGraph extends AppCompatActivity {
@@ -38,12 +41,14 @@ public class ResultsGraph extends AppCompatActivity {
     private String field;
     private HashMap<String, Object> usermap;
     private Realtime server;
+    private AtomicBoolean canWrite=new AtomicBoolean(false);
     private List<TableRow> arr;
     private TableLayout tableLayout;
     private DinicGraph graph;
     private DecisionMaker decisionMaker;
     private List<Test> tests;
     private  Map<String,Object>end;
+    private Callback_results callbackResults;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,31 +85,7 @@ public class ResultsGraph extends AppCompatActivity {
         });
     }
 
-    private  void changeText(Integer[] score) {
 
-
-    }
-    private void changeScore(Graph graph)
-    {
-        int age=0;
-        try {
-            age= Functions.calculateAge((String) this.usermap.get("birthdate").toString());
-        }catch (ParseException parseException)
-        {
-            Toast.makeText(this, parseException.getMessage()+" at\n"+this.usermap.get("birthdate").toString(), Toast.LENGTH_SHORT).show();
-            return;
-        }
-        List<Integer>results=new ArrayList<>();
-
-        for (int i = 10; i <14 ; i++) {
-            results.add(graph.fordFulkerson(graph.findNodeBylabel(graph, Age(age)).getId(),i ).getMaxFlow());
-        }
-        for (int i = 1; i <tableLayout.getChildCount(); i++) {
-            ((MaterialTextView) ((TableRow) tableLayout.getChildAt(i)).getChildAt(1)).setText(results.get(i-1).toString());
-
-
-        }
-    }
 
     public String Age(int age)
     {
@@ -159,7 +140,14 @@ public class ResultsGraph extends AppCompatActivity {
                     stringObjectMap.forEach((key, value) ->{
                         Map<String, Object> v = (Map<String, Object>) value;
                         Test t = new Test();
-                        t.setCategory(Functions.isContains(key).name());//set Category to name of AUTHOR WROTE
+                        if(Functions.isContains(key)==null)
+                        {
+                            t.setCategory(Category.EDUCATION.name());
+                        }else
+                        {
+                            t.setCategory(Functions.isContains(key).name());//set Category to name of AUTHOR WROTE
+
+                        }
                         t.setDone(true);
                         try {
                             t.setResults((List<Integer>) Functions.convertLongListToIntList((List<?>) (v.get("results"))));
@@ -188,9 +176,6 @@ public class ResultsGraph extends AppCompatActivity {
 
 
 
-
-
-
     private void  initTable()
     {tableLayout=findViewById(R.id.TBL_main);
         arr=new ArrayList<>();
@@ -201,23 +186,29 @@ public class ResultsGraph extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        initServer(field, new Callback_results() {
-            @Override
-            public void initmap(HashMap<String,Object> usermap) {
-                decisionMaker = new DecisionMaker(usermap);
-                getTests(usermap);
-                decisionMaker.setTests(tests);
-                if(tests!=null&&!tests.isEmpty())
-                {
-                    // ResultsGraph.this.graph=decisionMaker.getDGraph();
-                    graph(usermap,decisionMaker.getDGraph());
+         callbackResults= new Callback_results() {
+             @Override
+             public void updateWrite() {
+ResultsGraph.this.canWrite.set(true);
+             }
+
+             @Override
+             public void initmap(HashMap<String,Object> usermap) {
+                 decisionMaker = new DecisionMaker(usermap);
+                 getTests(usermap);
+                 decisionMaker.setTests(tests);
+                 if(tests!=null&&!tests.isEmpty())
+                 {
+                     // ResultsGraph.this.graph=decisionMaker.getDGraph();
+                     graph(usermap,decisionMaker.getDGraph());
 
 
-                }else {
-                    Toast.makeText(ResultsGraph.this, "error with grpah", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+                 }else {
+                     Toast.makeText(ResultsGraph.this, "error with grpah", Toast.LENGTH_SHORT).show();
+                 }
+             }
+         };
+        initServer(field,callbackResults);
 
         /*LottieAnimationView lottie=findViewById(R.id.lottie_space);
         lottie.setSpeed(17f);
@@ -244,74 +235,55 @@ public class ResultsGraph extends AppCompatActivity {
     private void  saveResults(DinicGraph[] graph) {
         int id = switchcaseAge(usermap);
         Log.d("tag", "saveResults: " + id);
-        int fav = calcFavorite(usermap);
         ExecutorService executorService = Executors.newFixedThreadPool(4);
 
-        List<Integer> list = new ArrayList<>();
-        Log.d("tag","dinic "+ Arrays.toString( graph[0].dinicMaxFlow(1, graph[0].getV() - 1).getPath().toArray())+" s "+graph[2].dinicMaxFlow(1, graph[2].getV() - 1).getMaxFlow());
+        List<List<Integer>> list = new ArrayList<>();
+        //Log.d("tag","dinic "+ Arrays.toString( graph[0].dinicMaxFlow(1, graph[0].getV() - 1).getPath().toArray())+" s "+graph[2].dinicMaxFlow(1, graph[2].getV() - 1).getMaxFlow());
 
-        // Define tasks
-        Callable<Integer> task1 = () -> graph[0].dinicMaxFlow(1, graph[0].getV() - 1).getPath().get(graph[0].dinicMaxFlow(1, graph[0].getV() - 1).getPath().size() - 2);
-        Callable<Integer> task2 = () -> graph[1].dinicMaxFlow(switchcaseAge(usermap), graph[0].getV() - 1).getPath().get(graph[1].dinicMaxFlow(switchcaseAge(usermap), graph[1].getV() - 1).getPath().size() - 2);
-        Callable<Integer> task3 = () -> graph[2].dinicMaxFlow(switchcaseAge(usermap), calcFavorite(usermap)).getMaxFlow();
-        Callable<Integer> task4 = () -> graph[3].dinicMaxFlow(switchcaseAge(usermap), 7).getMaxFlow();
+        Callable<List<Integer>> task2 = () -> graph[1].dinicMaxFlow(switchcaseAge(usermap), graph[0].getV() - 1).getPath();
+        Callable<List<Integer>> task3 = () -> Functions.convertIntToList(graph[0].dinicMaxFlow(5, 7).getMaxFlow());
+        Callable<List<Integer>> task4= () -> Functions.convertIntToList(graph[2].dinicMaxFlow(5, 8).getMaxFlow());
+        Callable<List<Integer>> task5 = () -> Functions.convertIntToList(graph[3].dinicMaxFlow(5, 9).getMaxFlow());
+
         // Submit tasks to the executor
-        List<Future<Integer>> futures = new ArrayList<>();
-        futures.add(executorService.submit(task1));
+        List<Future<List<Integer>>> futures = new ArrayList<>();
         futures.add(executorService.submit(task2));
         futures.add(executorService.submit(task3));
         futures.add(executorService.submit(task4));
+        futures.add(executorService.submit(task5));
+        List<String>way=new ArrayList<>();
 
         // Collect results from futures
-        for (Future<Integer> future : futures) {
+        for (Future<List<Integer>> future : futures) {
             try {
                 list.add(future.get());
+                Log.d("tagit",(future.get().toString()));
+                    canWrite.set(list.size()==futures.size());
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
-                // Handle exceptions if needed
             } finally {
-                // Shut down the executor service
                 executorService.shutdown();
+
             }
         }
-        List<String>way=new ArrayList<>();
-        ((MaterialTextView) ((TableRow) ResultsGraph.this.tableLayout.getChildAt(1)).getChildAt(1)).setText((list.get(0).toString()));
-        ((MaterialTextView) ((TableRow) ResultsGraph.this.tableLayout.getChildAt(2)).getChildAt(1)).setText((list.get(1).toString()));
-        ((MaterialTextView) ((TableRow) ResultsGraph.this.tableLayout.getChildAt(3)).getChildAt(1)).setText((list.get(2)).toString());
-        ((MaterialTextView) ((TableRow) ResultsGraph.this.tableLayout.getChildAt(4)).getChildAt(1)).setText((list.get(3)).toString());
+        if(canWrite.get()) {
+            if (list != null && !list.isEmpty() && list.get(0).size() > 1) {
+                int index = list.get(0).size() - 2;
+                int value = list.get(0).get(index).intValue();
+                String description = getDescriptionText(value);
+                ((MaterialTextView) ((TableRow) ResultsGraph.this.tableLayout.getChildAt(1)).getChildAt(1)).setText(description);
+                if(server!=null)
+                {
+                    server.getmDatabase().child("Results").child(field).setValue(description);
+                }
+            } else {
+                // Handle the case where the list is null, empty or does not have enough elements
+                ((MaterialTextView) ((TableRow) ResultsGraph.this.tableLayout.getChildAt(1)).getChildAt(1)).setText("No data available");
+            }}
 
-
-        if(server!=null)
-        {
-            server.getmDatabase().child("Results").child(field).setValue(way);
-        }
 
     }
-    private int calcFavorite(Map<String, Object> usermap) {
-        String calc;
-        try {
 
-            calc=usermap.get("descriptionText").toString();
-        }
-        catch (NullPointerException nullPointerException)
-        {
-            return -1;
-        }
-        // private String[] Edu = {"ECONOMIC", "ENGINEER", "MEDICAL", "EDUCATION"};
-
-        switch (calc)
-        {
-            case "ECONOMIC":
-                return  6;
-            case "MEDICAL":
-                return  8;
-            case "ENGINEER":
-                return  7;
-            case "EDUCATION":
-                return  9;
-        }
-        return  -1;
-    }
     private String getDescriptionText(int value) {
         switch (value) {
             case 6:
@@ -349,9 +321,6 @@ public class ResultsGraph extends AppCompatActivity {
             return 3;
         }
     }
-
-
-
 
 
 

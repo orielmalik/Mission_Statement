@@ -137,10 +137,7 @@ public class Register extends AppCompatActivity {
     }
     private  void makeIntent(Intent i) {
         HashMap<String,String>deatils=  ((HashMap<String, String>) fragmentRegister.createHuman().toMap());
-
         Bundle b = new Bundle();
-
-
         b.putSerializable("deatils", (HashMap) deatils);
         i.putExtra("bundle", b);
         startActivity(i);

@@ -38,39 +38,43 @@ public class ListOperator extends AppCompatActivity {
     private Operator operator;
     private RecyclerView recyclerView;
     private SearchView searchView;
-    private  Realtime server;
+    private Realtime server;
+    private Set<String> emailsAdded;
     private Storage storage;
-    int[]id={R.id.menu_item1,R.id.menu_item2,R.id.menu_item3,R.id.menu_item4,R.id.menu_item5};
+    int[] id = {R.id.menu_item1, R.id.menu_item2, R.id.menu_item3, R.id.menu_item4, R.id.menu_item5};
     private List<FragmentProfile> lst;
-    int[]Operatoricon={R.drawable.ic_operatorone,R.drawable.ic_operatortwo,R.drawable.ic_operatorthree,R.drawable.ic_operatorfour,R.drawable.ic_operatorsix,R.drawable.ic_operatorseven};
-    private String filter;
-    private List<Map<String,String>>mapList;
+    int[] Operatoricon = {R.drawable.ic_operatorone, R.drawable.ic_operatortwo, R.drawable.ic_operatorthree, R.drawable.ic_operatorfour, R.drawable.ic_operatorsix, R.drawable.ic_operatorseven};
+    private String filter = "";
+    private List<Map<String, String>> mapList;
     private Set<String> setCategory;
     private Callback_list callbackList;
-    private boolean fillHash=false;
-private  String userId;
+    private boolean fillHash = false;
+    private String userId;
+    private boolean fillOperator = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_operator);
-        lst=new ArrayList<>();
-        this.mapList=new ArrayList<>();
-        server=new Realtime(this);
+        lst = new ArrayList<>();
+        this.mapList = new ArrayList<>();
+        server = new Realtime(this);
         recyclerView = findViewById(R.id.lst_operator);
         searchView = findViewById(R.id.searchView_LST);
-        setCategory=new HashSet<>();
+        setCategory = new HashSet<>();
+        emailsAdded = new HashSet<>();
         // Set up SearchView
+        setMapList(new ArrayList<>());
         setSearchView();
-try {
-  userId=  getIntent().getStringExtra("ph");
-}catch (NullPointerException nullPointerException)
-{
-    nullPointerException.printStackTrace();
-}
+        try {
+            userId = getIntent().getStringExtra("ph");
+        } catch (NullPointerException nullPointerException) {
+            nullPointerException.printStackTrace();
+        }
 
     }
-    private  void  setSearchView()
-    {
+
+    private void setSearchView() {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -81,7 +85,7 @@ try {
             @Override
             public boolean onQueryTextChange(String query) {
 
-             //   performSearch(query);
+                //   performSearch(query);
 
                 return true;
             }
@@ -104,50 +108,42 @@ try {
     }
 
 
-
     private void performSearch(String query) {
 
         callbackList = new Callback_list() {
             @Override
             public void addToList(FragmentProfile f) {
-                if((!f.isAddedd()&&!getLst().contains(f))&&Functions.filterBy(filter,query,f.getDeatils(),searchView))
-                {
+                if (filter.isEmpty() || (!getLst().contains(f)) && Functions.filterBy(filter, query, f.getDeatils(), searchView)) {
                     lst.add(f);
-                    f.setAdded(true);
-                    Functions.orderList(getLst(),filter);
+                    //Functions.orderList(getLst(),filter);
                 }
             }
 
             @Override
             public void start() {
-                for (Map<String,String>map:getMapList()) {
-                    if(! ListOperator.this.fillHash) {
-                        try {
-                            initOpeartor((String) CryptoUtils.decrypt(map.get("email")), (String) CryptoUtils.decrypt(map.get("PhoneNumber")));
-                        } catch (Exception e) {
-                            Log.e("err", e.getMessage());
-                        }
+                for (Map<String, String> map : getMapList()) {
+                    try {
+                        initOpeartor((String) CryptoUtils.decrypt(map.get("email")), (String) CryptoUtils.decrypt(map.get("PhoneNumber")));
+                    } catch (Exception e) {
+                        Log.e("err", e.getMessage());
                     }
+
                     FragmentProfile frag = new FragmentProfile();
 
                     frag.setDeatils(operator.OperatorStringMap());
                     ListOperator.this.setCategory = frag.getDeatils().keySet();
 
-                      //  getLst().add(frag);//adhashmapd to j
-                   // frag.setAdded(true);
-                    frag.getDeatils().put("user",getUserId());
+                    //  getLst().add(frag);//adhashmapd to j
+                    // frag.setAdded(true);
+                    frag.getDeatils().put("user", getUserId());
                     this.addToList(frag);
-                    ListOperator.this.fillHash=true;
+                    ListOperator.this.fillHash = true;
 
                 }
                 MyAdapter adapter = new MyAdapter(getLst(), getSupportFragmentManager());
                 recyclerView.setLayoutManager(new LinearLayoutManager(ListOperator.this));
                 recyclerView.setAdapter(adapter);
-                for(FragmentProfile fragmentProfile: getLst())
-                {
-                    fragmentProfile.setAdded(false);
-                }
-                setLst(new ArrayList<>());
+
 
             }
 
@@ -159,8 +155,7 @@ try {
 
             @Override
             public void cleanup(List<FragmentProfile> list) {
-                for(FragmentProfile f:list)
-                {
+                for (FragmentProfile f : list) {
                     f.setAdded(false);
                 }
             }
@@ -172,7 +167,7 @@ try {
 
 
         };
-        callbackList.cleanup(getLst());
+        // callbackList.cleanup(getLst());
         joinTables(server, callbackList);
 
         Toast.makeText(this, "Searching for: " + query, Toast.LENGTH_SHORT).show();
@@ -187,9 +182,9 @@ try {
         MenuInflater inflater = popup.getMenuInflater();
 
         inflater.inflate(R.menu.popu_menu, popup.getMenu());
-        String[]op={"results","area","rating","category","email"};
-        int[]Operatoricon={R.drawable.ic_locat,R.drawable.ic_heartt,R.drawable.ic_validate,R.drawable.ic_google,R.drawable.ic_smiley,R.drawable.ic_operatorseven};
-        for (int i = 0; i <id.length ; i++) {
+        String[] op = {"results", "area", "rating", "category", "email"};
+        int[] Operatoricon = {R.drawable.ic_locat, R.drawable.ic_heartt, R.drawable.ic_validate, R.drawable.ic_google, R.drawable.ic_smiley, R.drawable.ic_operatorseven};
+        for (int i = 0; i < id.length; i++) {
             popup.getMenu().findItem(id[i]).setIcon(Operatoricon[i]);
             popup.getMenu().findItem(id[i]).setTitle(op[i]);
         }
@@ -197,35 +192,34 @@ try {
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                boolean ok=false;
-                getIconAction(id,item,op);
+                boolean ok = false;
+                getIconAction(id, item, op);
 
-                return  true;
+                return true;
             }
         });
         popup.show();
+        setLst(new ArrayList<>());
     }
-    private void getIconAction(int[] id, MenuItem item,String[]op) {
+
+    private void getIconAction(int[] id, MenuItem item, String[] op) {
 
         for (int i = 0; i < id.length; i++) {
-            if(id[i]==item.getItemId())
-            {
+            if (id[i] == item.getItemId()) {
 //callbackList.addCategory(op[i]);
                 setLst(new ArrayList<>());
-                this.filter=op[i];
+                this.filter = op[i];
             }
         }
 
     }
 
-    private  boolean uploadOperatorsOnce(String email)
-    {
-        AtomicBoolean bool=new AtomicBoolean(false);
+    private boolean uploadOperatorsOnce(String email) {
+        AtomicBoolean bool = new AtomicBoolean(false);
         server.checkDataSnapshotnew("OPERATOR").thenAccept(big -> {
 
             big.forEach((s, hashMap) -> {
-                if(email.equals(operator.getEmail()))
-                {
+                if (email.equals(operator.getEmail())) {
                     bool.set(true);
                 }
             });
@@ -236,20 +230,15 @@ try {
     }
 
 
-
-    private  void joinTables(Realtime server, Callback_list init)
-    {
-        if(!isSetData()) {
-
-            server.checkDataSnapshot("human").thenAccept(big ->
-            {
+    private void joinTables(Realtime server, Callback_list init) {
+        server.checkDataSnapshot("human").thenAccept(big ->
+        {
+            if(!ListOperator.this.fillHash) {
                 big.forEach((s, hashMap) ->
                 {
-
                     try {
                         if (hashMap.containsKey("position") && CryptoUtils.decrypt((String) hashMap.get("position")).equals("OPERATOR")) {
                             init.addHashList(hashMap, getMapList());
-
                         }
                     } catch (Exception e) {
                         Toast.makeText(this, "WIFI FAILED CONNECTION", Toast.LENGTH_LONG).show();
@@ -257,15 +246,14 @@ try {
 
                     }
                 });
+            }
+            init.start();
 
-            });
-        }
-        init.start();
-
+        });
     }
 
     private boolean isSetData() {
-        return  this.fillHash;
+        return this.fillHash;
     }
 
 
@@ -275,14 +263,14 @@ try {
         int index = random.nextInt(categories.length);
         return categories[index];
     }
+
     public float getRandomFloat() {
         Random random = new Random();
         return random.nextFloat() * 5;
     }
-    private  void initOpeartor(String email,String ph)
-    {
-        if(!uploadOperatorsOnce(email.replace(" ",""))) {
 
+    private void initOpeartor(String email, String ph) {
+        if (!emailsAdded.contains(email))
             switch (email.replace(" ", "")) {
                 case "mirham@afeka.ac.il":
                     operator = new Operator(Category.ENGINEER, AREA.TLV, " COLLEGE OF ENGINEERING  B.SC(SW,MD,MACHINE,ELECTRICITY ,INDUSTRIAL AND MORE)", 3.7f, getRandomIcon());
@@ -294,11 +282,14 @@ try {
                     operator = new Operator(getRandomCategory(), getRandomArea(), " i am professtiona at education", getRandomFloat(), getRandomIcon());
                     break;
             }
-            operator.setEmail(email);
-            operator.setPhoneNumber(ph);
-            server.getmDatabase().child("OPERATOR").child(ph).setValue(operator.OperatorMap());
-        }
+        operator.setEmail(email);
+        operator.setPhoneNumber(ph);
+        server.getmDatabase().child("OPERATOR").child(ph).setValue(operator.OperatorMap());
+        emailsAdded.add(email);
     }
+
+
+
     public AREA getRandomArea() {
         AREA[] areas = AREA.values();
         Random random = new Random();

@@ -10,24 +10,24 @@
         android:id="@+id/progressBarDea"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:visibility="gone"
-        />
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
     <LinearLayout
         android:id="@+id/aboveDea"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:layout_marginBottom="100dp"> <!-- Added margin bottom to create space -->
 
         <com.google.android.material.textview.MaterialTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="45sp"
             android:fontFamily="@font/lbl_comic_bold"
-            android:text="Last words before test?"
+            android:text="Last words before test?" />
 
-            />
         <EditText
             android:id="@+id/descriptionEditText"
             android:layout_width="match_parent"
@@ -35,13 +35,13 @@
             android:inputType="textMultiLine"
             android:hint="Description"
             android:layout_marginTop="36dp"
-            android:layout_marginBottom="16dp"/> <!-- Added spacing below description -->
+            android:layout_marginBottom="16dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="16dp"> <!-- Added spacing below date spinners -->
+            android:layout_marginBottom="16dp">
 
             <Spinner
                 android:id="@+id/DTEST_daySpinner"
@@ -68,23 +68,42 @@
             android:layout_height="wrap_content"
             android:src="@drawable/ic_locat"
             app:fabSize="normal" />
+
         <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/locationFabdesc"
             android:layout_width="130dp"
             android:layout_height="130dp"
             android:textSize="19sp"
+            android:text="to Start so click on me \n until we get your location" />
 
-            android:text="to Start so click on me \n until we get your location"
-            />
+        <RadioButton
+            android:id="@+id/additionalPsy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Have psychometric grade?" />
+
+        <EditText
+            android:id="@+id/additionalPsygrade"
+            android:layout_width="280dp"
+            android:layout_height="100dp"
+            android:hint="Enter psychometric grade"
+            android:inputType="number"
+            android:background="@color/heat2"
+            android:visibility="invisible" />
+
+        <RadioButton
+            android:id="@+id/radioDriverLicense"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="I have a driver's license" />
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/BTN_DEAT_SUBMIT"
             android:layout_width="wrap_content"
             android:layout_height="40dp"
             android:text="SUBMIT"
             android:layout_margin="75dp"
-            android:visibility="invisible"
-            />
-        <!-- Other UI components here. Add a marginBottom to the last element above the LinearLayout belowDea if needed. -->
-
+            android:visibility="invisible" />
     </LinearLayout>
 
     <LinearLayout
@@ -94,7 +113,6 @@
         android:orientation="horizontal"
         android:padding="16dp"
         android:layout_gravity="bottom"
-        android:layout_marginBottom="140dp"
         android:gravity="center_vertical">
 
         <com.google.android.material.textview.MaterialTextView
@@ -103,7 +121,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:hint="Describe location"
-            android:layout_marginEnd="16dp"/>
+            android:layout_marginEnd="16dp" />
 
     </LinearLayout>
 
