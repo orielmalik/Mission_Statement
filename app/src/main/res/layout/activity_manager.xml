@@ -6,25 +6,45 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="#D8A2A2"
     tools:context=".Manager.ManagerActivity">
-
-    <androidx.appcompat.widget.LinearLayoutCompat
-        android:id="@+id/manager_above"
+    <com.google.android.material.textview.MaterialTextView
         android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:background="@drawable/bck_manager" />
+        android:layout_height="120dp"
+        android:text="Manager Page"
+        android:textSize="40sp"
+        android:fontFamily="@font/lbl_comic_bold"
+        android:background="@color/heat6"
+        android:drawableLeft="@drawable/ic_userone"
+        android:drawablePadding="16dp"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingLeft="16dp"
+        />
 
     <FrameLayout
         android:id="@+id/manager_fragment"
         android:layout_width="match_parent"
-        android:layout_height="330dp" />
+        android:layout_height="270dp" />
 
     <ProgressBar
-        android:id="@+id/progress_bar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/progress_bar_man"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:layout_gravity="center"
         android:visibility="gone"
         android:indeterminate="true" />
 
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/VP_man"
+        android:layout_width="match_parent"
+        android:layout_height="230dp"
+        android:visibility="gone"
+        />
+<com.google.android.material.button.MaterialButton
+    android:id="@+id/BTN_man"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="30dp"
+    />
 </LinearLayout>

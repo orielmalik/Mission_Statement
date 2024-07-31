@@ -33,16 +33,21 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ListOperator extends AppCompatActivity {
     private Operator operator;
     private RecyclerView recyclerView;
     private SearchView searchView;
+    private AtomicInteger index;
     private Realtime server;
     private Set<String> emailsAdded;
     private Storage storage;
     int[] id = {R.id.menu_item1, R.id.menu_item2, R.id.menu_item3, R.id.menu_item4, R.id.menu_item5};
     private List<FragmentProfile> lst;
+    int[] Operatoriconn = {R.drawable.ic_locat, R.drawable.ic_heartt, R.drawable.ic_validate, R.drawable.ic_google, R.drawable.ic_smiley, R.drawable.ic_operatorseven};
+    String[] op = {"results", "area", "rating", "category", "email"};
+
     int[] Operatoricon = {R.drawable.ic_operatorone, R.drawable.ic_operatortwo, R.drawable.ic_operatorthree, R.drawable.ic_operatorfour, R.drawable.ic_operatorsix, R.drawable.ic_operatorseven};
     private String filter = "";
     private List<Map<String, String>> mapList;
@@ -58,6 +63,7 @@ public class ListOperator extends AppCompatActivity {
         setContentView(R.layout.activity_list_operator);
         lst = new ArrayList<>();
         this.mapList = new ArrayList<>();
+        index=new AtomicInteger(0);
         server = new Realtime(this);
         recyclerView = findViewById(R.id.lst_operator);
         searchView = findViewById(R.id.searchView_LST);
@@ -113,7 +119,7 @@ public class ListOperator extends AppCompatActivity {
         callbackList = new Callback_list() {
             @Override
             public void addToList(FragmentProfile f) {
-                if (filter.isEmpty() || (!getLst().contains(f)) && Functions.filterBy(filter, query, f.getDeatils(), searchView)) {
+                if ( (!getLst().contains(f)) && Functions.filterBy( f.getDeatils(), searchView,op[index.get()])) {
                     lst.add(f);
                     //Functions.orderList(getLst(),filter);
                 }
@@ -182,10 +188,9 @@ public class ListOperator extends AppCompatActivity {
         MenuInflater inflater = popup.getMenuInflater();
 
         inflater.inflate(R.menu.popu_menu, popup.getMenu());
-        String[] op = {"results", "area", "rating", "category", "email"};
-        int[] Operatoricon = {R.drawable.ic_locat, R.drawable.ic_heartt, R.drawable.ic_validate, R.drawable.ic_google, R.drawable.ic_smiley, R.drawable.ic_operatorseven};
+        //int[] Operatoricon = {R.drawable.ic_locat, R.drawable.ic_heartt, R.drawable.ic_validate, R.drawable.ic_google, R.drawable.ic_smiley, R.drawable.ic_operatorseven};
         for (int i = 0; i < id.length; i++) {
-            popup.getMenu().findItem(id[i]).setIcon(Operatoricon[i]);
+            popup.getMenu().findItem(id[i]).setIcon(Operatoriconn[i]);
             popup.getMenu().findItem(id[i]).setTitle(op[i]);
         }
 
@@ -207,7 +212,8 @@ public class ListOperator extends AppCompatActivity {
         for (int i = 0; i < id.length; i++) {
             if (id[i] == item.getItemId()) {
 //callbackList.addCategory(op[i]);
-                setLst(new ArrayList<>());
+                //setLst(new ArrayList<>());
+                index.set(i);
                 this.filter = op[i];
             }
         }
@@ -238,7 +244,9 @@ public class ListOperator extends AppCompatActivity {
                 {
                     try {
                         if (hashMap.containsKey("position") && CryptoUtils.decrypt((String) hashMap.get("position")).equals("OPERATOR")) {
-                            init.addHashList(hashMap, getMapList());
+
+                                init.addHashList(hashMap, getMapList());
+
                         }
                     } catch (Exception e) {
                         Toast.makeText(this, "WIFI FAILED CONNECTION", Toast.LENGTH_LONG).show();
@@ -270,22 +278,33 @@ public class ListOperator extends AppCompatActivity {
     }
 
     private void initOpeartor(String email, String ph) {
-        if (!emailsAdded.contains(email))
-            switch (email.replace(" ", "")) {
-                case "mirham@afeka.ac.il":
-                    operator = new Operator(Category.ENGINEER, AREA.TLV, " COLLEGE OF ENGINEERING  B.SC(SW,MD,MACHINE,ELECTRICITY ,INDUSTRIAL AND MORE)", 3.7f, getRandomIcon());
-                    break;
-                case "international@mta.ac.il":
-                    operator = new Operator(Category.ENGINEER, AREA.TLV, " the college offers a variety of undergraduate and graduate programs in a variety of fields, including business, computer science, social work, and education.", 0.4f, getRandomIcon());
-                    break;
-                default:
-                    operator = new Operator(getRandomCategory(), getRandomArea(), " i am professtiona at education", getRandomFloat(), getRandomIcon());
-                    break;
-            }
-        operator.setEmail(email);
-        operator.setPhoneNumber(ph);
-        server.getmDatabase().child("OPERATOR").child(ph).setValue(operator.OperatorMap());
-        emailsAdded.add(email);
+        if(!(server.getmDatabase().child("OPERATOR").child(ph) ==null)) {
+            server.checkDataSnapshotnew("OPERATOR"+"/"+ph).thenAccept(big ->
+            {
+                if(big.containsKey(ph)){
+                    operator=new Operator(Category.valueOf(big.get("category").toString()),AREA.valueOf(big.get("area").toString()), String.valueOf(big.get("description")),Float.parseFloat(big.get("rating").toString()),Integer.parseInt(big.get("icon").toString()));
+                }
+            });
+        }else {
+
+            if (!emailsAdded.contains(email))
+                switch (email.replace(" ", "")) {
+                    case "mirham@afeka.ac.il":
+                        operator = new Operator(Category.ENGINEER, AREA.TLV, " COLLEGE OF ENGINEERING  B.SC(SW,MD,MACHINE,ELECTRICITY ,INDUSTRIAL AND MORE)", 3.7f, getRandomIcon());
+                        break;
+                    case "international@mta.ac.il":
+                        operator = new Operator(Category.ENGINEER, AREA.TLV, " the college offers a variety of undergraduate and graduate programs in a variety of fields, including business, computer science, social work, and education.", 0.4f, getRandomIcon());
+                        break;
+                    default:
+                        operator = new Operator(getRandomCategory(), getRandomArea(), " i am professtiona at education", getRandomFloat(), getRandomIcon());
+                        break;
+                }
+            operator.setEmail(email);
+            operator.setPhoneNumber(ph);
+            server.getmDatabase().child("OPERATOR").child(ph).setValue(operator.OperatorMap());
+        }
+            emailsAdded.add(email);
+
     }
 
 

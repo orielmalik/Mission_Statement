@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.missionstatement.CallBackType.Callback_test;
 import com.example.missionstatement.Firebase.Realtime;
@@ -26,6 +27,7 @@ import com.example.missionstatement.R;
 import com.example.missionstatement.Tools.CryptoUtils;
 import com.example.missionstatement.Tools.Functions;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -45,7 +47,9 @@ public class ManagerActivity extends AppCompatActivity {
     private float maxRating;
     private String[] operator;
     private boolean[] arr;
+    AtomicInteger minage,maxage;
     private ProgressBar progressBar;
+    private ViewPager2 vp;
 
     public interface Callbackk {
         void addCategory(Set<String> set);
@@ -68,7 +72,7 @@ public class ManagerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_manager);
 
         // Initialize UI elements
-        progressBar = findViewById(R.id.progress_bar);
+        progressBar = findViewById(R.id.progress_bar_man);
 
         try {
             manager = (User) getIntent().getSerializableExtra("user");
@@ -81,7 +85,7 @@ public class ManagerActivity extends AppCompatActivity {
         fragmentQuest = new FragmentQuest();
         dataFragment = new DataFragment();
         arr = new boolean[3];
-
+        vp=findViewById(R.id.VP_man);
         makeCallback();
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.manager_fragment, fragmentQuest).commit();
@@ -107,7 +111,7 @@ public class ManagerActivity extends AppCompatActivity {
                         getSupportFragmentManager().beginTransaction()
                                 .replace(R.id.manager_fragment, dataFragment).commit();
                         analyze();
-
+                        makevp();
                         break;
                 }
                 fragmentQuest.getRadioGroup().setVisibility(View.GONE);
@@ -143,6 +147,11 @@ public class ManagerActivity extends AppCompatActivity {
             }
         };
         fragmentQuest.setCallback_test(callbackTest);
+    }
+
+    private void makevp(/*List<FragmentProfile>data*/) {
+        vp.setVisibility(View.VISIBLE);
+
     }
 
     private void makeOptions(RadioGroup radioGroup) {
@@ -202,9 +211,10 @@ public class ManagerActivity extends AppCompatActivity {
             @Override
             public void gridVieFill(GridView gridView, Context context, List<String[]> lst, String[] arr) {
                 List<String[]> data = new ArrayList<>(lst);
-                lst.add(new String[]{"Most common Results category", getCategory()});
-                lst.add(new String[]{"Max rating", "operator" + getOperator()[0] + " number " + String.valueOf(getMaxRating())});
-                lst.add(new String[]{"Max Clients", "operator" + getOperator()[1] + " number " + String.valueOf(getMaxClients())});
+                lst.add(new String[]{" Most common Results category", getCategory()});
+                lst.add(new String[]{" Max rating ", "operator" + getOperator()[0] + " number " + String.valueOf(getMaxRating())});
+                lst.add(new String[]{" Max Clients ", "operator" + getOperator()[1] + " number " + String.valueOf(getMaxClients())});
+                lst.add(new String[]{" Max/Min USER Age ",maxage.get()+"/"+minage.get() });
 
                 GridAdapter adapter = new GridAdapter(context, data);
                 gridView.setAdapter(adapter);
@@ -233,6 +243,8 @@ public class ManagerActivity extends AppCompatActivity {
         List<Integer> clients = new ArrayList<>();
         AtomicInteger indexClient = new AtomicInteger(0);
         AtomicInteger index = new AtomicInteger(0);
+        minage=new AtomicInteger(200);
+        maxage=new AtomicInteger(0);
         operator = new String[]{" ", " "};
         dataFragment.setCallbackk(callbackk);
 
@@ -288,8 +300,27 @@ public class ManagerActivity extends AppCompatActivity {
                         break;
 
                     case "USER":
+                        big.forEach((key, value) ->{
+                            try {
+                                int a= Functions.calculateAge(value.get("birthdate").toString());
+                                if(a<minage.get())
+                                {
+                                    minage.set(a);
+                                }
+                                if(a>maxage.get()) {
+                                    maxage.set(a);
+                                }
+                            } catch (ParseException e) {
+                                throw new RuntimeException(e);
+                            }
+
+                        } );
+
+
+
                         break;
                 }
+
             });
 
         });
@@ -299,33 +330,33 @@ public class ManagerActivity extends AppCompatActivity {
     private void findBy(int state) {
         switch (state) {
             case 0:
-            if (!operator[0].isEmpty()) {
-                String[] split = operator[0].split("\n");
-                for (String op : split) {
-                    server.checkDataSnapshotnew("human").thenAccept(
-                            big ->
-                            {
-                                big.forEach((s, hashMap) ->
+                if (!operator[0].isEmpty()) {
+                    String[] split = operator[0].split("\n");
+                    for (String op : split) {
+                        server.checkDataSnapshotnew("human").thenAccept(
+                                big ->
                                 {
-                                    try {
-                                        if (hashMap.containsKey("position") && CryptoUtils.decrypt((String) hashMap.get("position")).equals("OPERATOR")&&s.equals(op)) {
+                                    big.forEach((s, hashMap) ->
+                                    {
+                                        try {
+                                            if (hashMap.containsKey("position") && CryptoUtils.decrypt((String) hashMap.get("position")).equals("OPERATOR")&&s.equals(op)) {
+
+                                            }
+                                        } catch (Exception e) {
+                                            Toast.makeText(this, "WIFI FAILED CONNECTION", Toast.LENGTH_LONG).show();
+                                            throw new RuntimeException(e);
 
                                         }
-                                    } catch (Exception e) {
-                                        Toast.makeText(this, "WIFI FAILED CONNECTION", Toast.LENGTH_LONG).show();
-                                        throw new RuntimeException(e);
+                                    });
+                                }
+                        );
 
-                                    }
-                                });
-                            }
-                    );
-
+                    }
                 }
-            }
         }
 
 
-}
+    }
     public String getCategory() {
         return category;
     }

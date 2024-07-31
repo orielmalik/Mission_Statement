@@ -1,6 +1,7 @@
 package com.example.missionstatement.Tools;
 
 
+import androidx.appcompat.app.AppCompatActivity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +10,7 @@ import android.os.Build;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +28,7 @@ import com.example.missionstatement.Category;
 import com.example.missionstatement.Fragment.FragmentProfile;
 import com.example.missionstatement.Objects.Operator;
 import com.example.missionstatement.Objects.Test;
+import com.example.missionstatement.R;
 import com.google.firebase.storage.StorageReference;
 
 import java.text.ParseException;
@@ -484,17 +487,15 @@ public class Functions {
 //LIST OPERATOR FILTER BY
 
 
-    public  static  boolean filterBy(String criteria, String query, HashMap<String,String>deatils, SearchView enable)
+    public  static  boolean filterBy( HashMap<String,String>deatils, SearchView enable,String criteria)
     {
-
         switch (criteria.toLowerCase())
         {
-            case "email":case"area": case "category":
-            return deatils.get(criteria).equalsIgnoreCase(query);
-            case  "rating":
-                return isFloatNumber(query)&&Float.parseFloat(deatils.get(criteria))>=Float.parseFloat(query);
-            case "results":
-                return  true;
+            case "area":
+            return deatils.get(criteria.toLowerCase()).equalsIgnoreCase(enable.getQuery().toString());
+            case "rating":
+                return isFloatNumber(enable.getQuery().toString())&&Float.parseFloat(deatils.get("rating"))*10000>=Float.parseFloat(enable.getQuery().toString())*10000;
+
 
         }
         return  false;

@@ -523,6 +523,7 @@ if(psy.isChecked())
         } else if (state == STATE.LOCATION_SETTINGS_PROCCESS) {
 
             locationTXT.setText("");
+            submit.setVisibility(View.VISIBLE);
 
             //Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(, false));
         } else if (state == STATE.LOCATION_SETTINGS_OK) {
@@ -573,7 +574,7 @@ if(psy.isChecked())
         {
             user.setCountChangeDate(user.getCountChangeDate()+1);
         }
-        psyc.setVisibility(View.GONE);
+        //psyc.setVisibility(View.GONE);
         user.setBirthdate(Functions.toBirthdateFormat(getSelectedDate()));
         Log.d(null, "saveBierthdate:"+MissionClassifierHanLP.classifyMission(description.getText().toString()));
         user.setDescription("EDUCATION");//because we decided to this category

@@ -89,7 +89,7 @@
             android:hint="Enter psychometric grade"
             android:inputType="number"
             android:background="@color/heat2"
-            android:visibility="invisible" />
+            android:visibility="gone" />
 
         <RadioButton
             android:id="@+id/radioDriverLicense"
