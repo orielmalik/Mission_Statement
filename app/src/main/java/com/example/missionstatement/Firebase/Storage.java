@@ -143,37 +143,41 @@ private static int counter=0;//know when the first time user upload to states
         if (imageView == null) return;
 
         long max = 550 * 550; // Define the max download size
-        StorageReference target = storageReference.child(pos).child(child);
-        // Get the metadata of the file
-        target.getMetadata().addOnSuccessListener(storageMetadata -> {
-            String mimeType = storageMetadata.getContentType();
+        try {
+            StorageReference target = storageReference.child(pos).child(child);
+            // Get the metadata of the file
+            target.getMetadata().addOnSuccessListener(storageMetadata -> {
+                String mimeType = storageMetadata.getContentType();
 
-            if ("application/octet-stream".equals(mimeType)) {
-                // If MIME type is "application/octet-stream", download and decrypt the data
-                target.getBytes(max).addOnSuccessListener(bytes -> {
-                    try {
-                        // Decrypt the image data
-                        String decryptedDataString = CryptoUtils.decrypt(Base64.encodeToString(bytes, Base64.DEFAULT));
-                        byte[] decryptedData = Base64.decode(decryptedDataString, Base64.DEFAULT);
+                if ("application/octet-stream".equals(mimeType)) {
+                    // If MIME type is "application/octet-stream", download and decrypt the data
+                    target.getBytes(max).addOnSuccessListener(bytes -> {
+                        try {
+                            // Decrypt the image data
+                            String decryptedDataString = CryptoUtils.decrypt(Base64.encodeToString(bytes, Base64.DEFAULT));
+                            byte[] decryptedData = Base64.decode(decryptedDataString, Base64.DEFAULT);
 
-                        Bitmap bitmap = BitmapFactory.decodeByteArray(decryptedData, 0, decryptedData.length);
+                            Bitmap bitmap = BitmapFactory.decodeByteArray(decryptedData, 0, decryptedData.length);
+                            imageView.setImageBitmap(bitmap);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            // Handle decryption error
+                        }
+                    }).addOnFailureListener(e -> Log.d(null, "Download Failed: " + e.getMessage()));
+                } else {
+                    // If MIME type is not "application/octet-stream", directly display the image
+                    target.getBytes(max).addOnSuccessListener(bytes -> {
+                        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
                         imageView.setImageBitmap(bitmap);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        // Handle decryption error
-                    }
-                }).addOnFailureListener(e -> Log.d(null, "Download Failed: " + e.getMessage()));
-            } else {
-                // If MIME type is not "application/octet-stream", directly display the image
-                target.getBytes(max).addOnSuccessListener(bytes -> {
-                    Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                    imageView.setImageBitmap(bitmap);
-                }).addOnFailureListener(e -> Log.d(null, "Download Failed: " + e.getMessage()));
-            }
-        }).addOnFailureListener(e -> Log.d(null, "Metadata Fetch Failed: " + e.getMessage()+" location: "+target.getPath()));
+                    }).addOnFailureListener(e -> Log.d(null, "Download Failed: " + e.getMessage()));
+                }
+            }).addOnFailureListener(e -> Log.d(null, "Metadata Fetch Failed: " + e.getMessage() + " location: " + target.getPath()));
+        }
+        catch (NullPointerException nullPointerException)
+        {
+            nullPointerException.printStackTrace();
+        }
     }
-
-
 
     public Test getTest() {
         return test;

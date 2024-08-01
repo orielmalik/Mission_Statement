@@ -1,5 +1,6 @@
 package com.example.missionstatement.Menu;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -12,19 +13,26 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.missionstatement.Firebase.Storage;
 import com.example.missionstatement.Fragment.FragmentProfile;
 import com.example.missionstatement.R;
+import com.example.missionstatement.Tools.Functions;
 import com.example.missionstatement.VP.ViewPagerFragment;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
     private Storage storage;
     private List<FragmentProfile> data;
     private FragmentManager fragmentManager;
+    private List<FragmentProfile> filteredProfiles; // פרופילים מסוננים
+    private List<FragmentProfile> allProfiles; // כל הפרופילים
+
     private static  int touchtovp=0;
     public MyAdapter(List<FragmentProfile> data, FragmentManager fragmentManager) {
         this.data = data;
         this.fragmentManager = fragmentManager;
         this.storage = Storage.getInstance();
+
     }
 
     @NonNull
@@ -42,7 +50,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
             // Check if fragment is already added
             if (fragmentManager.findFragmentByTag(fragmentTag) == null) {
                 fragmentManager.beginTransaction()
-                        .replace(holder.container.getId(), data.get(position), fragmentTag)
+                        .add(holder.container.getId(), data.get(position), fragmentTag)
                         .commit();
             }
 
@@ -52,7 +60,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
 
                 FragmentProfile fragmentProfile = data.get(holder.getAdapterPosition());
                 storage.showImage(fragmentProfile.getProfiler(), fragmentProfile.getDeatils().get("email") + "jpeg.jpg", "OPERATOR");
-                if (motionEvent.getAction() == MotionEvent.ACTION_UP&&touchtovp>1) {
+                if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
                     // Show the image on touch
                     showViewPager(holder.getAdapterPosition(),holder.container);
                     touchtovp=0;
@@ -68,6 +76,15 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
     public int getItemCount() {
         return data.size();
     }
+
+    public void updateData(List<FragmentProfile> newProfiles) {
+        this.data = newProfiles;
+        Log.d("new",""+data.size());
+        notifyDataSetChanged(); // עדכון ה-RecyclerView
+    }
+
+
+
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
         ViewGroup container;

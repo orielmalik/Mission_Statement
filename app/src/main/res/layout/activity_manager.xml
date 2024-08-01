@@ -8,6 +8,7 @@
     android:orientation="vertical"
     android:background="#D8A2A2"
     tools:context=".Manager.ManagerActivity">
+
     <com.google.android.material.textview.MaterialTextView
         android:layout_width="match_parent"
         android:layout_height="120dp"
@@ -19,8 +20,7 @@
         android:drawablePadding="16dp"
         android:gravity="center_vertical"
         android:paddingStart="16dp"
-        android:paddingLeft="16dp"
-        />
+        android:paddingLeft="16dp" />
 
     <FrameLayout
         android:id="@+id/manager_fragment"
@@ -35,16 +35,19 @@
         android:visibility="gone"
         android:indeterminate="true" />
 
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/VP_man"
+    <FrameLayout
+        android:id="@+id/viewPagerContainer"
         android:layout_width="match_parent"
         android:layout_height="230dp"
-        android:visibility="gone"
+        android:visibility="gone" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/BTN_man"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:text="Convert"
+        android:textSize="35sp"
         />
-<com.google.android.material.button.MaterialButton
-    android:id="@+id/BTN_man"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="30dp"
-    />
+
 </LinearLayout>

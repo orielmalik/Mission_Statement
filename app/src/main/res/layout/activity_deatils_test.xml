@@ -21,22 +21,29 @@
         android:padding="16dp"
         android:layout_marginBottom="100dp"> <!-- Added margin bottom to create space -->
 
+        <!-- Title -->
         <com.google.android.material.textview.MaterialTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="45sp"
             android:fontFamily="@font/lbl_comic_bold"
-            android:text="Last words before test?" />
+            android:text="Personal Details" />
+
 
         <EditText
             android:id="@+id/descriptionEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textMultiLine"
-            android:hint="Description"
-            android:layout_marginTop="36dp"
+            android:hint="Description   your main target "
+            android:layout_marginTop="8dp"
             android:layout_marginBottom="16dp" />
 
+        <!-- Date Spinners -->
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Select your birthdate(DAY,MONTH,YEAR)" />
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -47,7 +54,9 @@
                 android:id="@+id/DTEST_daySpinner"
                 android:layout_width="0dp"
                 android:layout_weight="1"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+
+                />
 
             <Spinner
                 android:id="@+id/DTEST_monthSpinner"
@@ -62,26 +71,25 @@
                 android:layout_height="wrap_content" />
         </LinearLayout>
 
+      =
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/locationFab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_locat"
             app:fabSize="normal" />
-
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/locationFabdesc"
             android:layout_width="130dp"
             android:layout_height="130dp"
             android:textSize="19sp"
-            android:text="to Start so click on me \n until we get your location" />
+            android:text="To start, click on me until we get your location" />
 
         <RadioButton
             android:id="@+id/additionalPsy"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Have psychometric grade?" />
-
         <EditText
             android:id="@+id/additionalPsygrade"
             android:layout_width="280dp"
@@ -91,18 +99,26 @@
             android:background="@color/heat2"
             android:visibility="gone" />
 
+
         <RadioButton
             android:id="@+id/radioDriverLicense"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="I have a driver's license" />
 
+        <!-- Submit Button -->
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:text="Submit the details" />
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/BTN_DEAT_SUBMIT"
             android:layout_width="wrap_content"
             android:layout_height="40dp"
+            android:layout_marginBottom="45dp"
             android:text="SUBMIT"
-            android:layout_margin="75dp"
             android:visibility="invisible" />
     </LinearLayout>
 
@@ -115,13 +131,12 @@
         android:layout_gravity="bottom"
         android:gravity="center_vertical">
 
+        <!-- Location Description -->
         <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/locationDescriptionEditText"
-            android:layout_width="0dp"
+           android:id="@+id/locationDescriptionEditText"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="Describe location"
-            android:layout_marginEnd="16dp" />
+            android:text="Describe the location" />
 
     </LinearLayout>
 

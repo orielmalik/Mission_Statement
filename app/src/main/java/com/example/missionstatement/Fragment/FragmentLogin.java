@@ -46,7 +46,7 @@ public class FragmentLogin extends Fragment {
     }
 public  void getData()
 {
-    callback_login.transportEmailPassword(getEmail(),getPassword());
+    callback_login.transportEmailPassword(getEmail().replace(" ",""),getPassword().replace(" ",""));
 }
 
     public void setCallback_login(Callback_login callback_login) {

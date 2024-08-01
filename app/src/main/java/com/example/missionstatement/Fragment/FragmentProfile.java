@@ -244,9 +244,20 @@ public class FragmentProfile extends Fragment {
         return isAdded;
     }
 
-    public void setVisability(int invisible) {
-        rootView.findViewById(R.id.CARD_pro).setVisibility(invisible);
+    public void setVisibility( int vis) {
+        if (rootView != null) {
+            rootView.post(() -> {
+                if (rootView != null) { // בדיקה נוספת אם rootView עדיין לא null
+                    rootView.setVisibility(vis);
+                } else {
+                    Log.e("setVisibility", "rootView is null when setting visibility");
+                }
+            });
+        } else {
+            Log.e("setVisibility", "rootView is null");
+        }
     }
+
 
     public View getRootView() {
         return rootView;

@@ -110,7 +110,6 @@ public class Login extends AppCompatActivity {
 
     private void decryptLogin(HashMap<String, HashMap<String, String>>data,String[]mcheck) throws Exception {
         String []check=mcheck;
-        Log.d(null, "dogin: "+check[1]+" m"+ check[1].trim());
         if(check[1].trim().equals("12345")&&check[0].equals("123123454"))
         {
             Intent ad=new Intent(this, ManagerActivity.class);

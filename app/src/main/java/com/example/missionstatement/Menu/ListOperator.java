@@ -34,6 +34,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public class ListOperator extends AppCompatActivity {
     private Operator operator;
@@ -42,7 +43,6 @@ public class ListOperator extends AppCompatActivity {
     private AtomicInteger index;
     private Realtime server;
     private Set<String> emailsAdded;
-    private Storage storage;
     int[] id = {R.id.menu_item1, R.id.menu_item2, R.id.menu_item3, R.id.menu_item4, R.id.menu_item5};
     private List<FragmentProfile> lst;
     int[] Operatoriconn = {R.drawable.ic_locat, R.drawable.ic_heartt, R.drawable.ic_validate, R.drawable.ic_google, R.drawable.ic_smiley, R.drawable.ic_operatorseven};
@@ -55,7 +55,7 @@ public class ListOperator extends AppCompatActivity {
     private Callback_list callbackList;
     private boolean fillHash = false;
     private String userId;
-    private boolean fillOperator = false;
+    private MyAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,13 +71,20 @@ public class ListOperator extends AppCompatActivity {
         emailsAdded = new HashSet<>();
         // Set up SearchView
         setMapList(new ArrayList<>());
-        setSearchView();
+
         try {
             userId = getIntent().getStringExtra("ph");
         } catch (NullPointerException nullPointerException) {
             nullPointerException.printStackTrace();
         }
 
+        setCallback();
+        joinTables(server, callbackList);
+
+    }
+
+    public MyAdapter getAdapter() {
+        return adapter;
     }
 
     private void setSearchView() {
@@ -113,45 +120,61 @@ public class ListOperator extends AppCompatActivity {
         });
     }
 
-
-    private void performSearch(String query) {
-
+    private  void setCallback()
+    {
         callbackList = new Callback_list() {
             @Override
             public void addToList(FragmentProfile f) {
-                if ( (!getLst().contains(f)) && Functions.filterBy( f.getDeatils(), searchView,op[index.get()])) {
-                    lst.add(f);
-                    //Functions.orderList(getLst(),filter);
-                }
+                //f.setVisibility(View.VISIBLE);
+                lst.add(f);
             }
 
             @Override
             public void start() {
-                for (Map<String, String> map : getMapList()) {
-                    try {
-                        initOpeartor((String) CryptoUtils.decrypt(map.get("email")), (String) CryptoUtils.decrypt(map.get("PhoneNumber")));
-                    } catch (Exception e) {
-                        Log.e("err", e.getMessage());
-                    }
 
-                    FragmentProfile frag = new FragmentProfile();
-
-                    frag.setDeatils(operator.OperatorStringMap());
-                    ListOperator.this.setCategory = frag.getDeatils().keySet();
-
-                    //  getLst().add(frag);//adhashmapd to j
-                    // frag.setAdded(true);
-                    frag.getDeatils().put("user", getUserId());
-                    this.addToList(frag);
-                    ListOperator.this.fillHash = true;
-
-                }
-                MyAdapter adapter = new MyAdapter(getLst(), getSupportFragmentManager());
+                ListOperator.this.fillHash = true;
+                adapter = new MyAdapter(getLst(), getSupportFragmentManager());
                 recyclerView.setLayoutManager(new LinearLayoutManager(ListOperator.this));
                 recyclerView.setAdapter(adapter);
 
 
             }
+
+            @Override
+            public void initOperatorr(HashMap<String, Object> map,boolean b) {
+
+                FragmentProfile fragmentProfile=new FragmentProfile();
+                if(b) {
+                    fragmentProfile.setDeatils(Functions.fromOperatorMap(map).OperatorStringMap());
+
+                }
+                else {
+                    initOpeartor(map.get("email").toString(),map.get("password").toString());
+                    fragmentProfile.setDeatils(operator.OperatorStringMap());
+                }
+                Log.d("mapOperator",fragmentProfile.getDeatils().toString());
+                getLst().add(fragmentProfile);
+
+            }
+
+
+
+            @Override
+            public void FilterBy(String criteria,String value) {
+                if(getLst()==null){
+                    return;
+                }
+                    if (criteria == null) {
+                    } else {
+                        getAdapter().updateData( getLst().stream()
+                                .filter(profile -> {
+                                    boolean matches = Functions.filterBy(criteria, value, profile);
+                                    Log.d("filter", "Profile: " + profile.getDeatils() + ", Matches: " + matches);
+                                    return matches;
+                                })
+                                .collect(Collectors.toList()));
+
+                }  }
 
             @Override
             public void addHashList(HashMap<String, String> map, List<Map<String, String>> lst) {
@@ -171,11 +194,19 @@ public class ListOperator extends AppCompatActivity {
                 return null;
             }
 
+            @Override
+            public void setFilter(String filter) {
+                ListOperator.this.filter=(filter);
+            }
+
 
         };
-        // callbackList.cleanup(getLst());
-        joinTables(server, callbackList);
-
+    }
+    private void performSearch(String query) {
+        if(callbackList!=null)
+        {
+            callbackList.FilterBy(getFilter(),query);
+        }
         Toast.makeText(this, "Searching for: " + query, Toast.LENGTH_SHORT).show();
     }
 
@@ -190,7 +221,6 @@ public class ListOperator extends AppCompatActivity {
         inflater.inflate(R.menu.popu_menu, popup.getMenu());
         //int[] Operatoricon = {R.drawable.ic_locat, R.drawable.ic_heartt, R.drawable.ic_validate, R.drawable.ic_google, R.drawable.ic_smiley, R.drawable.ic_operatorseven};
         for (int i = 0; i < id.length; i++) {
-            popup.getMenu().findItem(id[i]).setIcon(Operatoriconn[i]);
             popup.getMenu().findItem(id[i]).setTitle(op[i]);
         }
 
@@ -204,64 +234,72 @@ public class ListOperator extends AppCompatActivity {
             }
         });
         popup.show();
-        setLst(new ArrayList<>());
     }
 
     private void getIconAction(int[] id, MenuItem item, String[] op) {
 
         for (int i = 0; i < id.length; i++) {
             if (id[i] == item.getItemId()) {
-//callbackList.addCategory(op[i]);
-                //setLst(new ArrayList<>());
+
                 index.set(i);
-                this.filter = op[i];
+                //  this.filter = op[i];
+                if(callbackList!=null) {
+                    callbackList.setFilter(op[i]);
+                }
             }
         }
 
     }
 
-    private boolean uploadOperatorsOnce(String email) {
-        AtomicBoolean bool = new AtomicBoolean(false);
-        server.checkDataSnapshotnew("OPERATOR").thenAccept(big -> {
-
-            big.forEach((s, hashMap) -> {
-                if (email.equals(operator.getEmail())) {
-                    bool.set(true);
-                }
-            });
-        });
-
-
-        return bool.get();
+    public String getFilter() {
+        return filter;
     }
 
-
     private void joinTables(Realtime server, Callback_list init) {
-        server.checkDataSnapshot("human").thenAccept(big ->
+        if(!this.fillHash)
         {
-            if(!ListOperator.this.fillHash) {
-                big.forEach((s, hashMap) ->
+            server.checkDataSnapshotnew(null).thenAccept(big ->
+            {
+                big.forEach((subject, value) ->
                 {
-                    try {
-                        if (hashMap.containsKey("position") && CryptoUtils.decrypt((String) hashMap.get("position")).equals("OPERATOR")) {
+                    switch (subject)
+                    {
+                        case "human":
+                            value.forEach((ph, humanmap) ->
+                            {
+                                HashMap<String, String> humanmap1 = (HashMap<String, String>) humanmap;
+                                try {
+                                    if(CryptoUtils.decrypt(humanmap1.get("position")).equals("OPERATOR")) {
+                                        callbackList.initOperatorr((HashMap<String, Object>) ((HashMap<String, Object>) big.get("OPERATOR").get(ph)).get(ph), big.get("OPERATOR").containsKey(ph));
+                                    }
+                                }catch (Exception nullPointerException)
+                                {
+                                    nullPointerException.printStackTrace();
+                                }
+                            });
 
-                                init.addHashList(hashMap, getMapList());
-
-                        }
-                    } catch (Exception e) {
-                        Toast.makeText(this, "WIFI FAILED CONNECTION", Toast.LENGTH_LONG).show();
-                        throw new RuntimeException(e);
 
                     }
                 });
-            }
-            init.start();
+                callbackList.start();
 
-        });
+            });
+        }
     }
 
-    private boolean isSetData() {
-        return this.fillHash;
+    @Override
+    protected void onStart() {
+        super.onStart();
+        FilterBy();
+    }
+
+    private  void FilterBy()
+    {
+        if(callbackList!=null)
+        {
+            setSearchView();
+
+        }
     }
 
 
@@ -278,32 +316,25 @@ public class ListOperator extends AppCompatActivity {
     }
 
     private void initOpeartor(String email, String ph) {
-        if(!(server.getmDatabase().child("OPERATOR").child(ph) ==null)) {
-            server.checkDataSnapshotnew("OPERATOR"+"/"+ph).thenAccept(big ->
-            {
-                if(big.containsKey(ph)){
-                    operator=new Operator(Category.valueOf(big.get("category").toString()),AREA.valueOf(big.get("area").toString()), String.valueOf(big.get("description")),Float.parseFloat(big.get("rating").toString()),Integer.parseInt(big.get("icon").toString()));
-                }
-            });
-        }else {
 
-            if (!emailsAdded.contains(email))
-                switch (email.replace(" ", "")) {
-                    case "mirham@afeka.ac.il":
-                        operator = new Operator(Category.ENGINEER, AREA.TLV, " COLLEGE OF ENGINEERING  B.SC(SW,MD,MACHINE,ELECTRICITY ,INDUSTRIAL AND MORE)", 3.7f, getRandomIcon());
-                        break;
-                    case "international@mta.ac.il":
-                        operator = new Operator(Category.ENGINEER, AREA.TLV, " the college offers a variety of undergraduate and graduate programs in a variety of fields, including business, computer science, social work, and education.", 0.4f, getRandomIcon());
-                        break;
-                    default:
-                        operator = new Operator(getRandomCategory(), getRandomArea(), " i am professtiona at education", getRandomFloat(), getRandomIcon());
-                        break;
-                }
-            operator.setEmail(email);
-            operator.setPhoneNumber(ph);
-            server.getmDatabase().child("OPERATOR").child(ph).setValue(operator.OperatorMap());
-        }
-            emailsAdded.add(email);
+        Log.d("keye",""+emailsAdded.contains(email));
+
+        if (!emailsAdded.contains(email))
+            switch (email.replace(" ", "")) {
+                case "mirham@afeka.ac.il":
+                    operator = new Operator(Category.ENGINEER, AREA.TLV, " COLLEGE OF ENGINEERING  B.SC(SW,MD,MACHINE,ELECTRICITY ,INDUSTRIAL AND MORE)", 3.7f, getRandomIcon());
+                    break;
+                case "international@mta.ac.il":
+                    operator = new Operator(Category.ENGINEER, AREA.TLV, " the college offers a variety of undergraduate and graduate programs in a variety of fields, including business, computer science, social work, and education.", 0.4f, getRandomIcon());
+                    break;
+                default:
+                    operator = new Operator(getRandomCategory(), getRandomArea(), " i am professtiona at education", getRandomFloat(), getRandomIcon());
+                    break;
+            }
+        operator.setEmail(email);
+        operator.setPhoneNumber(ph);
+        server.getmDatabase().child("OPERATOR").child(ph).setValue(operator.OperatorMap());
+        emailsAdded.add(email);
 
     }
 

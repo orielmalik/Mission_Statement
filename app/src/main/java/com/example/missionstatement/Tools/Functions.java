@@ -123,7 +123,13 @@ public class Functions {
                                         }
         );
     }
-
+    public static Map<String, String> convertToMapOfStrings(Map<String, Object> originalMap) {
+        Map<String, String> resultMap = new HashMap<>();
+        for (Map.Entry<String, Object> entry : originalMap.entrySet()) {
+            resultMap.put(entry.getKey(), String.valueOf(entry.getValue()));
+        }
+        return resultMap;
+    }
     public static boolean isNumeric(String input, String numericPattern) {
         // Regular expression pattern to match numeric values (integers or decimals)
 
@@ -487,15 +493,14 @@ public class Functions {
 //LIST OPERATOR FILTER BY
 
 
-    public  static  boolean filterBy( HashMap<String,String>deatils, SearchView enable,String criteria)
+    public  static  boolean filterBy( String criteria,String value,FragmentProfile fragmentProfile)
     {
         switch (criteria.toLowerCase())
         {
-            case "area":
-            return deatils.get(criteria.toLowerCase()).equalsIgnoreCase(enable.getQuery().toString());
+            case "area":case"email": case "category":
+            return fragmentProfile.getDeatils().get(criteria.toLowerCase()).toString().equals(value);
             case "rating":
-                return isFloatNumber(enable.getQuery().toString())&&Float.parseFloat(deatils.get("rating"))*10000>=Float.parseFloat(enable.getQuery().toString())*10000;
-
+                return isFloatNumber(fragmentProfile.getDeatils().get("rating"))&&Float.parseFloat(fragmentProfile.getDeatils().get("rating"))>=Float.parseFloat(value);
 
         }
         return  false;

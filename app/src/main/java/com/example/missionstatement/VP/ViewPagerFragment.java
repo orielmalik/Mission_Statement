@@ -26,6 +26,8 @@ public class ViewPagerFragment extends Fragment {
     private int initialPosition;
     static int currentPage = 0;
     static int counter = 0;
+    private FloatingActionButton fabClose,fabNext;
+
 
     public static ViewPagerFragment newInstance(List<FragmentProfile> data, int initialPosition) {
         ViewPagerFragment fragment = new ViewPagerFragment();
@@ -50,8 +52,8 @@ public class ViewPagerFragment extends Fragment {
         View view = inflater.inflate(R.layout.viewpager, container, false);
 
         ViewPager2 viewPager = view.findViewById(R.id.viewPager);
-        FloatingActionButton fabClose = view.findViewById(R.id.VP_fab_close);
-        FloatingActionButton fabNext = view.findViewById(R.id.VP_fab_next);
+         fabClose = view.findViewById(R.id.VP_fab_close);
+         fabNext = view.findViewById(R.id.VP_fab_next);
         ViewPagerAdapter adapter = new ViewPagerAdapter(this, data);
         viewPager.setAdapter(adapter);
         viewPager.setCurrentItem(initialPosition);
@@ -62,7 +64,7 @@ public class ViewPagerFragment extends Fragment {
                 super.onPageSelected(position);
                 currentPage = position;
                 Log.d("ViewPagerFragment", "Current position: " + position);
-                Storage.getInstance().showImage(data.get(position).getProfiler(), data.get(position).getDeatils().get("email") + "jpeg.jpg", "OPERATOR");
+                    Storage.getInstance().showImage(data.get(position).getProfiler(), data.get(position).getDeatils().get("email") + "jpeg.jpg", "OPERATOR");
 
                 // Bring ViewPager to the front
                 if (container != null) {
@@ -89,11 +91,18 @@ public class ViewPagerFragment extends Fragment {
                 });
             }
             list.add(data.get(currentPage).getDeatils().get("user"));
-
             server.getmDatabase().child("OPERATOR").child(data.get(currentPage).getDeatils().get("PhoneNumber")).child("clients").setValue(list);
             Toast.makeText(view.getContext(), "Added to request ", Toast.LENGTH_SHORT).show();
         });
 
         return view;
+    }
+
+    public FloatingActionButton getFabClose() {
+        return fabClose;
+    }
+
+    public FloatingActionButton getFabNext() {
+        return fabNext;
     }
 }

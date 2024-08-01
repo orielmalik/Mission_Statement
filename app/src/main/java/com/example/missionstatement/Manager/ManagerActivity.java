@@ -2,9 +2,12 @@ package com.example.missionstatement.Manager;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ProgressBar;
@@ -14,21 +17,34 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.missionstatement.CallBackType.Callback_test;
 import com.example.missionstatement.Firebase.Realtime;
+import com.example.missionstatement.Firebase.Storage;
 import com.example.missionstatement.Fragment.*;
 import com.example.missionstatement.Fragment.FragmentQuest;
 import com.example.missionstatement.GV.GridAdapter;
 import com.example.missionstatement.Menu.Personality_Test;
+import com.example.missionstatement.Objects.Human;
 import com.example.missionstatement.Objects.User;
 import com.example.missionstatement.R;
 import com.example.missionstatement.Tools.CryptoUtils;
 import com.example.missionstatement.Tools.Functions;
+import com.example.missionstatement.VP.ViewPagerFragment;
+import com.google.android.material.button.MaterialButton;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -37,9 +53,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ManagerActivity extends AppCompatActivity {
     private User manager;
-    private FrameLayout frameLayout;
+    private FrameLayout frameLayout,framevp;
     private FragmentQuest fragmentQuest;
     private DataFragment dataFragment;
+    private List<FragmentProfile>data;
     private Callback_test callbackTest;
     private String category;
     private Realtime server;
@@ -49,7 +66,7 @@ public class ManagerActivity extends AppCompatActivity {
     private boolean[] arr;
     AtomicInteger minage,maxage;
     private ProgressBar progressBar;
-    private ViewPager2 vp;
+    private StringBuilder allData;
 
     public interface Callbackk {
         void addCategory(Set<String> set);
@@ -85,10 +102,12 @@ public class ManagerActivity extends AppCompatActivity {
         fragmentQuest = new FragmentQuest();
         dataFragment = new DataFragment();
         arr = new boolean[3];
-        vp=findViewById(R.id.VP_man);
-        makeCallback();
+        framevp=findViewById(R.id.viewPagerContainer);
+        framevp.setVisibility(View.VISIBLE);
+        data=new ArrayList<>();
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.manager_fragment, fragmentQuest).commit();
+        makeCallback();
     }
 
     private void makeCallback() {
@@ -111,7 +130,6 @@ public class ManagerActivity extends AppCompatActivity {
                         getSupportFragmentManager().beginTransaction()
                                 .replace(R.id.manager_fragment, dataFragment).commit();
                         analyze();
-                        makevp();
                         break;
                 }
                 fragmentQuest.getRadioGroup().setVisibility(View.GONE);
@@ -149,10 +167,40 @@ public class ManagerActivity extends AppCompatActivity {
         fragmentQuest.setCallback_test(callbackTest);
     }
 
-    private void makevp(/*List<FragmentProfile>data*/) {
-        vp.setVisibility(View.VISIBLE);
+    private void makevp()
+    {
+        if(data.isEmpty())
+        {
+            return;
+        }
+        ViewPagerFragment viewPagerFragment = ViewPagerFragment.newInstance(data, 0);
+        if(viewPagerFragment.getFabClose()!=null&&viewPagerFragment.getFabNext()!=null) {
+            viewPagerFragment.getFabClose().setVisibility(View.GONE);
+            viewPagerFragment.getFabNext().setVisibility(View.GONE);
+        }
+        if(data==null)
+        {
+            return;
+        }
+        showViewPager(0,data,viewPagerFragment);
+
+
 
     }
+    private void showViewPager(int position, List<FragmentProfile> data,  ViewPagerFragment viewPagerFragment ) {
+        String tag = "VIEW_PAGER_FRAGMENT" + position;
+
+        ViewPagerFragment existingFragment = (ViewPagerFragment) getSupportFragmentManager().findFragmentByTag(tag);
+
+        if (existingFragment == null || !existingFragment.isAdded()) {
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.viewPagerContainer, viewPagerFragment, tag) // השתמש ב-ID של ה-FrameLayout כאן
+                    .addToBackStack(null)
+                    .commit();
+        }
+    }
+
 
     private void makeOptions(RadioGroup radioGroup) {
         radioGroup.setVisibility(View.VISIBLE);
@@ -184,7 +232,7 @@ public class ManagerActivity extends AppCompatActivity {
             public void addCategory(Set<String> set) {
                 setCategory(Functions.findMostFrequent(set));
                 arr[0] = true;
-                gridVieFill(dataFragment.getGridView(), dataFragment.getContext(), dataFragment.getData(), new String[]{"FrequentCategory", getCategory()});
+               gridVieFill(dataFragment.getGridView(), dataFragment.getContext(), dataFragment.getData(), new String[]{"FrequentCategory", getCategory()});
                 Log.d("level tag", getCategory());
             }
 
@@ -192,7 +240,7 @@ public class ManagerActivity extends AppCompatActivity {
             public void maxRating(Set<Float> set) {
                 setMaxRating(Functions.findMaxInSet(set));
                 arr[1] = true;
-                gridVieFill(dataFragment.getGridView(), dataFragment.getContext(), dataFragment.getData(), new String[]{"MaxRating", operator[1] + " sum " + getMaxClients()});
+             gridVieFill(dataFragment.getGridView(), dataFragment.getContext(), dataFragment.getData(), new String[]{"MaxRating", operator[1] + " sum " + getMaxClients()});
                 Log.d("level tag", "" + getMaxRating());
             }
 
@@ -200,7 +248,7 @@ public class ManagerActivity extends AppCompatActivity {
             public void maxClients(List<Integer> clientsize) {
                 setMaxClients(Functions.findMaxInList(clientsize));
                 arr[2] = true;
-                gridVieFill(dataFragment.getGridView(), dataFragment.getContext(), dataFragment.getData(), new String[]{"MaxClient", operator[0] + " count " + getMaxClients()});
+               gridVieFill(dataFragment.getGridView(), dataFragment.getContext(), dataFragment.getData(), new String[]{"MaxClient", operator[0] + " count " + getMaxClients()});
                 Log.d("level tag", "" + getMaxClients());
             }
 
@@ -211,10 +259,10 @@ public class ManagerActivity extends AppCompatActivity {
             @Override
             public void gridVieFill(GridView gridView, Context context, List<String[]> lst, String[] arr) {
                 List<String[]> data = new ArrayList<>(lst);
-                lst.add(new String[]{" Most common Results category", getCategory()});
-                lst.add(new String[]{" Max rating ", "operator" + getOperator()[0] + " number " + String.valueOf(getMaxRating())});
-                lst.add(new String[]{" Max Clients ", "operator" + getOperator()[1] + " number " + String.valueOf(getMaxClients())});
-                lst.add(new String[]{" Max/Min USER Age ",maxage.get()+"/"+minage.get() });
+                lst.add(new String[]{" Most common Results category ", getCategory()});
+                lst.add(new String[]{" Max rating ", " operator " + getOperator()[0] + " number " + (getMaxRating())});
+                lst.add(new String[]{" Max Clients ", " operator" + getOperator()[1] + " number " + (getMaxClients())});
+                lst.add(new String[]{" Max/Min USER Age "," " +maxage.get() + "/" + minage.get()});
 
                 GridAdapter adapter = new GridAdapter(context, data);
                 gridView.setAdapter(adapter);
@@ -243,10 +291,12 @@ public class ManagerActivity extends AppCompatActivity {
         List<Integer> clients = new ArrayList<>();
         AtomicInteger indexClient = new AtomicInteger(0);
         AtomicInteger index = new AtomicInteger(0);
-        minage=new AtomicInteger(200);
-        maxage=new AtomicInteger(0);
+        minage = new AtomicInteger(200);
+        maxage = new AtomicInteger(0);
         operator = new String[]{" ", " "};
         dataFragment.setCallbackk(callbackk);
+
+         allData = new StringBuilder();
 
         server.checkDataSnapshotnew(null).thenAccept(big -> {
             big.forEach((s, hashMap) -> {
@@ -256,6 +306,7 @@ public class ManagerActivity extends AppCompatActivity {
                     case "Results":
                         for (Object i : hashMap.values()) {
                             category.add(i.toString());
+                            allData.append("Results: ").append(i.toString()).append("\n");
                             Log.d("key level up", i.toString());
                         }
 
@@ -275,20 +326,31 @@ public class ManagerActivity extends AppCompatActivity {
                                 try {
                                     float a = Float.parseFloat(innermap.get("rating").toString());
                                     floats.add(a);
+                                    allData.append("Operator Rating: ").append(a).append("\n");
                                     if (a * 10000 > index.get() * 10000) {
                                         index.set((int) (a * 10000));
                                     }
+                                    if (!operator[1].isEmpty()) {
+                                        operator[1] = "";
+                                    }
                                     operator[1] += "\n" + key;
-                                } catch (NullPointerException |
-                                         NumberFormatException numberFormatException) {
+                                    FragmentProfile fragmentProfile2 = new FragmentProfile();
+                                    fragmentProfile2.setDeatils(Functions.fromOperatorMap(innermap).OperatorStringMap());
+                                    fragmentProfile2.putOperatorWithHash(fragmentProfile2.getDeatils());
+                                    data.add(fragmentProfile2);
+                                } catch (NullPointerException | NumberFormatException numberFormatException) {
                                     numberFormatException.printStackTrace();
                                     Log.e("key err", numberFormatException.getMessage());
                                 }
                             } else {
                                 Map<String, List<String>> lstmap = (Map<String, List<String>>) value;
                                 clients.add(lstmap.get(key).size());
+                                allData.append("Clients: ").append(lstmap.get(key).size()).append("\n");
                                 if (lstmap.get(key).size() > indexClient.get()) {
                                     indexClient.set(lstmap.get(key).size());
+                                    if (!operator[0].isEmpty()) {
+                                        operator[0] = "";
+                                    }
                                     operator[0] += "\n" + key;
                                 }
                             }
@@ -296,67 +358,82 @@ public class ManagerActivity extends AppCompatActivity {
 
                         callbackk.maxRating(floats);
                         callbackk.maxClients(clients);
-                        dataFragment.setCallbackk(callbackk);
+
                         break;
 
                     case "USER":
-                        big.forEach((key, value) ->{
+                        big.forEach((key, value) -> {
                             try {
-                                int a= Functions.calculateAge(value.get("birthdate").toString());
-                                if(a<minage.get())
-                                {
+                                int a = Functions.calculateAge(value.get("birthdate").toString());
+                                if (a < minage.get()) {
                                     minage.set(a);
                                 }
-                                if(a>maxage.get()) {
+                                if (a > maxage.get()) {
                                     maxage.set(a);
                                 }
+                                allData.append("User Age: ").append(a).append("\n");
                             } catch (ParseException e) {
                                 throw new RuntimeException(e);
                             }
+                        });
+                        break;
 
-                        } );
-
-
-
+                    case "human":
+                        HashMap<String, String> dec = CryptoUtils.decryptHuman((HashMap<String, String>) Functions.convertToMapOfStrings(hashMap));
+                        if ("USER".equals(dec.get("position"))) {
+                            FragmentProfile f = new FragmentProfile();
+                            f.setDeatils(dec);
+                            f.putDeatilsWithHash(f.getDeatils());
+                            data.add(f);
+                            allData.append("USER: ").append(dec.toString()).append("\n");
+                        }
                         break;
                 }
-
             });
-
+makevp();
         });
-
     }
 
-    private void findBy(int state) {
-        switch (state) {
-            case 0:
-                if (!operator[0].isEmpty()) {
-                    String[] split = operator[0].split("\n");
-                    for (String op : split) {
-                        server.checkDataSnapshotnew("human").thenAccept(
-                                big ->
-                                {
-                                    big.forEach((s, hashMap) ->
-                                    {
-                                        try {
-                                            if (hashMap.containsKey("position") && CryptoUtils.decrypt((String) hashMap.get("position")).equals("OPERATOR")&&s.equals(op)) {
 
-                                            }
-                                        } catch (Exception e) {
-                                            Toast.makeText(this, "WIFI FAILED CONNECTION", Toast.LENGTH_LONG).show();
-                                            throw new RuntimeException(e);
+    private static final int REQUEST_CODE = 1;
 
-                                        }
-                                    });
-                                }
-                        );
 
-                    }
-                }
+
+    public void exportToTextFile(String data, Context context) {
+        try {
+            byte[] bytes = data.getBytes();
+            InputStream stream = new ByteArrayInputStream(bytes);
+
+            Storage.getInstance().getStorageReference().child("output" + new Date().toString() + ".txt").putStream(stream)
+                    .addOnSuccessListener(taskSnapshot -> Toast.makeText(context, "File uploaded successfully", Toast.LENGTH_LONG).show())
+                    .addOnFailureListener(e -> {
+                        e.printStackTrace();
+                        Toast.makeText(context, "Error uploading file: " + e.getMessage() + " c " + e.getCause(), Toast.LENGTH_LONG).show();
+                    });
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(context, "Error: " + e.getMessage() + " c " + e.getCause(), Toast.LENGTH_LONG).show();
         }
-
-
     }
+
+    static int clickframevp=0;
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        MaterialButton materialButton=findViewById(R.id.BTN_man);
+        materialButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(allData!=null) {
+                    exportToTextFile(allData.toString(), ManagerActivity.this);
+
+                }
+            }
+        });
+    }
+
     public String getCategory() {
         return category;
     }
