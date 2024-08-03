@@ -1,6 +1,7 @@
 package com.example.missionstatement.Objects;
 
 import android.content.Context;
+import android.os.Environment;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -242,11 +243,12 @@ public class Test  implements Serializable {
     }
 
     public File buildEnd(String name, Context context) {
-        File textFile = new File(context.getExternalFilesDir(null), name);
+        File textFile = new File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), name);
         String content=generateText();
         try (FileOutputStream fos = new FileOutputStream(textFile)) {
             fos.write(content.getBytes());
         } catch (IOException e) {
+            Log.d("test ",e.getMessage());
             return  null;
         }
         return  textFile;

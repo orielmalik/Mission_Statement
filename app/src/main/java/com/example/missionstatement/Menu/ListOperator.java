@@ -126,6 +126,7 @@ public class ListOperator extends AppCompatActivity {
             @Override
             public void addToList(FragmentProfile f) {
                 //f.setVisibility(View.VISIBLE);
+                f.getDeatils().put("user",getUserId());
                 lst.add(f);
             }
 
@@ -153,6 +154,7 @@ public class ListOperator extends AppCompatActivity {
                     fragmentProfile.setDeatils(operator.OperatorStringMap());
                 }
                 Log.d("mapOperator",fragmentProfile.getDeatils().toString());
+                fragmentProfile.getDeatils().put("user",getUserId());
                 getLst().add(fragmentProfile);
 
             }
@@ -176,23 +178,6 @@ public class ListOperator extends AppCompatActivity {
 
                 }  }
 
-            @Override
-            public void addHashList(HashMap<String, String> map, List<Map<String, String>> lst) {
-                lst.add(map);
-
-            }
-
-            @Override
-            public void cleanup(List<FragmentProfile> list) {
-                for (FragmentProfile f : list) {
-                    f.setAdded(false);
-                }
-            }
-
-            @Override
-            public Operator containsData(String ph, String email) {
-                return null;
-            }
 
             @Override
             public void setFilter(String filter) {

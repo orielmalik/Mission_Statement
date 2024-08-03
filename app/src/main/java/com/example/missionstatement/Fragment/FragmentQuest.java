@@ -105,11 +105,7 @@ public class FragmentQuest extends Fragment {
 
                                 break;
                             }
-                            if(callback_test.state()==1&&button.getText().toString()!=null&&!button.getText().toString().isEmpty()&&(callback_test.isFirst()&&!Functions.isNonNegativeNumber(button.getText().toString())))
-                            {
-                                callback_test.ToastFrom("MUST CHOOSE NUMBER >0 ");
-                                return;
-                            }
+
                         }
                         if (callback_test.getCounterQuestion(counter+1)&&callback_test.state()==0) {
                             counter++;
@@ -122,8 +118,7 @@ public class FragmentQuest extends Fragment {
                             for (int i = 0; i < getRadioGroup().getChildCount(); i++) {
                                 callback_test.setAnswer(((RadioButton) (getRadioGroup().getChildAt(i))).getText().toString(), i);
                             }
-                            counter++;
-                            callback_test.getCounterQuestion(counter-1);                        }
+                                               }
                         Log.d("counter", "onClickCounter: " + counter);
                     } else {
                         // Handle the case when no radio button is selected

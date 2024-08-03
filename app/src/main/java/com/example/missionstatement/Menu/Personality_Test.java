@@ -44,6 +44,7 @@ import java.io.File;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
@@ -94,7 +95,7 @@ public class Personality_Test extends AppCompatActivity {
             if (test.getAnswers() == null) {
                 return;
             }
-            String[]answers= (String[]) test.getAnswers().get(mycounter ).toArray();
+            String[]answers= (String[]) test.getAnswers().get(mycounter).toArray();
             for (int i = 0; i < radioGroup.getChildCount(); i++) {
                 View view = radioGroup.getChildAt(i);
                 if (view instanceof RadioButton) {
@@ -102,8 +103,6 @@ public class Personality_Test extends AppCompatActivity {
 
                     if (answers[i] != null) {
                         radioButton.setText(answers[i]);
-                    } else if (test.getAnswers().get(mycounter - 1).toArray()[i] == null && user.isManager()) {
-                        radioButton.setText("");
                     } else {
                         radioButton.setVisibility(View.INVISIBLE);
 
@@ -155,27 +154,19 @@ public class Personality_Test extends AppCompatActivity {
                     return  false;
                 }else{return  false;}
             }else {
-
-                if (counter > 0 || counter < 9) {
-                    mycounter = counter;
-                    boolean b= subject.getText().equals("Give points \n to every question Before")&&mycounter==1;
-                    if(!b)
-                    {
-                        test.getQuestions().add(subject.getText().toString());
-                        NewQuestion();
-                    }
-                    else {
-                        uploadAnswers(fragmentQuest.getRadioGroup());//only check Number format
-                        Toast.makeText(Personality_Test.this, "question number "+counter, Toast.LENGTH_SHORT).show();
-                    }
-                }
-                else if(counter>8)
+                if(counter>1)
                 {
-                    uploadGenerateTest(test);
-                }
+                    subject.setText("");
+                    questEditText.setVisibility(View.VISIBLE);
+                    Functions.RemovePrestentedText(questEditText);
+                    subject.setText(questEditText.getText().toString());
 
-            }
-            return true;
+                }
+                if(counter==8)
+                {
+                  uploadGenerateTest(test);
+                }
+              return  true;}
         }
 
 
@@ -183,23 +174,26 @@ public class Personality_Test extends AppCompatActivity {
         public void setAnswer(String string, int i) {
             if (user.isManager()) {
                 String[] arr = new String[4];
-
-                int[]pointsPerAnswer;
+                int[]pointsPerAnswer=new int[4];
                 if(test.pointsPerAnswer==null)
                 {
                     test.setPointsPerAnswer(new ArrayList<>());
                 }
-                pointsPerAnswer= Functions.convertListToArray(test.getPointsPerAnswer());
+               // pointsPerAnswer= Functions.convertListToArray(test.getPointsPerAnswer());
                 if(subject.getText().equals("Give points \n to every question Before"))
                 {
                     try {
                         pointsPerAnswer[i] = Integer.parseInt(string);
-                        Toast.makeText(Personality_Test.this, "Question is  "+mycounter, Toast.LENGTH_LONG).show();
+                        this.ToastFrom(""+i);
                     }catch (NumberFormatException numberFormatException)
                     {
                         numberFormatException.printStackTrace();
-                        Toast.makeText(Personality_Test.this, numberFormatException.getMessage(), Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(Personality_Test.this, numberFormatException.getMessage(), Toast.LENGTH_SHORT).show();
+                        this.ToastFrom(numberFormatException.getMessage());
+                        return;
                     }
+                    this.getCounterQuestion(test.getQuestions().size());
+
                 }//start
                 else {
                     if(test.getAnswers()==null)
@@ -212,31 +206,27 @@ public class Personality_Test extends AppCompatActivity {
                     }
                     arr[i] = string;
                     boolean k=false;
-                    for (int j = 0; j <arr.length ; j++) {
-                        if(arr[j]==null)
-                        {
-                            k=true;
-                        }
-                    }
+
                     if(!k) {
                         String qu=subject.getText().toString();
-                        if(Functions.checkQuestion(subject.getText().toString(),test))
-                        {
+
                             if(!qu.endsWith("?"))
                             {
                                 qu+='?';
                             }
                             test.getAnswers().add(Arrays.asList(arr));
                             test.getQuestions().add(subject.getText().toString());
-
-                        }else {
-                            Toast.makeText(Personality_Test.this, "Questions can be same to previous questions ", Toast.LENGTH_SHORT).show();
-                            return;
+                            mycounter++;
+                            if(Arrays.asList(test.getAnswers()).contains(null)||test.getAnswers()==null) {
+                                this.ToastFrom("CANT BE EMPTY TEXTFIELD");
+                            }else {
+                                this.getCounterQuestion(test.getQuestions().size());
+                            }
                         }
                     }
                 }//middle
 
-            }
+
         }
 
         @Override
@@ -264,15 +254,21 @@ public class Personality_Test extends AppCompatActivity {
     };
 
     private void uploadGenerateTest(Test test) {
-        if(user.isManager()&&test.getQuestions().size()>7&&test.getAnswers().size()>7)
-            test.setFileLocation(storage.getStorageReference().child("TEST").child("EDUCATION").child(Functions.sanitizeKey(getRandomCategory().name()+"Test"+((int)(Math.random()*88+22)))));
-        File f=test.buildEnd(test.getFileLocation()+".txt",this);
-        storage.uploadTextFile(test.getFileLocation(),this,f);
+
+        if(user.isManager()&&test.getQuestions().size()>7&&test.getAnswers().size()>7){
+        File f=test.buildEnd(getRandomCategory()+"test"+UUID.randomUUID()+".txt",this);
+        Log.d("fb",Storage.getInstance().getStorageReference().child("Test").getPath());
+       Storage.getInstance().uploadTextFile(Storage.getInstance().getStorageReference().child("Test").child("EDUCATION"), this,f);}
+        else {
+            Toast.makeText(this, "PROBLEM AT UPLOAD", Toast.LENGTH_SHORT).show();
+        }
     }
     public Category getRandomCategory() {
         Category[] categories = Category.values();
         Random random = new Random();
         int index = random.nextInt(categories.length);
+
+
         return categories[index];
     }
 
@@ -462,7 +458,6 @@ public class Personality_Test extends AppCompatActivity {
         if(!user.isManager()) {
             buildTest();
         }else {
-            mycounter=0;
             subject.setText("Give points \n to every question Before");
             test=new Test();
             test.buildStart();

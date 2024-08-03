@@ -493,17 +493,37 @@ public class Functions {
 //LIST OPERATOR FILTER BY
 
 
-    public  static  boolean filterBy( String criteria,String value,FragmentProfile fragmentProfile)
-    {
+    public  static  boolean filterBy( String criteria,String value,FragmentProfile fragmentProfile) {
+        if (value.replace(" ", "").equalsIgnoreCase("TELAVIV"))
+        {
+            value ="TLV";
+        }
+
         switch (criteria.toLowerCase())
         {
-            case "area":case"email": case "category":
-            return fragmentProfile.getDeatils().get(criteria.toLowerCase()).toString().equals(value);
+            case "area": case"email": case "category":
+            return fragmentProfile.getDeatils().get(criteria.toLowerCase()).toString().replace("_","").equalsIgnoreCase(value.replace(" ",""));
             case "rating":
                 return isFloatNumber(fragmentProfile.getDeatils().get("rating"))&&Float.parseFloat(fragmentProfile.getDeatils().get("rating"))>=Float.parseFloat(value);
 
         }
         return  false;
+    }
+    private boolean matchesCriteria(String data, String value) {
+        // הסרת רווחים ותווים מיוחדים
+        String normalizedData = normalizeString(data);
+        String normalizedValue = normalizeString(value);
+
+        // התאמה חסרת רגישות לאותיות גדולות או קטנות
+        Pattern pattern = Pattern.compile(Pattern.quote(normalizedValue), Pattern.CASE_INSENSITIVE);
+        return pattern.matcher(normalizedData).find();
+    }
+
+    private String normalizeString(String input) {
+        if (input == null) {
+            return "";
+        }
+        return input.replaceAll("[^a-zA-Z0-9]", "").toLowerCase();
     }
     public  static Category isContains(String con)
     {
@@ -613,7 +633,7 @@ public class Functions {
             return !test.getQuestions().stream().anyMatch(question::equals)&&question!=null&&!question.isEmpty();
 
         }
-        return question!=null&&!question.isEmpty();
+        return false;
     }
 
 

@@ -21,6 +21,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.ListResult;
+import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
@@ -186,15 +187,23 @@ private static int counter=0;//know when the first time user upload to states
 
     public void uploadTextFile(StorageReference filePath,Context context,File f)
     {
+        if (filePath == null || context == null || f == null) {
+            Log.e("uploadTextFile", "One of the parameters is null");
+            Toast.makeText(context, "NULL PARAM", Toast.LENGTH_SHORT).show();
+            return;
+        }
         Uri fileUri = Uri.fromFile(f);
+        StorageMetadata metadata = new StorageMetadata.Builder()
+                .setContentType("text/plain")
+                .build();
 
-        UploadTask uploadTask = filePath.putFile(fileUri);
+        UploadTask uploadTask = filePath.putFile(fileUri,metadata);
         uploadTask.addOnSuccessListener(taskSnapshot -> {
             Toast.makeText(context, "File uploaded successfully", Toast.LENGTH_SHORT).show();
         }).addOnFailureListener(e -> {
             Toast.makeText(context, "File upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         });
-    }
+     }
     }
 
 

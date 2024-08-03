@@ -160,31 +160,24 @@ public class Login extends AppCompatActivity {
         forgetpassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                clicked=0;
-                back.setVisibility(View.VISIBLE);
-                forgetpassword.setVisibility(View.INVISIBLE);//change fragment to state he change password
-                fragmentLogin.Showpassword();
-                String[]arr=new String[]{"oriel.malik@gmail.com","oriel.malik@gmail.com","MISSION STATEMENT","human"};
-                startActivity(Functions.sendEmail(arr));
+             /*   server.checkDataSnapshot("human").thenAccept(big ->
+                {
+                    if(big.containsKey())
+                    clicked=0;
+                    back.setVisibility(View.VISIBLE);
+                    forgetpassword.setVisibility(View.INVISIBLE);//change fragment to state he change password
+                    fragmentLogin.Showpassword();
+                    String[]arr=new String[]{"oriel.malik@gmail.com","oriel.malik@gmail.com","MISSION STATEMENT","human"};
+                    startActivity(Functions.sendEmail(arr));
+
+                });*/
 
             }
         });
 
     }
 
-    public void sendEmail(String recipientEmail, String subject, String message) {
-        Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
-        emailIntent.setData(Uri.parse("mailto:" + recipientEmail));
-        emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
-        emailIntent.putExtra(Intent.EXTRA_TEXT, message);
 
-        // Check if there's an email client available to handle the intent
-        if (emailIntent.resolveActivity(getPackageManager()) != null) {
-            startActivity(emailIntent);
-        } else {
-            // Handle the case where no email client is available (e.g., show an error message)
-        }
-    }
 
 
 

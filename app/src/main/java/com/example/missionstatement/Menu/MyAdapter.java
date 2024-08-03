@@ -112,10 +112,11 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
 
         if (existingFragment == null || !existingFragment.isAdded()) {
             ViewPagerFragment viewPagerFragment = ViewPagerFragment.newInstance(data, position);
-            fragmentManager.beginTransaction()
+            fragmentManager.beginTransaction() .hide(data.get(position))
                     .replace(R.id.fragmentContainer, viewPagerFragment, tag)
                     .addToBackStack(null)
                     .commit();
+
 
         }
 

@@ -103,7 +103,6 @@ public class ManagerActivity extends AppCompatActivity {
         dataFragment = new DataFragment();
         arr = new boolean[3];
         framevp=findViewById(R.id.viewPagerContainer);
-        framevp.setVisibility(View.VISIBLE);
         data=new ArrayList<>();
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.manager_fragment, fragmentQuest).commit();
@@ -128,7 +127,8 @@ public class ManagerActivity extends AppCompatActivity {
                         break;
                     case 1:
                         getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.manager_fragment, dataFragment).commit();
+                                .replace(R.id.manager_fragment, dataFragment)
+                                .hide(fragmentQuest).commit();
                         analyze();
                         break;
                 }
@@ -169,7 +169,8 @@ public class ManagerActivity extends AppCompatActivity {
 
     private void makevp()
     {
-        if(data.isEmpty())
+        framevp.setVisibility(View.VISIBLE);
+        if(data == null || data.isEmpty())
         {
             return;
         }
@@ -178,10 +179,7 @@ public class ManagerActivity extends AppCompatActivity {
             viewPagerFragment.getFabClose().setVisibility(View.GONE);
             viewPagerFragment.getFabNext().setVisibility(View.GONE);
         }
-        if(data==null)
-        {
-            return;
-        }
+
         showViewPager(0,data,viewPagerFragment);
 
 
@@ -195,7 +193,7 @@ public class ManagerActivity extends AppCompatActivity {
         if (existingFragment == null || !existingFragment.isAdded()) {
 
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.viewPagerContainer, viewPagerFragment, tag) // השתמש ב-ID של ה-FrameLayout כאן
+                    .add(R.id.viewPagerContainer, viewPagerFragment, tag) // השתמש ב-ID של ה-FrameLayout כאן
                     .addToBackStack(null)
                     .commit();
         }
@@ -232,7 +230,7 @@ public class ManagerActivity extends AppCompatActivity {
             public void addCategory(Set<String> set) {
                 setCategory(Functions.findMostFrequent(set));
                 arr[0] = true;
-               gridVieFill(dataFragment.getGridView(), dataFragment.getContext(), dataFragment.getData(), new String[]{"FrequentCategory", getCategory()});
+                gridVieFill(dataFragment.getGridView(), dataFragment.getContext(), dataFragment.getData(), new String[]{"FrequentCategory", getCategory()});
                 Log.d("level tag", getCategory());
             }
 
@@ -240,7 +238,7 @@ public class ManagerActivity extends AppCompatActivity {
             public void maxRating(Set<Float> set) {
                 setMaxRating(Functions.findMaxInSet(set));
                 arr[1] = true;
-             gridVieFill(dataFragment.getGridView(), dataFragment.getContext(), dataFragment.getData(), new String[]{"MaxRating", operator[1] + " sum " + getMaxClients()});
+                gridVieFill(dataFragment.getGridView(), dataFragment.getContext(), dataFragment.getData(), new String[]{"MaxRating", operator[1] + " sum " + getMaxClients()});
                 Log.d("level tag", "" + getMaxRating());
             }
 
@@ -248,7 +246,7 @@ public class ManagerActivity extends AppCompatActivity {
             public void maxClients(List<Integer> clientsize) {
                 setMaxClients(Functions.findMaxInList(clientsize));
                 arr[2] = true;
-               gridVieFill(dataFragment.getGridView(), dataFragment.getContext(), dataFragment.getData(), new String[]{"MaxClient", operator[0] + " count " + getMaxClients()});
+                gridVieFill(dataFragment.getGridView(), dataFragment.getContext(), dataFragment.getData(), new String[]{"MaxClient", operator[0] + " count " + getMaxClients()});
                 Log.d("level tag", "" + getMaxClients());
             }
 
@@ -262,7 +260,7 @@ public class ManagerActivity extends AppCompatActivity {
                 lst.add(new String[]{" Most common Results category ", getCategory()});
                 lst.add(new String[]{" Max rating ", " operator " + getOperator()[0] + " number " + (getMaxRating())});
                 lst.add(new String[]{" Max Clients ", " operator" + getOperator()[1] + " number " + (getMaxClients())});
-                lst.add(new String[]{" Max/Min USER Age "," " +maxage.get() + "/" + minage.get()});
+                lst.add(new String[]{" Max/Min USER Age ", " " + maxage.get() + "/" + minage.get()});
 
                 GridAdapter adapter = new GridAdapter(context, data);
                 gridView.setAdapter(adapter);
@@ -278,6 +276,8 @@ public class ManagerActivity extends AppCompatActivity {
                 if (arr[0] || arr[1] || arr[2]) {
                     // Hide progress bar
                     progressBar.setVisibility(View.GONE);
+                    // Show ViewPager when data is ready
+                    makevp();
                 } else {
                     Log.d("level tag", "" + arr[0] + arr[1] + arr[2] + getMaxClients() + getCategory());
                 }
@@ -285,7 +285,7 @@ public class ManagerActivity extends AppCompatActivity {
         };
 
         // Show progress bar while loading
-        progressBar.setVisibility(View.GONE);
+        //progressBar.setVisibility(View.VISIBLE);
         Set<String> category = new HashSet<>();
         Set<Float> floats = new HashSet<>();
         List<Integer> clients = new ArrayList<>();
@@ -296,7 +296,7 @@ public class ManagerActivity extends AppCompatActivity {
         operator = new String[]{" ", " "};
         dataFragment.setCallbackk(callbackk);
 
-         allData = new StringBuilder();
+        allData = new StringBuilder();
 
         server.checkDataSnapshotnew(null).thenAccept(big -> {
             big.forEach((s, hashMap) -> {
@@ -390,10 +390,8 @@ public class ManagerActivity extends AppCompatActivity {
                         break;
                 }
             });
-makevp();
         });
     }
-
 
     private static final int REQUEST_CODE = 1;
 
@@ -419,8 +417,8 @@ makevp();
 
     static int clickframevp=0;
     @Override
-    protected void onStart() {
-        super.onStart();
+    protected void onResume() {
+        super.onResume();
 
         MaterialButton materialButton=findViewById(R.id.BTN_man);
         materialButton.setOnClickListener(new View.OnClickListener() {
