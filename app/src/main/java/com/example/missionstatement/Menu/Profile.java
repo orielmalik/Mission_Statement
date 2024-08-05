@@ -84,6 +84,7 @@ public class Profile extends AppCompatActivity {
         server = new Realtime(this);
         fragmentProfile = new FragmentProfile();
         fragmentRegister = new FragmentRegister();
+        fragmentRegister.putDeatilsWithHash(deatils);
         ChangeButton = findViewById(R.id.profile_changeDetails);
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.myProfile, fragmentProfile)
@@ -124,7 +125,16 @@ public class Profile extends AppCompatActivity {
         }
     };
 
-
+    private  void  findHuman()
+    {
+        server.checkDataSnapshot("human").thenAccept(big ->
+        {
+            if(big.containsKey(deatils.get("PhoneNumber")))
+            {
+              setDeatils(CryptoUtils.decryptHuman( big.get(deatils.get("PhoneNumber"))));
+            }
+        });
+    }
     private void makeBtn() {
         if (clickCount == 0) {
             storage.showImage(fragmentProfile.getProfiler(), child, deatils.get("position"));
@@ -227,7 +237,7 @@ public class Profile extends AppCompatActivity {
                 }
                 else {
                     String pos=deatils.get("position");
-                     String gender=deatils.get("Gender");
+                    String gender=deatils.get("Gender");
                     deatils = CryptoUtils.encryptHuman((HashMap<String, String>)
                             fragmentRegister.createHuman().toMap());
                     try {
@@ -303,7 +313,9 @@ public class Profile extends AppCompatActivity {
 
     }
 
-
+    public void setDeatils(HashMap<String, String> deatils) {
+        this.deatils = deatils;
+    }
 
     @Override
     protected void onStart() {

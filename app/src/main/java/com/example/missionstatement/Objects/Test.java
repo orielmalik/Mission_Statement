@@ -99,13 +99,13 @@ public class Test  implements Serializable {
 
         for (int i = 1; i < questions.size(); i++) {
             String question = questions.get(i);
-            String[] ans = (String[]) answers.get(i).toArray();
+            String[] ans =  answers.get(i).toArray(new String[0]);
 
             text.append(i).append(".").append(question).append(" (");
 
             for (int j = 0; j < ans.length; j++) {
                 text.append(ans[j]);
-                if (j < ans.length - 1) {
+                if (j <3&&ans[j]!=null&&!ans[j].isEmpty()) {
                     text.append(", ");
                 }
             }
@@ -116,11 +116,12 @@ public class Test  implements Serializable {
         text.append("{");
 
         for (int i = 0; i < pointsPerAnswer.size(); i++) {
-            text.append(pointsPerAnswer.get(i));
-            if (i < pointsPerAnswer.get(i) - 1) {
-                text.append(", ");
+            text.append(pointsPerAnswer.get(i).intValue());
+            if(i!=pointsPerAnswer.size()-1) {
+                text.append(",");
             }
-        }
+            }
+
 
         text.append("}");
 

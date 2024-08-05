@@ -27,6 +27,7 @@ import com.example.missionstatement.Firebase.Realtime;
 import com.example.missionstatement.Firebase.Storage;
 import com.example.missionstatement.Fragment.FragmentQuest;
 import com.example.missionstatement.HeatmapView;
+import com.example.missionstatement.Manager.ManagerActivity;
 import com.example.missionstatement.Objects.Test;
 import com.example.missionstatement.Objects.User;
 import com.example.missionstatement.R;
@@ -50,6 +51,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class Personality_Test extends AppCompatActivity {
     private FrameLayout frameLayout;
@@ -154,7 +157,8 @@ public class Personality_Test extends AppCompatActivity {
                     return  false;
                 }else{return  false;}
             }else {
-                if(counter>1)
+                this.ToastFrom(counter+"");
+                if(counter<8&&counter>-1)
                 {
                     subject.setText("");
                     questEditText.setVisibility(View.VISIBLE);
@@ -162,72 +166,112 @@ public class Personality_Test extends AppCompatActivity {
                     subject.setText(questEditText.getText().toString());
 
                 }
-                if(counter==8)
+                else
                 {
-                  uploadGenerateTest(test);
+                    uploadGenerateTest(test);
                 }
-              return  true;}
+                return  true;}
         }
 
 
         @Override
         public void setAnswer(String string, int i) {
-            if (user.isManager()) {
+            if (user != null && user.isManager()) {
                 String[] arr = new String[4];
-                int[]pointsPerAnswer=new int[4];
-                if(test.pointsPerAnswer==null)
-                {
+
+                if (test == null) {
+                    Log.e("Debug", "Test is null");
+                    this.ToastFrom("Test is null");
+                    return;
+                }
+
+                if (test.getPointsPerAnswer() == null||test.getPointsPerAnswer().isEmpty()) {
                     test.setPointsPerAnswer(new ArrayList<>());
                 }
-               // pointsPerAnswer= Functions.convertListToArray(test.getPointsPerAnswer());
-                if(subject.getText().equals("Give points \n to every question Before"))
-                {
-                    try {
-                        pointsPerAnswer[i] = Integer.parseInt(string);
-                        this.ToastFrom(""+i);
-                    }catch (NumberFormatException numberFormatException)
+
+                if (subject == null || subject.getText() == null) {
+                    Log.e("Debug", "Subject or subject text is null");
+                    this.ToastFrom("Subject or subject text is null");
+                    return;
+                }
+
+                if (test.getAnswers().size()==0)
                     {
-                        numberFormatException.printStackTrace();
-                        //Toast.makeText(Personality_Test.this, numberFormatException.getMessage(), Toast.LENGTH_SHORT).show();
+                    try {
+                        test.getPointsPerAnswer().add(new Integer(Integer.parseInt(string)));
+                    } catch (NumberFormatException numberFormatException) {
+                        Log.e("Debug", "Number format exception: " + numberFormatException.getMessage());
                         this.ToastFrom(numberFormatException.getMessage());
                         return;
                     }
-                    this.getCounterQuestion(test.getQuestions().size());
+                    if(i==3) {
+                        if (test.getAnswers() == null || test.getAnswers().isEmpty()) {
+                            test.setAnswers(new ArrayList<>());
+                            List<String> initialAnswers = Arrays.asList("", "", "", "");
+                            test.getAnswers().add(new ArrayList<>(initialAnswers));
+                            this.ToastFrom("size " + test.getAnswers().size());
+                        }
+                        this.getCounterQuestion(0);
 
-                }//start
-                else {
-                    if(test.getAnswers()==null)
-                    {
-                        test.setAnswers(new ArrayList<>());
-                    }
-                    if(test.getQuestions()==null)
-                    {
+                    }  }
+
+                    if (test.getQuestions() == null) {
                         test.setQuestions(new ArrayList<>());
                     }
+
                     arr[i] = string;
-                    boolean k=false;
+                    boolean k = false;
 
-                    if(!k) {
-                        String qu=subject.getText().toString();
+                    if (!k) {
+                        String qu = subject.getText().toString();
+                        if (!qu.endsWith("?")) {
+                            qu += '?';
+                        }
 
-                            if(!qu.endsWith("?"))
-                            {
-                                qu+='?';
+                        int size =0;
+                        if(!(test.getAnswers().size()<1))
+                        {
+                            size=test.getAnswers().size()-1;
+                        }
+                        this.ToastFrom("size of test "+size);
+                        try {
+                            test.getAnswers().get(size).add(i, string);
+                        } catch (IndexOutOfBoundsException e) {
+                            Log.e("Debug", "Index out of bounds: " + e.getMessage());
+                            this.ToastFrom("Index out of bounds: " + e.getMessage());
+                            return;
+                        }
+                        if (i == 3) {
+                            test.getQuestions().add(qu);
+
+                            for (List<String> answersList : test.getAnswers()) {
+                                if (answersList == null) {
+                                    Log.e("Debug", "One of the answers lists is null");
+                                    this.ToastFrom("CANT BE EMPTY TEXTFIELD");
+                                    return;
+                                }
+                                for (String answer : answersList) {
+                                    if (answer == null) {
+                                        Log.e("Debug", "One of the answers is null");
+                                        this.ToastFrom("CANT BE EMPTY TEXTFIELD");
+                                        return;
+                                    }
+                                }
                             }
-                            test.getAnswers().add(Arrays.asList(arr));
-                            test.getQuestions().add(subject.getText().toString());
-                            mycounter++;
-                            if(Arrays.asList(test.getAnswers()).contains(null)||test.getAnswers()==null) {
-                                this.ToastFrom("CANT BE EMPTY TEXTFIELD");
-                            }else {
-                                this.getCounterQuestion(test.getQuestions().size());
-                            }
+
+                            List<String> newAnswers = Arrays.asList("", "", "", "");
+                            test.getAnswers().add(new ArrayList<>(newAnswers));
+                            this.getCounterQuestion(test.getQuestions().size());
                         }
                     }
-                }//middle
+            } else {
+                Log.e("Debug", "User is null or not a manager");
+                this.ToastFrom("User is null or not a manager");
 
-
+            }
         }
+
+
 
         @Override
         public boolean canStartBuildTest() {
@@ -255,14 +299,14 @@ public class Personality_Test extends AppCompatActivity {
 
     private void uploadGenerateTest(Test test) {
 
-        if(user.isManager()&&test.getQuestions().size()>7&&test.getAnswers().size()>7){
-        File f=test.buildEnd(getRandomCategory()+"test"+UUID.randomUUID()+".txt",this);
-        Log.d("fb",Storage.getInstance().getStorageReference().child("Test").getPath());
-       Storage.getInstance().uploadTextFile(Storage.getInstance().getStorageReference().child("Test").child("EDUCATION"), this,f);}
-        else {
-            Toast.makeText(this, "PROBLEM AT UPLOAD", Toast.LENGTH_SHORT).show();
-        }
+        File f = test.buildEnd(getRandomCategory() + "test" + (Math.random() * 99 + 9) + ".txt", this);
+        Log.d("fb", Storage.getInstance().getStorageReference().child("Test").getPath());
+        Storage.getInstance().uploadTextFile(Storage.getInstance().getStorageReference().child("Test").child("EDUCATION").child(f.getName()), this, f);
+        Intent i=new Intent(this, ManagerActivity.class);
+        startActivity(i);
+
     }
+
     public Category getRandomCategory() {
         Category[] categories = Category.values();
         Random random = new Random();
@@ -380,7 +424,7 @@ public class Personality_Test extends AppCompatActivity {
                 });
         waiter.thenAccept(f->
         {
-           // this.path=f.getPath();
+            // this.path=f.getPath();
             Toast.makeText(this, "START", Toast.LENGTH_SHORT).show();
         });
 

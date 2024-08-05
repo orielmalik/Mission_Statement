@@ -51,6 +51,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 import androidx.core.content.ContextCompat;
 
@@ -297,6 +298,8 @@ public class Functions {
 
         return mostFrequent;
     }
+
+
 
         public static float findMaxInSet(Set<Float> set) {
             return set.stream().max(Float::compare).orElse(Float.NEGATIVE_INFINITY);
@@ -637,7 +640,29 @@ public class Functions {
     }
 
 
-
+    public  static  boolean checkSplitNumners(String[] split)
+    {
+        try {
+            String []arr=split[0].split(",");
+            split[0]="";
+            for (int i = 0; i < arr.length; i++) {
+                if(Pattern.matches("\\d+", arr[i]))
+                {
+                    if(i!=arr.length-1)
+                    {
+                        split[0]+=(arr[i]+",");
+                    }else {
+                        split[0]+=arr[i];
+                    }
+                }
+            }
+        }catch (NullPointerException | PatternSyntaxException e)
+        {
+            e.printStackTrace();
+            return  false;
+        }
+        return  false;
+    }
 
 
 
