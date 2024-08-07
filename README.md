@@ -15,7 +15,3 @@
   - **GridView:** Displays items in a grid layout.
   - **Fragments:** Used to create dynamic and flexible UI designs.
 
-## Installation
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/mission-statement.git
