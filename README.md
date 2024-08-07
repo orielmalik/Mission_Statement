@@ -19,7 +19,7 @@
   - **Firebase Storage:** Allows the app to upload and store user-generated content, such as images, securely in the cloud.
   - **Firebase Realtime Database:** Provides real-time data synchronization, ensuring that the app's data is always up-to-date across all devices.
 
- ```bash
+
 
 You can include the Android Studio and Firebase logos in your README.md file by using Markdown syntax to embed images. You'll need to have the logo images available online or in your repository. Here's the updated README.md content with the logos and the additional details about Firebase Storage and Realtime Database:
 
