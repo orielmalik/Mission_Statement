@@ -44,7 +44,7 @@ private List<String[]>data=new ArrayList<>();
         // Initialize data
 if(callbackk!=null) {
     buttonAction.setOnClickListener(view1 -> {
-        callbackk.gridVieFill(getGridView(), getContext(), getData(), new String[]{"gaya", "Alma"});
+            callbackk.gridVieFill(getGridView(), getContext(), getData(), new String[]{"click", "refresh"});
 
     });
 }

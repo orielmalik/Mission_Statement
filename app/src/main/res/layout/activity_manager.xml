@@ -25,7 +25,7 @@
     <FrameLayout
         android:id="@+id/manager_fragment"
         android:layout_width="match_parent"
-        android:layout_height="270dp" />
+        android:layout_height="300dp" />
 
     <ProgressBar
         android:id="@+id/progress_bar_man"
@@ -36,7 +36,7 @@
         android:indeterminate="true" />
 
     <FrameLayout
-        android:id="@+id/viewPagerContainer"
+        android:id="@+id/viewPagerContainerrMAN"
         android:layout_width="match_parent"
         android:layout_height="230dp"
         android:visibility="gone" />

@@ -39,20 +39,20 @@ public class DinicGraph {
         while (!queue.isEmpty()) {
             int u = queue.poll();
             if(null!=adjList.get(getNodeById(u))){
-            for (Edge edge : adjList.get(getNodeById(u))) {
-                int v = edge.destination.getId();
-                if (level[v] < 0 && flow[u][v] < capacity[u][v]) {
-                    level[v] = level[u] + 1;
-                    queue.add(v);
+                for (Edge edge : adjList.get(getNodeById(u))) {
+                    int v = edge.destination.getId();
+                    if (level[v] < 0 && flow[u][v] < capacity[u][v]) {
+                        level[v] = level[u] + 1;
+                        queue.add(v);
+                    }
                 }
-            }
-        }}
+            }}
         return level[sink] >= 0;
     }
 
     private int dfs(int u, int sink, int minFlow) {
         if (u == sink) return minFlow;
-            if (adjList.get(getNodeById(u))!=null) {
+        if (adjList.get(getNodeById(u))!=null) {
             for (Edge edge : adjList.get(getNodeById(u))) {
                 int v = edge.destination.getId();
                 if (level[v] == level[u] + 1 && flow[u][v] < capacity[u][v]) {

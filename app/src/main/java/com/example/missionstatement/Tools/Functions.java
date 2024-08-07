@@ -39,6 +39,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -305,7 +306,9 @@ public class Functions {
             return set.stream().max(Float::compare).orElse(Float.NEGATIVE_INFINITY);
         }
     public static int findMaxInList(List<Integer> list) {
-        return list.stream().max(Integer::compare).orElse(Integer.MIN_VALUE);
+        return list.stream().max(Integer::compare).orElse(0);
+    }public static int findMinInList(List<Integer> list) {
+        return list.stream().min(Integer::compare).orElse(0);
     }
     public static Intent sendEmail(String[] arr) {
         Intent intent = new Intent(Intent.ACTION_SEND);
@@ -393,24 +396,29 @@ public class Functions {
         test.setPointsPerAnswer((List<Integer>) map.get("pointsPerAnswer"));
         return test;
     }
-    public static int calculateAge(String birthdate) throws  ParseException {
-        DateTimeFormatter formatter = null;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+    public static int calculateAge(String birthdate) {
+        birthdate = birthdate.replaceAll("\\D", "");
+
+        // הנחה: birthdate הוא בפורמט ddMMyyyy אחרי הסרת התווים הלא מספריים
+
+
+        int day = Integer.parseInt(birthdate.substring(0, 2));
+        int month = Integer.parseInt(birthdate.substring(2, 4));
+        int year = Integer.parseInt(birthdate.substring(4, 8));
+
+        Calendar today = Calendar.getInstance();
+        int currentDay = today.get(Calendar.DAY_OF_MONTH);
+        int currentMonth = today.get(Calendar.MONTH) + 1; // החודשים ב-Calendar מתחילים מ-0
+        int currentYear = today.get(Calendar.YEAR);
+
+        int age = currentYear - year;
+
+        if (currentMonth < month || (currentMonth == month && currentDay < day)) {
+            age--;
         }
 
-        LocalDate birthDate = null;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            birthDate = LocalDate.parse(birthdate, formatter);
-        }
-        LocalDate currentDate = null;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            currentDate = LocalDate.now();
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            return Period.between(birthDate, currentDate).getYears();
-        }
-        return  0;
+        return age;
     }
     public static  String toBirthdateFormat(LocalDate date)
     {

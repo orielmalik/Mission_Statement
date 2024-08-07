@@ -26,6 +26,7 @@ public class ViewPagerFragment extends Fragment {
     private int initialPosition;
     static int currentPage = 0;
     static int counter = 0;
+   private ViewPagerAdapter adapter;
     private FloatingActionButton fabClose,fabNext;
 
 
@@ -54,7 +55,7 @@ public class ViewPagerFragment extends Fragment {
         ViewPager2 viewPager = view.findViewById(R.id.viewPager);
         fabClose = view.findViewById(R.id.VP_fab_close);
         fabNext = view.findViewById(R.id.VP_fab_next);
-        ViewPagerAdapter adapter = new ViewPagerAdapter(this, data);
+         adapter = new ViewPagerAdapter(this, data);
         viewPager.setAdapter(adapter);
         viewPager.setCurrentItem(initialPosition);
 
@@ -104,6 +105,10 @@ public class ViewPagerFragment extends Fragment {
 
     public FloatingActionButton getFabClose() {
         return fabClose;
+    }
+
+    public ViewPagerAdapter getAdapter() {
+        return adapter;
     }
 
     public FloatingActionButton getFabNext() {

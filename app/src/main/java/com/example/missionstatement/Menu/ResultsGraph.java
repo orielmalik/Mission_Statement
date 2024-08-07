@@ -293,13 +293,9 @@ ResultsGraph.this.canWrite.set(true);
     private  int  switchcaseAge(Map<String,Object>map)
     {
         int id=-1;
-        try {
+
             id=Functions.calculateAge(map.get("birthdate").toString());
-        } catch (ParseException e) {
-            e.printStackTrace();
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
-            return 0;//default maybe he didnt want to say his age
-        }
+
         if(id<20)
         {
             return 2;

@@ -1,5 +1,6 @@
 package com.example.missionstatement.VP;
 
+import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -27,6 +28,12 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
     @Override
     public int getItemCount() {
         return data.size();
+    }
+
+    public void updateData(List<FragmentProfile> newProfiles) {
+        this.data = newProfiles;
+        Log.d("new",""+data.size());
+        notifyDataSetChanged();
     }
 }
 

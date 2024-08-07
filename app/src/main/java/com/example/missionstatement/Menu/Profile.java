@@ -84,7 +84,7 @@ public class Profile extends AppCompatActivity {
         server = new Realtime(this);
         fragmentProfile = new FragmentProfile();
         fragmentRegister = new FragmentRegister();
-        fragmentRegister.putDeatilsWithHash(deatils);
+      
         ChangeButton = findViewById(R.id.profile_changeDetails);
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.myProfile, fragmentProfile)
