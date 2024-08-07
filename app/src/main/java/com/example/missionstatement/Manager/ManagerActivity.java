@@ -142,7 +142,7 @@ public class ManagerActivity extends AppCompatActivity {
                                 .replace(R.id.manager_fragment, dataFragment)
                                 .hide(fragmentQuest).commit();
                         analyze();
-
+makevp();
                         progressBar.setVisibility(View.GONE);
                         break;
                 }
@@ -279,10 +279,10 @@ public class ManagerActivity extends AppCompatActivity {
             public void gridVieFill(GridView gridView, Context context, List<String[]> lst, String[] arr) {
                 List<String[]> data = new ArrayList<>(lst);
                 lst.add(arr);
-             // lst.add(new String[]{"Max clients"+})
+                // lst.add(new String[]{"Max clients"+})
                 lst.add(new String[]{" Most common Results category ", getCategory()});
-                lst.add(new String[]{" Max rating ", " operator " +operator0.get() + " number " + (getMaxRating())});
-                lst.add(new String[]{" Max clients ", " operator " +operator1.get() + " number " + (getMaxClients())});
+                lst.add(new String[]{" Max rating  ",  operator0.get() + " number " + (getMaxRating())});
+                lst.add(new String[]{" Max clients ", operator1.get() + " number " + (getMaxClients())});
 
                 GridAdapter adapter = new GridAdapter(context, data);
                 gridView.setAdapter(adapter);
@@ -375,14 +375,14 @@ public class ManagerActivity extends AppCompatActivity {
                                 }
                             }
                         });
-callbackk.maxRating(floats,operator1.get());
-callbackk.maxClients(clients,operator0.get());
+                        callbackk.maxRating(floats,operator1.get());
+                        callbackk.maxClients(clients,operator0.get());
                         break;
 
                     case "USER":
                         hashMap.forEach((s1, o) -> {
-                          HashMap<String ,Object>omap = (HashMap<String,Object>)o;
-                           int a = Functions.calculateAge(omap.get("birthdate").toString());
+                            HashMap<String ,Object>omap = (HashMap<String,Object>)o;
+                            int a = Functions.calculateAge(omap.get("birthdate").toString());
                             Log.d("us", "" + a);
                             age.add(a);
                             if (omap.get("driver").toString().equals("true")) {
@@ -415,12 +415,10 @@ callbackk.maxClients(clients,operator0.get());
                         break;
                 }
                 if (counter.decrementAndGet() == 0) {
-                    makevp();
+                    //makevp();
                     Log.d("n", "analyze: "+ Arrays.toString(age.toArray()));
                     progressBar.setVisibility(View.GONE);
-                    callbackk.maxRating(floats,operator0.get());
-                    callbackk.maxClients(clients,operator1.get());
-                    callbackk.makeText("driver count ",""+driverCount.get());
+                    callbackk.makeText("drivers count ",""+driverCount.get());
                     callbackk.makeText("min/max USER  age  ",""+Functions.findMinInList(age)+"/"+Functions.findMaxInList(age));
                     showViewPager(0,getData(),viewPagerFragment);
                 }
